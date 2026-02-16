@@ -1,8 +1,6 @@
 "use client"
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Search, ArrowUpDown } from "lucide-react"
 
 interface SearchBarProps {
   searchQuery: string
@@ -13,27 +11,30 @@ interface SearchBarProps {
 
 export function SearchBar({ searchQuery, onSearchChange, sortBy, onSortChange }: SearchBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6">
+    <div className="flex flex-col sm:flex-row gap-3">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
+        <input
           placeholder="Search businesses..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))] transition-all"
         />
       </div>
-      <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="w-full sm:w-48">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="rating">Highest Rated</SelectItem>
-          <SelectItem value="reviews">Most Reviews</SelectItem>
-          <SelectItem value="newest">Newest</SelectItem>
-          <SelectItem value="deals">Has Deals</SelectItem>
-        </SelectContent>
-      </Select>
+
+      <div className="relative">
+        <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))] pointer-events-none" />
+        <select
+          value={sortBy}
+          onChange={(e) => onSortChange(e.target.value)}
+          className="w-full sm:w-48 pl-10 pr-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))] transition-all appearance-none cursor-pointer"
+        >
+          <option value="rating">Highest Rated</option>
+          <option value="reviews">Most Reviews</option>
+          <option value="newest">Newest</option>
+          <option value="deals">Has Deals</option>
+        </select>
+      </div>
     </div>
   )
 }

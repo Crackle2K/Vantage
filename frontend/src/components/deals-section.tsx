@@ -1,40 +1,104 @@
 "use client"
 
-import { Tag, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { Tag, ArrowRight, Clock, Percent, DollarSign, Loader2 } from "lucide-react"
+import type { Deal } from "@/types"
+import { api } from "@/api"
 
-const deals = [
-  { business: "Sunny Café", offer: "20% off all drinks", expires: "2 days left", color: "bg-chart-3" },
-  { business: "Fresh Cuts Salon", offer: "Free styling with any haircut", expires: "5 days left", color: "bg-chart-2" },
-  { business: "Tech Repair Pro", offer: "$15 off screen repairs", expires: "This week only", color: "bg-chart-1" },
+const colorPalette = [
+  "from-[#D4C2FC] to-[#998FC7]",
+  "from-[#28262C] to-[#D4C2FC]",
+  "from-[#998FC7] to-[#D4C2FC]",
+  "from-[#D4C2FC] to-[#28262C]",
+  "from-[#28262C] to-[#998FC7]",
 ]
 
 export function DealsSection() {
+  const [deals, setDeals] = useState<Deal[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getDeals()
+      .then(data => setDeals(data.filter(d => d.is_active).slice(0, 4)))
+      .catch(() => setDeals([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Tag className="w-5 h-5 text-[#D4C2FC]" />
+          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">Hot Deals</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-28 rounded-xl skeleton" />)}
+        </div>
+      </div>
+    )
+  }
+
+  if (deals.length === 0) return null
+
   return (
-    <div className="mb-8">
+    <div className="mb-8 animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Tag className="w-5 h-5 text-accent" />
-          <h2 className="text-lg font-semibold text-foreground">Special Deals & Coupons</h2>
-        </div>
-        <Button variant="ghost" size="sm" className="text-primary">
-          View All <ArrowRight className="w-4 h-4 ml-1" />
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {deals.map((deal, index) => (
-          <div
-            key={index}
-            className="relative overflow-hidden rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow cursor-pointer"
-          >
-            <div className={`absolute top-0 left-0 w-1.5 h-full ${deal.color}`} />
-            <h3 className="font-semibold text-foreground mb-1">{deal.business}</h3>
-            <p className="text-sm text-muted-foreground mb-2">{deal.offer}</p>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
-              {deal.expires}
-            </span>
+          <div className="w-8 h-8 rounded-lg bg-[#D4C2FC]/15 dark:bg-[#D4C2FC]/20 flex items-center justify-center">
+            <Tag className="w-4 h-4 text-[#D4C2FC] dark:text-[#D4C2FC]" />
           </div>
-        ))}
+          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">Hot Deals</h2>
+        </div>
+        <button className="flex items-center gap-1 text-sm font-medium text-[hsl(var(--primary))] hover:underline">
+          View All <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {deals.map((deal, index) => {
+          const gradient = colorPalette[index % colorPalette.length]
+          const daysLeft = Math.max(0, Math.ceil((new Date(deal.valid_until).getTime() - Date.now()) / 86400000))
+
+          return (
+            <div
+              key={deal.id || deal._id}
+              className="group relative overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            >
+              {/* Gradient accent bar */}
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
+
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#D4C2FC]/10`}>
+                  {deal.discount_type === 'percentage' ? (
+                    <Percent className="w-5 h-5 text-white" />
+                  ) : (
+                    <DollarSign className="w-5 h-5 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm text-[hsl(var(--foreground))] truncate">{deal.title}</h3>
+                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 truncate">{deal.business_name || deal.description}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[hsl(var(--border))]/50">
+                <span className="text-lg font-bold text-[#D4C2FC] dark:text-[#D4C2FC]">
+                  {deal.discount_type === 'percentage' ? `${deal.discount_value}% OFF` : `$${deal.discount_value} OFF`}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                  <Clock className="w-2.5 h-2.5" />
+                  {daysLeft}d left
+                </span>
+              </div>
+
+              {deal.code && (
+                <div className="mt-2 px-2.5 py-1 rounded-lg bg-[hsl(var(--secondary))] text-center">
+                  <span className="text-xs font-mono text-[hsl(var(--muted-foreground))]">Code: <span className="font-semibold text-[hsl(var(--foreground))]">{deal.code}</span></span>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

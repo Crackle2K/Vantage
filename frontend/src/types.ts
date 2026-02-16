@@ -1,7 +1,8 @@
 export type CategoryType = 'food' | 'retail' | 'services' | 'entertainment' | 'health';
 
 export interface Business {
-  id: number;
+  id: string;
+  _id?: string;
   name: string;
   category: CategoryType;
   description: string;
@@ -13,41 +14,61 @@ export interface Business {
   rating: number;
   review_count: number;
   has_deals: boolean;
+  distance?: number;
+  location?: {
+    type: string;
+    coordinates: [number, number];
+  };
 }
 
 export interface Review {
-  id: number;
-  business_id: number;
+  id: string;
+  _id?: string;
+  business_id: string;
+  user_id: string;
   user_name: string;
   rating: number;
   comment: string;
-  date: string;
+  created_at: string;
   verified: boolean;
 }
 
 export interface Deal {
-  id: number;
-  business_id: number;
+  id: string;
+  _id?: string;
+  business_id: string;
+  business_name?: string;
   title: string;
   description: string;
-  discount: string;
+  discount_type: string;
+  discount_value: number;
+  code?: string;
   valid_until: string;
+  is_active: boolean;
 }
 
 export interface ReviewCreate {
-  business_id: number;
-  user_name: string;
+  business_id: string;
   rating: number;
   comment: string;
-  verification_token: string;
-}
-
-export interface VerificationChallenge {
-  question: string;
-  token: string;
 }
 
 export interface Category {
   value: string;
   label: string;
+  icon?: string;
+}
+
+export interface User {
+  id: string;
+  _id?: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'business_owner' | 'admin';
+  created_at?: string;
+}
+
+export interface AuthTokens {
+  access_token: string;
+  token_type: string;
 }
