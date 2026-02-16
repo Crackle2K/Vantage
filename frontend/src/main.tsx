@@ -1,13 +1,29 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import RootLayout from './layout'
+import HomePage from './page'
+import Businesses from './pages/Businesses'
+import LoginPage from './pages/LoginPage'
+import SignUpPage from './pages/SignUpPage'
+import AccountPage from './pages/AccountPage'
 import './index.css'
-import RootLayout from './layout.tsx'
-import HomePage from './page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RootLayout>
-      <HomePage />
-    </RootLayout>
+    <BrowserRouter>
+      <AuthProvider>
+        <RootLayout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/businesses" element={<Businesses />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/account" element={<AccountPage />} />
+          </Routes>
+        </RootLayout>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>,
 )

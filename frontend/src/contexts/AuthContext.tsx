@@ -1,105 +1,100 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
-import type { User, Session, AuthError } from '@supabase/supabase-js'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { api } from '../api';
+import type { User } from '../types';
 
 interface AuthContextType {
-  user: User | null
-  session: Session | null
-  loading: boolean
-  signUp: (email: string, password: string, name: string) => Promise<{ error: AuthError | null }>
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signOut: () => Promise<void>
-  updateProfile: (updates: { name?: string; email?: string }) => Promise<{ error: AuthError | null }>
+  user: User | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (name: string, email: string, password: string, role: string) => Promise<{ error: string | null }>;
+  signOut: () => void;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   loading: true,
-  signUp: async () => ({ error: null }),
   signIn: async () => ({ error: null }),
-  signOut: async () => {},
-  updateProfile: async () => ({ error: null }),
-})
+  signUp: async () => ({ error: null }),
+  signOut: () => {},
+  isAuthenticated: false,
+});
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
-}
+  return context;
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem('localboost_token');
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await api.getMe();
+      setUser(userData);
+    } catch {
+      localStorage.removeItem('localboost_token');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-        },
-      },
-    })
-    return { error }
-  }
+    fetchUser();
+  }, [fetchUser]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error }
-  }
+    try {
+      const tokens = await api.login(email, password);
+      localStorage.setItem('localboost_token', tokens.access_token);
+      await fetchUser();
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Login failed' };
+    }
+  };
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-  }
+  const signUp = async (name: string, email: string, password: string, role: string) => {
+    try {
+      const tokens = await api.register(name, email, password, role);
+      localStorage.setItem('localboost_token', tokens.access_token);
+      await fetchUser();
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Registration failed' };
+    }
+  };
 
-  const updateProfile = async (updates: { name?: string; email?: string }) => {
-    const { error } = await supabase.auth.updateUser({
-      email: updates.email,
-      data: {
-        name: updates.name,
-      },
-    })
-    return { error }
-  }
+  const signOut = () => {
+    localStorage.removeItem('localboost_token');
+    setUser(null);
+  };
 
-  const value = {
-    user,
-    session,
-    loading,
-    signUp,
-    signIn,
-    signOut,
-    updateProfile,
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        isAuthenticated: !!user,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }

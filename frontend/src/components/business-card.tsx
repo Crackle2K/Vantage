@@ -1,103 +1,157 @@
 "use client"
 
-import { useState } from "react"
-import { Star, Heart, Tag } from "lucide-react"
+import { Star, Heart, Tag, MapPin, ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ReviewModal } from "@/components/review-modal"
 
 interface Business {
-  id: string
+  id?: string
+  _id?: string
   name: string
   category: string
   rating: number
-  reviews: number
-  image: string
+  review_count?: number
+  reviews?: number
+  image_url?: string
+  image?: string
   description: string
-  hasDeal: boolean
+  has_deals?: boolean
+  hasDeal?: boolean
   dealText?: string
+  distance?: number
 }
 
 interface BusinessCardProps {
   business: Business
   isFavorite: boolean
   onToggleFavorite: () => void
+  onViewDetails?: () => void
 }
 
-export function BusinessCard({ business, isFavorite, onToggleFavorite }: BusinessCardProps) {
-  const [showReviewModal, setShowReviewModal] = useState(false)
+const categoryColors: Record<string, string> = {
+  food: "from-[#D4C2FC] to-[#998FC7]",
+  retail: "from-[#28262C] to-[#D4C2FC]",
+  services: "from-[#28262C] to-[#998FC7]",
+  entertainment: "from-[#998FC7] to-[#D4C2FC]",
+  health: "from-[#D4C2FC] to-[#28262C]",
+  "Food & Dining": "from-[#D4C2FC] to-[#998FC7]",
+  "Retail": "from-[#28262C] to-[#D4C2FC]",
+  "Beauty & Spa": "from-[#D4C2FC] to-[#28262C]",
+  "Services": "from-[#28262C] to-[#998FC7]",
+  "Coffee & Bakery": "from-[#D4C2FC] to-[#998FC7]",
+  "Fitness": "from-[#998FC7] to-[#D4C2FC]",
+  "Hair & Salon": "from-[#28262C] to-[#D4C2FC]",
+}
+
+export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDetails }: BusinessCardProps) {
+  const rating = business.rating || 0
+  const reviewCount = business.review_count || business.reviews || 0
+  const imageUrl = business.image_url || business.image || ''
+  const hasDeal = business.has_deals || business.hasDeal
+  const gradient = categoryColors[business.category] || "from-[#D4C2FC] to-[#998FC7]"
 
   return (
-    <>
-      <div className="group relative rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg transition-all duration-200">
-        <div className="relative aspect-[3/2] overflow-hidden">
+    <div
+      className="group glass-card rounded-2xl overflow-hidden cursor-pointer"
+      onClick={onViewDetails}
+    >
+      {/* Image */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--secondary))]">
+        {imageUrl ? (
           <img
-            src={business.image || "/placeholder.svg"}
+            src={imageUrl}
             alt={business.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          {business.hasDeal && (
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-accent text-accent-foreground">
-                <Tag className="w-3 h-3 mr-1" />
-                Deal
-              </Badge>
-            </div>
-          )}
-          <button
-            onClick={onToggleFavorite}
-            className={cn(
-              "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-colors",
-              isFavorite ? "bg-destructive text-destructive-foreground" : "bg-card/80 text-foreground hover:bg-card",
-            )}
-          >
-            <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
-          </button>
-        </div>
-
-        <div className="p-4">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                {business.name}
-              </h3>
-              <p className="text-sm text-muted-foreground">{business.category}</p>
-            </div>
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <span className="text-4xl font-bold text-white/80">{business.name[0]}</span>
           </div>
+        )}
 
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{business.description}</p>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {business.hasDeal && business.dealText && (
-            <div className="mb-3 p-2 rounded-lg bg-accent/10 border border-accent/20">
-              <p className="text-xs font-medium text-accent">{business.dealText}</p>
-            </div>
+        {/* Deal badge */}
+        {hasDeal && (
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-[#D4C2FC] hover:bg-[#998FC7] text-white border-0 shadow-lg shadow-[#D4C2FC]/25 gap-1">
+              <Tag className="w-3 h-3" />
+              Deal
+            </Badge>
+          </div>
+        )}
+
+        {/* Favorite */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+          className={cn(
+            "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg",
+            isFavorite
+              ? "bg-red-500 text-white scale-110"
+              : "bg-white/80 dark:bg-black/50 text-[hsl(var(--foreground))] hover:bg-white dark:hover:bg-black/70 backdrop-blur-sm"
           )}
+        >
+          <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+        </button>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "w-4 h-4",
-                      i < Math.floor(business.rating) ? "text-chart-3 fill-chart-3" : "text-muted-foreground",
-                    )}
-                  />
-                ))}
-              </div>
-              <span className="text-sm font-medium text-foreground ml-1">{business.rating}</span>
-              <span className="text-sm text-muted-foreground">({business.reviews})</span>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setShowReviewModal(true)}>
-              Review
-            </Button>
+        {/* View arrow (on hover) */}
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <div className="w-8 h-8 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center">
+            <ArrowUpRight className="w-4 h-4 text-[hsl(var(--foreground))]" />
           </div>
         </div>
       </div>
 
-      <ReviewModal business={business} isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} />
-    </>
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="font-semibold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors line-clamp-1">
+            {business.name}
+          </h3>
+        </div>
+
+        <div className="flex items-center gap-2 mb-2.5">
+          <span className={`inline-block w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`} />
+          <span className="text-xs font-medium text-[hsl(var(--muted-foreground))] capitalize">{business.category}</span>
+          {business.distance !== undefined && (
+            <>
+              <span className="text-[hsl(var(--border))]">|</span>
+              <div className="flex items-center gap-0.5 text-xs text-[hsl(var(--muted-foreground))]">
+                <MapPin className="w-3 h-3" />
+                {business.distance.toFixed(1)} km
+              </div>
+            </>
+          )}
+        </div>
+
+        <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3 line-clamp-2 leading-relaxed">{business.description}</p>
+
+        {business.dealText && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-[#D4C2FC]/10 dark:bg-[#D4C2FC]/15 border border-[#D4C2FC]/25 dark:border-[#D4C2FC]/20">
+            <p className="text-xs font-medium text-[#28262C] dark:text-[#D4C2FC]">{business.dealText}</p>
+          </div>
+        )}
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 pt-3 border-t border-[hsl(var(--border))]/50">
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Star
+                key={i}
+                className={cn(
+                  "w-3.5 h-3.5",
+                  i <= Math.round(rating)
+                    ? "text-amber-400 fill-amber-400"
+                    : "text-[hsl(var(--border))]"
+                )}
+              />
+            ))}
+          </div>
+          <span className="text-sm font-semibold text-[hsl(var(--foreground))]">{rating.toFixed(1)}</span>
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">({reviewCount})</span>
+        </div>
+      </div>
+    </div>
   )
 }
