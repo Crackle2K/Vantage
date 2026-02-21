@@ -1,30 +1,41 @@
 import { useState, useEffect, useRef } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { NeuralNetwork } from "@/components/NeuralNetwork"
-import {
-  MapPin, Store, TrendingUp, Star, Search, Tag, ArrowRight,
-  Shield, Zap, Users, ChevronRight,
+import { 
+  MapPin, Store, Search, Calendar, Info, DollarSign, Star, Shield, 
+  ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
-/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Scroll-reveal hook ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
-function useScrollReveal(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
-  return { ref, visible }
-}
+/* ═══════════════════════════════════════════
+   VIDEO SETUP INSTRUCTIONS
+   ═══════════════════════════════════════════
+   
+   To add your videos:
+   
+   1. Place video files in: frontend/public/videos/
+      - hero1.mp4, hero2.mp4, hero3.mp4 (will cycle through)
+      - feature.mp4
+      - cta.mp4
+   
+   2. Optimal video specs:
+      - Resolution: 1920x1080
+      - Codec: H.264, 5Mbps
+      - Duration: 8-12 seconds each
+      - File size: 2-4MB each
+   
+   3. Video behavior:
+      - Hero: Cycles through playlist (hero1 → hero2 → hero3 → repeat)
+      - Feature/CTA: Single videos, lazy load on scroll
+      - Mobile: Shows posters only
+      - Falls back to poster if video fails to load
+   
+   ═══════════════════════════════════════════ */
 
-/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Scroll Y tracker for parallax ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+/* ═══════════════════════════════════════════
+   HOOKS - Reused from existing codebase
+   ═══════════════════════════════════════════ */
+
+// Scroll Y tracker - Not used for parallax anymore, kept for future use
 function useScrollY() {
   const [y, setY] = useState(0)
   useEffect(() => {
@@ -39,172 +50,428 @@ function useScrollY() {
   return y
 }
 
+// Video lazy loading hook
+function useVideoLazyLoad() {
+  const videoRef = useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    )
+    
+    if (videoRef.current) observer.observe(videoRef.current)
+    return () => observer.disconnect()
+  }, [])
+  
+  return { videoRef, shouldLoad }
+}
+
+// Video playlist component - cycles through multiple videos with fade transitions
+function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], posterSrc: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [hasError, setHasError] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isFading, setIsFading] = useState(false)
+  
+  // Handle video time update - start fade transition before video ends
+  const handleTimeUpdate = () => {
+    const video = videoRef.current
+    if (video && video.duration && video.currentTime) {
+      // Start fading out 0.5 seconds before video ends
+      const timeRemaining = video.duration - video.currentTime
+      if (timeRemaining <= 0.5 && timeRemaining > 0 && !isFading) {
+        setIsFading(true)
+      }
+    }
+  }
+  
+  // Handle video end - move to next video in playlist
+  const handleVideoEnd = () => {
+    setCurrentIndex((prev) => (prev + 1) % videoSources.length)
+    // Fade back in after switching
+    setTimeout(() => setIsFading(false), 50)
+  }
+  
+  // Handle video error - show poster as fallback
+  const handleVideoError = () => {
+    setHasError(true)
+  }
+  
+  // Reset states when video source changes
+  useEffect(() => {
+    setHasError(false)
+    setIsLoaded(false)
+    setIsFading(false)
+    
+    // Force video to load the new source
+    if (videoRef.current) {
+      videoRef.current.load()
+    }
+  }, [currentIndex])
+  
+  // Handle successful video load
+  const handleVideoLoad = () => {
+    setIsLoaded(true)
+  }
+  
+  // Show poster only if video permanently failed
+  if (hasError) {
+    return (
+      <img 
+        src={posterSrc}
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    )
+  }
+  
+  // Black background behind video for seamless transitions
+  return (
+    <>
+      {/* Pure black background - always visible behind video */}
+      <div className="absolute inset-0 bg-black" />
+      
+      {/* Video with fade transitions */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleVideoEnd}
+        onError={handleVideoError}
+        onLoadedData={handleVideoLoad}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+          isFading || !isLoaded ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <source src={videoSources[currentIndex]} type="video/mp4" />
+      </video>
+    </>
+  )
+}
+
+// Lazy video component - reused across sections
+function LazyVideoComponent({ videoSrc, posterSrc }: { videoSrc: string, posterSrc: string }) {
+  const { videoRef, shouldLoad } = useVideoLazyLoad()
+  const [hasError, setHasError] = useState(false)
+  
+  return (
+    <div ref={videoRef} className="absolute inset-0">
+      {shouldLoad && !hasError ? (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="none"
+          poster={posterSrc}
+          onError={() => setHasError(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      ) : (
+        <img 
+          src={posterSrc}
+          alt="Loading"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+    </div>
+  )
+}
+
 export default function HomePage() {
   const navigate = useNavigate()
   const scrollY = useScrollY()
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
+  
+  // Mobile detection for video optimization
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  // State for carousel and testimonials
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const [testimonialIndex, setTestimonialIndex] = useState(0)
+  const [email, setEmail] = useState("")
 
-  const featuresReveal = useScrollReveal()
-  const stepsReveal = useScrollReveal()
-  const ctaReveal = useScrollReveal()
+  /* ═══════════════════════════════════════════
+     MOCK DATA
+     ═══════════════════════════════════════════ */
 
+  // Mock data for businesses
+  const businesses = [
+    { name: "Mountain View Cafe", location: "Denver, CO", price: 12, image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop" },
+    { name: "Valley Restaurant", location: "Boulder, CO", price: 45, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop" },
+    { name: "Summit Sports", location: "Aspen, CO", price: 30, image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=400&h=300&fit=crop" },
+    { name: "Creek Side Bakery", location: "Vail, CO", price: 15, image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop" },
+  ]
+
+  // Mock data for testimonials
+  const testimonials = [
+    { quote: "Vantage has transformed how I discover local businesses. The deals are incredible and the reviews are trustworthy!", name: "Sarah Mitchell", title: "Local Explorer" },
+    { quote: "As a business owner, Vantage gave us the visibility we needed. Our customer engagement has tripled!", name: "James Rodriguez", title: "Business Owner" },
+    { quote: "I love supporting local businesses through Vantage. It's so easy to find exactly what I'm looking for nearby.", name: "Emily Chen", title: "Community Advocate" },
+  ]
+
+  // Features data
   const features = [
-    { icon: MapPin,     title: "Location Discovery",  description: "Find businesses near you with precise geolocation and customizable search radius.", gradient: "from-[#4ade80] to-[#22c55e]" },
-    { icon: Star,       title: "Trusted Reviews",      description: "Read authentic ratings and reviews from verified customers in your community.",      gradient: "from-[#052e16] to-[#4ade80]" },
-    { icon: Tag,        title: "Exclusive Deals",      description: "Access special offers, discounts, and coupon codes from your favorite local spots.", gradient: "from-[#4ade80] to-[#22c55e]" },
-    { icon: TrendingUp, title: "Business Analytics",   description: "Business owners get real-time insights on engagement, views, and growth.",            gradient: "from-[#052e16] to-[#22c55e]" },
+    { icon: Info, title: "Comprehensive Information", description: "Access detailed business profiles, hours, services, and customer reviews all in one place." },
+    { icon: DollarSign, title: "Price Transparency", description: "Compare prices and access exclusive deals and discounts from local businesses." },
+    { icon: Star, title: "Best Services", description: "Discover top-rated businesses based on verified customer reviews and ratings." },
+    { icon: Shield, title: "Verified Businesses", description: "Every business is verified and monitored to ensure quality and authenticity." },
   ]
 
-  const steps = [
-    { num: "01", icon: MapPin, title: "Set Your Location", desc: "Allow location access or manually set your city and preferred search radius." },
-    { num: "02", icon: Search, title: "Browse & Filter",   desc: "Explore businesses by category, rating, distance, and special deals available." },
-    { num: "03", icon: Star,   title: "Review & Save",     desc: "Write reviews, bookmark favorites, and grab exclusive deals and offers." },
+  // Instagram images
+  const instagramImages = [
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
   ]
 
-  const stats = [
-    { value: "1,200+", label: "Local Businesses", icon: Store },
-    { value: "50+",    label: "Cities Covered",   icon: MapPin },
-    { value: "15K+",   label: "Happy Users",      icon: Users },
-    { value: "8K+",    label: "Reviews Written",   icon: Star },
-  ]
+  /* ═══════════════════════════════════════════
+     EVENT HANDLERS
+     ═══════════════════════════════════════════ */
+
+  // Carousel navigation
+  const nextBusiness = () => setCarouselIndex((prev) => (prev + 1) % businesses.length)
+  const prevBusiness = () => setCarouselIndex((prev) => (prev - 1 + businesses.length) % businesses.length)
+
+  // Testimonial navigation
+  const nextTestimonial = () => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
+  const prevTestimonial = () => setTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+
+  // Newsletter submission - navigates to homepage
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    navigate("/")
+    setEmail("")
+  }
+
+  // Search bar navigation
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    navigate("/businesses")
+  }
 
   return (
     <div className="overflow-hidden">
-      {/* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â HERO ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-[hsl(var(--background))]">
-        {/* Parallax background layers */}
-        <div
-          className="absolute inset-0 gradient-mesh parallax-layer"
-          style={{ transform: `translateY(${scrollY * 0.25}px)` }}
-        />
-        <div
-          className="absolute top-20 left-[8%] w-[500px] h-[500px] bg-[#4ade80]/[0.06] rounded-full blur-3xl parallax-layer"
-          style={{ transform: `translateY(${scrollY * 0.35}px)` }}
-        />
-        <div
-          className="absolute bottom-20 right-[8%] w-[400px] h-[400px] bg-[#052e16]/[0.04] rounded-full blur-3xl parallax-layer"
-          style={{ transform: `translateY(${scrollY * 0.2}px)` }}
-        />
+      
+      {/* ═══════════════════════════════════════════
+          HERO SECTION - Full viewport with cycling video playlist
+          ═══════════════════════════════════════════ */}
+      <section className="relative h-screen overflow-hidden bg-slate-900">
+        {/* Video Playlist - Cycles through 3 videos */}
+        {!isMobile ? (
+          <VideoPlaylist 
+            videoSources={[
+              "/videos/hero1.mp4",
+              "/videos/hero2.mp4",
+              "/videos/hero3.mp4"
+            ]}
+            posterSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"
+          />
+        ) : (
+          <img 
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"
+            alt="Hero background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Left: Copy ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-            <div className="order-2 lg:order-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-[#4ade80]/30 dark:bg-[#4ade80]/25 text-[#22c55e] dark:text-[#4ade80] text-sm font-medium animate-fade-in border border-[#4ade80]/40">
-                <Zap className="w-3.5 h-3.5" />
-                <span className="font-mono text-xs tracking-wide uppercase">Your community, one tap away</span>
+        {/* Content - Fixed position (no parallax) */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 font-heading">
+              The perfect way to find<br />your peace.
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 mb-8">
+              Discover local businesses that bring you joy and life
+            </p>
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-2xl p-3 flex flex-col md:flex-row gap-3 max-w-4xl mx-auto">
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
+                <MapPin className="w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Location" 
+                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+                />
               </div>
-
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 animate-fade-in-up font-heading leading-[1.08]">
-                <span className="!text-[#003d26] dark:!text-white">Discover </span>
-                <span className="font-serif !text-[#003d26] dark:!text-white">Local</span>
-                <br />
-                <span className="!text-[#003d26] dark:!text-white">Businesses That </span>
-                <span className="gradient-text font-serif">Matter</span>
-              </h1>
-
-              <p className="text-lg sm:text-xl text-[#2d5a47] dark:text-slate-400 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-                Connect with incredible local businesses near you. Browse deals,
-                read real reviews, and support the heart of your community.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                <Button
-                  size="lg"
-                  className="text-base px-8 py-6 gradient-primary text-white border-0 shadow-lg shadow-[#22c55e]/30 hover:shadow-xl hover:shadow-[#22c55e]/50 transition-all duration-300 hover:-translate-y-1 rounded-xl btn-lift font-semibold"
-                  onClick={() => navigate("/businesses")}
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Explore Now
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-base px-8 py-6 border-2 border-[#052e16]/15 dark:border-slate-700 hover:border-[#4ade80] hover:bg-[#4ade80]/10 transition-all duration-300 rounded-xl text-[#052e16] dark:text-white font-semibold"
-                  onClick={() => navigate("/signup")}
-                >
-                  <Store className="w-5 h-5 mr-2" />
-                  List Your Business
-                </Button>
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
+                <Store className="w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Category" 
+                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+                />
               </div>
-            </div>
-
-            {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Right: Canvas Neural Network ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-            <div className="order-1 lg:order-2 flex items-center justify-center relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <div
-                className="w-[380px] h-[380px] sm:w-[480px] sm:h-[480px] lg:w-[580px] lg:h-[580px] parallax-layer"
-                style={{ transform: `translateY(${scrollY * 0.08}px)` }}
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Distance" 
+                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+                />
+              </div>
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
+                <Calendar className="w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="When" 
+                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+                />
+              </div>
+              <Button 
+                type="submit"
+                size="lg" 
+                className="gradient-primary text-white px-8 py-6 rounded-xl hover:opacity-90 transition-opacity"
               >
-                <NeuralNetwork />
-              </div>
-            </div>
-          </div>
-
-          {/* Stats row with parallax */}
-          <div
-            className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children parallax-layer"
-            style={{ transform: `translateY(${scrollY * -0.04}px)` }}
-          >
-            {stats.map((stat) => {
-              const Icon = stat.icon
-              return (
-                <div key={stat.label} className="glass-card rounded-2xl p-5 text-center hover:scale-[1.03] transition-transform duration-300">
-                  <Icon className="w-5 h-5 text-[#22c55e] dark:text-[#22c55e] mx-auto mb-2" />
-                  <div className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))] font-mono tracking-tight">{stat.value}</div>
-                  <div className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">{stat.label}</div>
-                </div>
-              )
-            })}
+                <Search className="w-5 h-5" />
+              </Button>
+            </form>
           </div>
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â FEATURES (scroll-reveal) ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */}
-      <section className="py-24 bg-white dark:bg-slate-900/50">
-        <div
-          ref={featuresReveal.ref}
-          className={`max-w-7xl mx-auto px-4 sm:px-6 transition-all duration-1000 ${featuresReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
-        >
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4ade80]/30 dark:bg-[#4ade80]/25 text-[#22c55e] dark:text-[#4ade80] text-xs font-semibold mb-4 border border-[#4ade80]/40 font-mono uppercase tracking-wider">
-              <Shield className="w-3 h-3" />
-              Why Vantage?
+      {/* ═══════════════════════════════════════════
+          PURPOSE SECTION - Alternating layout
+          ═══════════════════════════════════════════ */}
+      <section className="py-24 bg-white dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 font-heading text-[hsl(var(--foreground))]">
+            Every journey starts<br />with a purpose.
+          </h2>
+
+          {/* Subsection 1: Image left, text right */}
+          <div className="grid md:grid-cols-2 gap-12 mb-24 items-center">
+            <div className="rounded-3xl overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=800&h=600&fit=crop" 
+                alt="Explore community" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4 font-heading">
-              Everything you <span className="font-serif">need</span>
-            </h2>
-            <p className="text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto">
-              Powerful tools to discover, connect with, and support local businesses
-            </p>
+            <div>
+              <p className="text-sm uppercase tracking-wider text-[#22c55e] font-semibold mb-3">Step — 01</p>
+              <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
+                Explore Your Community
+              </h3>
+              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
+                Discover hidden gems and local favorites in your neighborhood. From cozy cafes to unique boutiques, find businesses that make your community special.
+              </p>
+              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+                Our platform connects you with authentic local experiences, helping you build meaningful relationships with business owners who care about their community.
+              </p>
+            </div>
           </div>
+
+          {/* Subsection 2: Text left, image right */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="order-2 md:order-1">
+              <p className="text-sm uppercase tracking-wider text-[#22c55e] font-semibold mb-3">Step — 02</p>
+              <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
+                Support Local Businesses
+              </h3>
+              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
+                Every purchase you make helps your neighbors thrive. Access exclusive deals and promotions while supporting entrepreneurs who bring life to your area.
+              </p>
+              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+                Read honest reviews, share your experiences, and become part of a community that values quality, authenticity, and local pride.
+              </p>
+            </div>
+            <div className="rounded-3xl overflow-hidden order-1 md:order-2">
+              <img 
+                src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop" 
+                alt="Support local" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          LARGE FEATURE SECTION - Full-width video with overlay
+          ═══════════════════════════════════════════ */}
+      <section className="relative h-[600px] overflow-hidden">
+        {!isMobile ? (
+          <LazyVideoComponent 
+            videoSrc="/videos/feature.mp4"
+            posterSrc="https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=600&fit=crop"
+          />
+        ) : (
+          <img 
+            src="https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=600&fit=crop"
+            alt="Feature background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+        <div className="absolute inset-0 flex items-center justify-center md:justify-start">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+            <div className="max-w-xl text-white">
+              <p className="text-lg md:text-xl leading-relaxed">
+                Join thousands of community members discovering, reviewing, and celebrating local businesses that make our neighborhoods vibrant and unique.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          FEATURES GRID - 4 feature cards
+          ═══════════════════════════════════════════ */}
+      <section className="py-24 bg-gray-50 dark:bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 font-heading text-[hsl(var(--foreground))]">
+            Your comfort and safety are<br />always our priority.
+          </h2>
+          <p className="text-center text-lg text-[hsl(var(--muted-foreground))] mb-16 max-w-2xl mx-auto">
+            We verify every business and ensure you have all the information you need to make confident decisions.
+          </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feat, i) => {
-              const Icon = feat.icon
+            {features.map((feature, i) => {
+              const Icon = feature.icon
               return (
-                <div
-                  key={i}
-                  className="group relative"
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                  onMouseEnter={() => setHoveredFeature(i)}
-                  onMouseLeave={() => setHoveredFeature(null)}
+                <div 
+                  key={i} 
+                  className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300"
                 >
-                  <div
-                    className={`
-                      p-6 rounded-2xl border bg-white dark:bg-[#22c55e]/10 dark:border-[#4ade80]/30
-                      transition-all duration-500 cursor-pointer h-full
-                      ${hoveredFeature === i
-                        ? "shadow-xl -translate-y-2 border-[#4ade80]/60 dark:border-[#4ade80]/50 scale-[1.02]"
-                        : "border-[#4ade80]/25 dark:border-[hsl(var(--border))] shadow-sm hover:shadow-md"}
-                    `}
-                  >
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 font-sub">{feat.title}</h3>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{feat.description}</p>
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#4ade80] to-[#22c55e] flex items-center justify-center mb-6">
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
+                  <h3 className="text-xl font-bold mb-3 font-sub text-[hsl(var(--foreground))]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
               )
             })}
@@ -212,93 +479,211 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â HOW IT WORKS (scroll-reveal + parallax) ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */}
-      <section className="py-24 gradient-mesh relative overflow-hidden">
-        {/* Subtle parallax background decoration */}
-        <div
-          className="absolute -top-32 right-[15%] w-[300px] h-[300px] bg-[#4ade80]/[0.05] rounded-full blur-3xl parallax-layer pointer-events-none"
-          style={{ transform: `translateY(${Math.max(0, scrollY - 600) * 0.15}px)` }}
-        />
-        <div
-          ref={stepsReveal.ref}
-          className={`max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-1000 relative ${stepsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
-        >
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
-              Three <span className="font-serif">simple</span> steps
-            </h2>
-            <p className="text-lg text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
-              Get started in under a minute
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {steps.map((step, i) => {
-              const Icon = step.icon
-              return (
-                <div
-                  key={i}
-                  className="relative text-center group"
-                  style={{ transitionDelay: `${i * 150}ms` }}
-                >
-                  {i < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px border-t-2 border-dashed border-[hsl(var(--border))]" />
-                  )}
-                  <div className="relative inline-flex mb-6">
-                    <div className="w-24 h-24 rounded-2xl bg-white dark:bg-slate-800 border border-[hsl(var(--border))] shadow-lg flex items-center justify-center group-hover:-translate-y-2 group-hover:shadow-xl transition-all duration-500">
-                      <Icon className="w-10 h-10 text-[#22c55e] dark:text-[#22c55e]" />
-                    </div>
-                    <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full gradient-primary text-white text-sm font-bold flex items-center justify-center shadow-md font-mono">
-                      {step.num}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2 font-sub">{step.title}</h3>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">{step.desc}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â CTA (scroll-reveal) ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */}
-      <section className="py-24">
-        <div
-          ref={ctaReveal.ref}
-          className={`max-w-4xl mx-auto px-4 sm:px-6 transition-all duration-1000 ${ctaReveal.visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
-        >
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4ade80] via-[#22c55e] to-[#052e16] p-10 sm:p-16 text-center shadow-2xl shadow-[#22c55e]/25">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 animate-float" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4 animate-float animation-delay-2000" />
-
-            <div className="relative">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-heading text-glow">
-                Ready to explore your <span className="font-serif">city</span>?
+      {/* ═══════════════════════════════════════════
+          BUSINESS CAROUSEL - Horizontal scroll
+          ═══════════════════════════════════════════ */}
+      <section className="py-24 bg-white dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-[hsl(var(--foreground))]">
+                Fresh journeys<br />for your tour
               </h2>
-              <p className="text-lg text-white/85 mb-8 max-w-xl mx-auto text-shadow-sm">
-                Join thousands of users discovering amazing businesses, exclusive deals, and vibrant local communities.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  size="lg"
-                  className="bg-white text-[#052e16] hover:bg-white/90 px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all duration-300"
-                  onClick={() => navigate("/signup")}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={prevBusiness}
+                className="w-12 h-12 rounded-full bg-[#4ade80] text-white flex items-center justify-center hover:bg-[#22c55e] transition-colors"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextBusiness}
+                className="w-12 h-12 rounded-full bg-[#4ade80] text-white flex items-center justify-center hover:bg-[#22c55e] transition-colors"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden">
+            <div 
+              className="flex gap-6 transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${carouselIndex * (100 / businesses.length)}%)` }}
+            >
+              {businesses.map((business, i) => (
+                <div 
+                  key={i} 
+                  className="min-w-[calc(100%-1.5rem)] sm:min-w-[calc(50%-0.75rem)] lg:min-w-[calc(25%-1.125rem)] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+                  onClick={() => navigate("/businesses")}
                 >
-                  Get Started Free
-                  <ChevronRight className="w-5 h-5 ml-1" />
-                </Button>
-                <Link to="/businesses">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-base rounded-xl transition-all duration-300 bg-transparent"
+                  <div className="relative h-64">
+                    <img 
+                      src={business.image} 
+                      alt={business.name} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-[#052e16]">
+                      ${business.price}
+                    </div>
+                  </div>
+                  <div className="p-6 bg-white dark:bg-slate-800">
+                    <h3 className="text-xl font-bold mb-2 font-sub text-[hsl(var(--foreground))]">
+                      {business.name}
+                    </h3>
+                    <p className="text-[hsl(var(--muted-foreground))] flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      {business.location}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          TESTIMONIAL SECTION - Large quote card
+          ═══════════════════════════════════════════ */}
+      <section className="py-24 bg-gray-50 dark:bg-slate-900/50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 font-heading text-[hsl(var(--foreground))]">
+            Your trusted partner in tour
+          </h2>
+
+          <div className="bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-3xl p-12 md:p-16 shadow-2xl">
+            <div className="text-white">
+              <p className="text-2xl md:text-3xl font-serif italic mb-8 leading-relaxed">
+                "{testimonials[testimonialIndex].quote}"
+              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xl font-bold mb-1">{testimonials[testimonialIndex].name}</p>
+                  <p className="text-white/80">{testimonials[testimonialIndex].title}</p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevTestimonial}
+                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/30 transition-colors"
+                    aria-label="Previous testimonial"
                   >
-                    Browse Businesses
-                  </Button>
-                </Link>
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={nextTestimonial}
+                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/30 transition-colors"
+                    aria-label="Next testimonial"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          CTA SECTION - Full-width background video
+          ═══════════════════════════════════════════ */}
+      <section className="relative h-[500px] overflow-hidden">
+        {!isMobile ? (
+          <LazyVideoComponent 
+            videoSrc="/videos/cta.mp4"
+            posterSrc="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&h=500&fit=crop"
+          />
+        ) : (
+          <img 
+            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&h=500&fit=crop"
+            alt="CTA background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
+              Ready to explore?<br />Start your adventure today!
+            </h2>
+            <Button 
+              size="lg"
+              className="gradient-primary text-white px-10 py-7 text-lg rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+              onClick={() => navigate("/businesses")}
+            >
+              Get Started
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          INSTAGRAM SECTION - 4-column grid
+          ═══════════════════════════════════════════ */}
+      <section className="py-24 bg-white dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
+            Connect with us on<br />Instagram
+          </h2>
+          <p className="text-center text-lg text-[hsl(var(--muted-foreground))] mb-12">
+            Follow us to see the latest from our community
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {instagramImages.map((img, i) => (
+              <a
+                key={i}
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-2xl overflow-hidden aspect-square hover:scale-105 transition-transform duration-300 shadow-md hover:shadow-xl"
+              >
+                <img 
+                  src={img} 
+                  alt={`Instagram ${i + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          NEWSLETTER SECTION - Email signup
+          ═══════════════════════════════════════════ */}
+      <section className="py-20 bg-gradient-to-br from-[#4ade80] to-[#22c55e]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">
+            Stay updated with local deals
+          </h2>
+          <p className="text-lg text-white/90 mb-8">
+            Get exclusive offers and discover new businesses delivered to your inbox every week.
+          </p>
+
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <div className="flex-1 flex items-center gap-3 px-5 py-4 bg-white rounded-xl">
+              <Mail className="w-5 h-5 text-gray-400" />
+              <input 
+                type="email" 
+                placeholder="Your email address" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+              />
+            </div>
+            <Button 
+              type="submit"
+              size="lg"
+              className="bg-[#052e16] hover:bg-[#052e16]/90 text-white px-8 py-4 rounded-xl transition-colors"
+            >
+              Subscribe
+            </Button>
+          </form>
         </div>
       </section>
     </div>
