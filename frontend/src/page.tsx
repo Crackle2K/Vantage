@@ -309,7 +309,7 @@ export default function HomePage() {
               The perfect way to find<br />your peace.
             </h1>
             <p className="text-lg md:text-xl text-white/90 mb-8">
-              Discover local businesses that bring you joy and life
+              Building real trust for local discovery
             </p>
 
             {/* Search Bar */}
