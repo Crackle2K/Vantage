@@ -50,6 +50,46 @@ function useScrollY() {
   return y
 }
 
+// Typewriter animation hook - cycles through words with typing effect
+function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, pauseDuration = 3000) {
+  const [displayText, setDisplayText] = useState('')
+  const [wordIndex, setWordIndex] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [charIndex, setCharIndex] = useState(0)
+
+  useEffect(() => {
+    const currentWord = words[wordIndex]
+    
+    if (!isDeleting && charIndex < currentWord.length) {
+      // Typing characters
+      const timeout = setTimeout(() => {
+        setDisplayText(currentWord.substring(0, charIndex + 1))
+        setCharIndex(charIndex + 1)
+      }, typingSpeed)
+      return () => clearTimeout(timeout)
+    } else if (!isDeleting && charIndex === currentWord.length) {
+      // Pause at end of word
+      const timeout = setTimeout(() => {
+        setIsDeleting(true)
+      }, pauseDuration)
+      return () => clearTimeout(timeout)
+    } else if (isDeleting && charIndex > 0) {
+      // Deleting characters
+      const timeout = setTimeout(() => {
+        setDisplayText(currentWord.substring(0, charIndex - 1))
+        setCharIndex(charIndex - 1)
+      }, deletingSpeed)
+      return () => clearTimeout(timeout)
+    } else if (isDeleting && charIndex === 0) {
+      // Move to next word
+      setIsDeleting(false)
+      setWordIndex((wordIndex + 1) % words.length)
+    }
+  }, [charIndex, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseDuration])
+
+  return displayText
+}
+
 // Video lazy loading hook
 function useVideoLazyLoad() {
   const videoRef = useRef<HTMLDivElement>(null)
@@ -205,6 +245,14 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
   
+  // Typewriter animation for hero text
+  const animatedWord = useTypewriter(
+    ['adventure', 'local gem', 'favorite spot', 'hidden treasure', 'experience'],
+    100,  // typing speed
+    50,   // deleting speed  
+    3000  // pause duration (3 seconds)
+  )
+  
   // State for carousel and testimonials
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [testimonialIndex, setTestimonialIndex] = useState(0)
@@ -268,12 +316,6 @@ export default function HomePage() {
     setEmail("")
   }
 
-  // Search bar navigation
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    navigate("/businesses")
-  }
-
   return (
     <div className="overflow-hidden">
       
@@ -302,58 +344,39 @@ export default function HomePage() {
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40" />
 
-        {/* Content - Fixed position (no parallax) */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 font-heading">
-              The perfect way to find<br />your peace.
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-8">
-              Building real trust for local discovery
-            </p>
+        {/* Content - Left-aligned */}
+        <div className="absolute inset-0 flex items-center z-10">
+          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 w-full">
+            <div className="max-w-4xl">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 font-heading">
+                Find your next
+                <br />
+                <span className="text-[#4ade80]">{animatedWord}<span className="animate-pulse">|</span></span>
+              </h1>
+              <p className="text-lg md:text-xl text-white/90 mb-10">
+                Building real trust for local discovery
+              </p>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-2xl p-3 flex flex-col md:flex-row gap-3 max-w-4xl mx-auto">
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
-                <MapPin className="w-5 h-5 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Location" 
-                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
-                />
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  size="lg"
+                  className="gradient-primary text-white px-10 py-7 text-lg rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+                  onClick={() => navigate("/businesses")}
+                >
+                  Explore Businesses
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-10 py-7 text-lg rounded-xl hover:bg-white/20 transition-colors shadow-2xl"
+                  onClick={() => navigate("/pricing")}
+                >
+                  For Business Owners
+                </Button>
               </div>
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
-                <Store className="w-5 h-5 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Category" 
-                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
-                />
-              </div>
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
-                <Search className="w-5 h-5 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Distance" 
-                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
-                />
-              </div>
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
-                <Calendar className="w-5 h-5 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="When" 
-                  className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
-                />
-              </div>
-              <Button 
-                type="submit"
-                size="lg" 
-                className="gradient-primary text-white px-8 py-6 rounded-xl hover:opacity-90 transition-opacity"
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-            </form>
+            </div>
           </div>
         </div>
       </section>
