@@ -31,7 +31,7 @@ export default function Businesses() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'feed'>('grid');
 
-  // --- Feed state ---
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Blank feed state (no data Ã¢â‚¬â€ ready for API) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   const [feedCards, setFeedCards] = useState<number[]>([]);
   const [feedPage, setFeedPage] = useState(1);
   const [feedHasMore, setFeedHasMore] = useState(true);
@@ -41,6 +41,7 @@ export default function Businesses() {
   const [feedSaved, setFeedSaved] = useState<Set<number>>(new Set());
   const [feedLiked, setFeedLiked] = useState<Set<number>>(new Set());
   const FEED_PAGE_SIZE = 6;
+  const FEED_MAX = 30; // total blank cards to simulate
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -84,73 +85,47 @@ export default function Businesses() {
     );
   };
 
-  // Fetch nearby businesses — uses /discover which backfills from Google Places
+  // Fetch nearby businesses
   const fetchNearby = useCallback(async (loc: Location, r: number) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.discoverBusinesses(loc.latitude, loc.longitude, r);
+      const data = await api.getNearbyBusinesses(loc.latitude, loc.longitude, r);
       setBusinesses(data);
     } catch {
       try {
-        const data = await api.getNearbyBusinesses(loc.latitude, loc.longitude, r);
+        const data = await api.getBusinesses();
         setBusinesses(data);
       } catch {
-        try {
-          const data = await api.getBusinesses();
-          setBusinesses(data);
-        } catch {
-          setError('Failed to load businesses');
-          setBusinesses([]);
-        }
+        setError('Failed to load businesses');
+        setBusinesses([]);
       }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Also try loading businesses on mount
+  // Also try loading all businesses on mount
   useEffect(() => {
     if (!location) {
-      api.getBusinesses().then(data => {
-        if (data && data.length > 0) {
-          setBusinesses(data);
-        } else {
-          api.discoverBusinesses(43.6532, -79.3832, 10).then(setBusinesses).catch(() => {});
-        }
-      }).catch(() => {
-        api.discoverBusinesses(43.6532, -79.3832, 10).then(setBusinesses).catch(() => {});
-      });
+      api.getBusinesses().then(setBusinesses).catch(() => {});
     }
   }, [location]);
 
-  // Filter and sort — must be above loadFeedPage so it can reference filtered.length
-  const filtered = businesses.filter(b => {
-    const matchCategory = selectedCategory === 'All Categories' || b.category === selectedCategory.toLowerCase();
-    const matchSearch = !searchQuery ||
-      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchSearch;
-  }).sort((a, b) => {
-    switch (sortBy) {
-      case 'rating': return (b.rating || 0) - (a.rating || 0);
-      case 'reviews': return (b.review_count || 0) - (a.review_count || 0);
-      case 'deals': return (b.has_deals ? 1 : 0) - (a.has_deals ? 1 : 0);
-      default: return 0;
-    }
-  });
-
-  // Feed mode: paginate through actual businesses
+  // Feed mode: load next page of blank cards (simulates API pagination)
   const loadFeedPage = useCallback((page: number, reset = false) => {
     setFeedLoading(true);
-    const start = (page - 1) * FEED_PAGE_SIZE;
-    const end = Math.min(start + FEED_PAGE_SIZE, filtered.length);
-    const newIds = Array.from({ length: end - start }, (_, i) => start + i);
-    setFeedCards(prev => reset ? newIds : [...prev, ...newIds]);
-    setFeedHasMore(end < filtered.length);
-    setFeedPage(page);
-    setFeedLoading(false);
-  }, [FEED_PAGE_SIZE, filtered.length]);
+    // Simulate network latency
+    setTimeout(() => {
+      const start = (page - 1) * FEED_PAGE_SIZE;
+      const end = Math.min(start + FEED_PAGE_SIZE, FEED_MAX);
+      const newIds = Array.from({ length: end - start }, (_, i) => start + i);
+      setFeedCards(prev => reset ? newIds : [...prev, ...newIds]);
+      setFeedHasMore(end < FEED_MAX);
+      setFeedPage(page);
+      setFeedLoading(false);
+    }, 600);
+  }, [FEED_PAGE_SIZE, FEED_MAX]);
 
   // Reset feed when filters / mode change
   useEffect(() => {
@@ -194,16 +169,32 @@ export default function Businesses() {
     if (location) fetchNearby(location, r);
   };
 
+  // Filter and sort
+  const filtered = businesses.filter(b => {
+    const matchCategory = selectedCategory === 'All Categories' || b.category === selectedCategory.toLowerCase();
+    const matchSearch = !searchQuery ||
+      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'rating': return (b.rating || 0) - (a.rating || 0);
+      case 'reviews': return (b.review_count || 0) - (a.review_count || 0);
+      case 'deals': return (b.has_deals ? 1 : 0) - (a.has_deals ? 1 : 0);
+      default: return 0;
+    }
+  });
+
   return (
     <div className="min-h-screen bg-[hsl(var(--background))]">
       {/* Hero Banner */}
       <div className="relative overflow-hidden bg-[hsl(var(--card))] border-b border-[hsl(var(--border))]">
         <div className="absolute inset-0 gradient-mesh opacity-60" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
+          <h1 className="text-heading sm:text-heading font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
             Explore <span className="font-serif">Businesses</span>
           </h1>
-          <p className="text-[hsl(var(--muted-foreground))] text-lg font-sub">
+          <p className="text-[hsl(var(--muted-foreground))] text-body font-sub">
             Find, review, and support amazing local businesses near you
           </p>
         </div>
@@ -229,18 +220,18 @@ export default function Businesses() {
               ) : (
                 <div className="flex items-center gap-2 px-4 py-2 bg-brand-light/10 dark:bg-brand-light/15 text-brand-dark dark:text-brand-light rounded-xl border border-brand-light/30 dark:border-brand-light/25">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">Location Active</span>
+                  <span className="text-ui font-medium">Location Active</span>
                 </div>
               )}
               {location && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[hsl(var(--muted-foreground))]">Radius:</span>
+                  <span className="text-ui text-[hsl(var(--muted-foreground))]">Radius:</span>
                   <div className="flex rounded-xl overflow-hidden border border-[hsl(var(--border))]">
                     {[5, 10, 25, 50].map(r => (
                       <button
                         key={r}
                         onClick={() => handleRadiusChange(r.toString())}
-                        className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 text-ui font-medium transition-colors ${
                           radius === r
                             ? 'bg-[hsl(var(--primary))] text-white'
                             : 'bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary))]'
@@ -316,7 +307,7 @@ export default function Businesses() {
 
           {/* Results count */}
           {!loading && (businesses.length > 0 || feedCards.length > 0) && (
-            <div className="mt-3 pt-3 border-t border-[hsl(var(--border))] text-sm text-[hsl(var(--muted-foreground))]">
+            <div className="mt-3 pt-3 border-t border-[hsl(var(--border))] text-ui text-[hsl(var(--muted-foreground))]">
               {viewMode === 'grid' ? (
                 <>Showing <span className="font-semibold text-[hsl(var(--foreground))]">{filtered.length}</span> of {businesses.length} businesses
                 {location && ` within ${radius}km`}</>
@@ -340,11 +331,11 @@ export default function Businesses() {
 
             {/* Error */}
             {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 flex items-start gap-3 animate-fade-in">
+              <div className="mb-6 p-4 rounded-xl bg-error dark:bg-error/30 border border-error dark:border-error/50 flex items-start gap-3 animate-fade-in">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-red-800 dark:text-red-300">Error</p>
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <p className="font-medium text-red-500 dark:text-red-500">Error</p>
+                  <p className="text-ui text-red-500 dark:text-red-500">{error}</p>
                 </div>
               </div>
             )}
@@ -353,9 +344,9 @@ export default function Businesses() {
             {viewMode === 'grid' && !locationRequested && !location && !error && businesses.length === 0 && (
               <div className="max-w-lg mx-auto text-center py-20 animate-fade-in">
                 <div className="w-20 h-20 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/20">
-                  <MapPin className="w-10 h-10 text-white" />
+                  <MapPin className="w-10 h-10 text-brand-on-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-3 font-heading">Find Businesses Near You</h2>
+                <h2 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-3 font-heading">Find Businesses Near You</h2>
                 <p className="text-[hsl(var(--muted-foreground))] mb-8">Enable location access to discover local businesses in your area</p>
                 <Button
                   onClick={requestLocation}
@@ -393,13 +384,13 @@ export default function Businesses() {
               </div>
             )}
 
-            {/* Feed View — Instagram-style Cards */}
+            {/* Feed View Ã¢â‚¬â€ Instagram-style Blank Cards (ready for API) */}
             {viewMode === 'feed' && (
               <div className="max-w-2xl mx-auto space-y-6">
                 {feedCards.length === 0 && !feedLoading && (
                   <div className="text-center py-16 animate-fade-in">
                     <Rss className="w-12 h-12 text-[hsl(var(--muted-foreground))] mx-auto mb-4 opacity-40" />
-                    <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2 font-sub">Your feed is empty</h3>
+                    <h3 className="text-body font-semibold text-[hsl(var(--foreground))] mb-2 font-sub">Your feed is empty</h3>
                     <p className="text-[hsl(var(--muted-foreground))]">Try adjusting your filters or check back later</p>
                   </div>
                 )}
@@ -416,8 +407,8 @@ export default function Businesses() {
                     >
                       {/* Header */}
                       <div className="flex items-center gap-3 px-5 py-4">
-                        {biz?.image ? (
-                          <img src={biz.image} alt="" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                        {biz?.image_url ? (
+                          <img src={biz.image_url} alt="" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-[hsl(var(--muted))] flex-shrink-0" />
                         )}
@@ -434,10 +425,10 @@ export default function Businesses() {
                             </div>
                           )}
                         </div>
-                        {biz && (biz.rating ?? 0) > 0 && (
+                        {biz && biz.rating > 0 && (
                           <span className="flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400 flex-shrink-0">
                             <Star className="w-3.5 h-3.5 fill-current" />
-                            {(biz.rating ?? 0).toFixed(1)}
+                            {biz.rating.toFixed(1)}
                           </span>
                         )}
                       </div>
@@ -447,8 +438,8 @@ export default function Businesses() {
                         className="relative aspect-[4/3] overflow-hidden bg-[hsl(var(--muted))] cursor-pointer"
                         onClick={() => biz && setSelectedBusiness(biz)}
                       >
-                        {biz?.image ? (
-                          <img src={biz.image} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        {biz?.image_url ? (
+                          <img src={biz.image_url} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         ) : (
                           <div className="absolute inset-0 bg-gradient-to-br from-brand-light/20 via-brand/10 to-brand-dark/10 animate-gradient" />
                         )}
@@ -460,10 +451,10 @@ export default function Businesses() {
                             </span>
                           </div>
                         )}
-                        {biz && (biz.review_count ?? 0) > 0 && (
+                        {biz && biz.review_count > 0 && (
                           <div className="absolute bottom-4 left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white text-xs font-medium">
                             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                            {(biz.rating ?? 0).toFixed(1)} &middot; {biz.review_count} reviews
+                            {biz.rating.toFixed(1)} &middot; {biz.review_count} reviews
                           </div>
                         )}
                       </div>
@@ -518,6 +509,42 @@ export default function Businesses() {
                     </div>
                   );
                 })}
+                            className="flex items-center gap-1.5 group/btn"
+                          >
+                            <Heart className={cn('w-5 h-5 transition-transform duration-200', liked ? 'text-red-500 fill-red-500 scale-110' : 'text-[hsl(var(--muted-foreground))] group-hover/btn:text-red-500')} />
+                            <span className={cn('text-xs font-medium', liked ? 'text-red-500' : 'text-[hsl(var(--muted-foreground))]')}>
+                              {liked ? 'Liked' : 'Like'}
+                            </span>
+                          </button>
+                          <button className="flex items-center gap-1.5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors">
+                            <MessageCircle className="w-5 h-5" />
+                            <span className="text-xs font-medium">Comment</span>
+                          </button>
+                          <button className="flex items-center gap-1.5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors">
+                            <Share2 className="w-5 h-5" />
+                            <span className="text-xs font-medium">Share</span>
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => setFeedSaved(prev => {
+                            const next = new Set(prev);
+                            next.has(cardId) ? next.delete(cardId) : next.add(cardId);
+                            return next;
+                          })}
+                        >
+                          <Bookmark className={cn('w-5 h-5 transition-colors', saved ? 'text-[hsl(var(--primary))] fill-[hsl(var(--primary))]' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]')} />
+                        </button>
+                      </div>
+
+                      {/* Description Ã¢â‚¬â€ skeleton lines */}
+                      <div className="px-5 py-4 space-y-2">
+                        <div className="h-3.5 w-3/4 rounded-full skeleton" />
+                        <div className="h-3 w-full rounded-full skeleton" />
+                        <div className="h-3 w-5/6 rounded-full skeleton" />
+                      </div>
+                    </div>
+                  );
+                })}
 
                 {/* Infinite scroll sentinel */}
                 <div ref={feedSentinelRef} className="h-4" />
@@ -525,13 +552,13 @@ export default function Businesses() {
                 {feedLoading && (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-[hsl(var(--primary))]" />
-                    <span className="ml-2 text-sm text-[hsl(var(--muted-foreground))]">Loading more...</span>
+                    <span className="ml-2 text-ui text-[hsl(var(--muted-foreground))]">Loading more...</span>
                   </div>
                 )}
 
                 {!feedHasMore && feedCards.length > 0 && (
                   <div className="text-center py-10">
-                    <p className="text-sm text-[hsl(var(--muted-foreground))]">You're all caught up!</p>
+                    <p className="text-ui text-[hsl(var(--muted-foreground))]">You're all caught up!</p>
                     <button
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                       className="mt-2 text-xs font-medium text-[hsl(var(--primary))] hover:underline"
@@ -547,7 +574,7 @@ export default function Businesses() {
             {!loading && filtered.length === 0 && businesses.length > 0 && viewMode === 'grid' && (
               <div className="text-center py-16 animate-fade-in">
                 <Search className="w-12 h-12 text-[hsl(var(--muted-foreground))] mx-auto mb-4 opacity-40" />
-                <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2 font-sub">No matches found</h3>
+                <h3 className="text-body font-semibold text-[hsl(var(--foreground))] mb-2 font-sub">No matches found</h3>
                 <p className="text-[hsl(var(--muted-foreground))]">Try adjusting your filters or search query</p>
                 <Button variant="outline" className="mt-4 rounded-xl" onClick={() => { setSearchQuery(''); setSelectedCategory('All Categories'); }}>
                   Clear Filters

@@ -49,6 +49,7 @@ from routes.deals import router as deals_router
 from routes.claims import router as claims_router
 from routes.subscriptions import router as subscriptions_router
 from routes.activity import router as activity_router
+from routes.discovery import router as discovery_router
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(businesses_router, prefix="/api", tags=["Businesses"])
@@ -57,6 +58,7 @@ app.include_router(deals_router, prefix="/api", tags=["Deals"])
 app.include_router(claims_router, prefix="/api", tags=["Claims"])
 app.include_router(subscriptions_router, prefix="/api", tags=["Subscriptions"])
 app.include_router(activity_router, prefix="/api", tags=["Activity"])
+app.include_router(discovery_router, prefix="/api", tags=["Discovery"])
 
 # Root endpoint
 @app.get("/")

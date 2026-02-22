@@ -104,3 +104,18 @@ def get_credibility_collection():
 def get_subscriptions_collection():
     """Get subscriptions collection"""
     return get_database()["subscriptions"]
+
+
+def get_visits_collection():
+    """Get verified visits collection"""
+    return get_database()["visits"]
+
+
+def get_geo_cache_collection():
+    """Get geo-cache collection (tracks which areas have been fetched from Google)"""
+    return get_database()["geo_cache"]
+
+
+def get_api_usage_log_collection():
+    """Get API usage log collection (audits every Google API call)"""
+    return get_database()["api_usage_log"]
