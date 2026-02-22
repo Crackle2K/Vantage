@@ -21,8 +21,8 @@
   --surface-elevated: #e8e7e7;          /* Cards, raised elements */
   --on-surface: #1e1e1e;                /* Primary text on surfaces */
   --on-surface-variant: #2e2e2e;        /* Secondary text, muted content */
-  --outline: #057933;                   /* Default borders */
-  --outline-variant: #8cfff5;           /* Subtle borders, dividers */
+  --outline: #329f5b;                   /* Default borders */
+  --outline-variant: #29b866;           /* Subtle borders, dividers */
 
   /* ═══════════════════════════════════════════
      DARK MODE (6 colors)
@@ -31,8 +31,8 @@
   --surface-elevated-dark: #2e2e2e;     /* Cards, raised elements (dark) */
   --on-surface-dark: #ffffff;           /* Primary text on surfaces (dark) */
   --on-surface-variant-dark: #e8e7e7;   /* Secondary text, muted (dark) */
-  --outline-dark: #057933;              /* Default borders (dark) */
-  --outline-variant-dark: #8cfff5;      /* Subtle borders (dark) */
+  --outline-dark: #329f5b;              /* Default borders (dark) */
+  --outline-variant-dark: #29b866;      /* Subtle borders (dark) */
 
   /* ═══════════════════════════════════════════
      STATUS (4 colors)
@@ -45,10 +45,10 @@
   /* ═══════════════════════════════════════════
      BRAND (5 colors)
      ═══════════════════════════════════════════ */
-  --brand-primary: #22c55e;             /* Primary brand color */
-  --brand-secondary: #16a34a;           /* Secondary brand emphasis */
-  --brand-tertiary: #4ade80;            /* Tertiary brand accent */
-  --brand-accent: #dcfce7;              /* Light brand tint */
+  --brand-primary: #1c7a44;             /* Primary brand color */
+  --brand-secondary: #329f5b;           /* Secondary brand emphasis */
+  --brand-tertiary: #2ecc71;            /* Tertiary brand accent */
+  --brand-accent: #29b866;              /* Light brand tint */
   --brand-on-primary: #ffffff;          /* Text on brand-primary bg */
 
   /* ═══════════════════════════════════════════
@@ -63,6 +63,7 @@
      TYPOGRAPHY SCALE (6 sizes)
      Based on 1.333 Perfect Fourth scale
      ═══════════════════════════════════════════ */
+  --text-title: 128px;  
   --text-display: 64px;          /* 64px - Hero sections, marketing */
   --text-heading: 48px;          /* 48px - Page titles (H1) */
   --text-subheading: 24px;     /* 24px - Section headings (H2-H3) */
@@ -514,6 +515,25 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: var(--color-primary); /* fallback for unsupported browsers */
+}
+
+/* Gradient text with hover effect - dark green to light green */
+.text-gradient-green-hover {
+  background: linear-gradient(90deg, var(--surface-elevated-dark), #5c5c5cee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  transition: 1000ms ease-in;
+}
+
+.text-gradient-green-hover:hover {
+  background: linear-gradient(90deg, var(--brand-secondary), var(--brand-tertiary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  transition: 1000ms ease-out;
 }
 
 .gradient-mesh {

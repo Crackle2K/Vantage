@@ -312,18 +312,18 @@ export default function HomePage() {
         )}
         
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-scrim-dark/40" />
+        <div className="absolute inset-0 bg-black/60 z-1" />
 
         {/* Content - Left-aligned */}
         <div className="absolute inset-0 flex items-center z-10">
-          <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 w-full">
-            <div className="max-w-4xl">
-              <h1 className="text-display md:text-display lg:text-display font-bold text-on-primary mb-4 font-heading">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full">
+            <div className="max-w-5xl">
+              <h1 className="text-title md:text-[5rem] lg:text-[6rem] leading-tight font-bold text-on-primary mb-6 font-heading">
                 Find your next
                 <br />
                 <span className="text-brand-light">{animatedWord}<span className="animate-pulse">|</span></span>
               </h1>
-              <p className="text-body md:text-subheading text-on-primary/90 mb-10">
+              <p className="text-heading md:text-heading text-on-primary/90 mb-10">
                 Building real trust for local discovery
               </p>
 
@@ -340,7 +340,7 @@ export default function HomePage() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="bg-surface/10 backdrop-blur-sm border-2 border-outline-variant text-on-primary px-10 py-7 text-body rounded-xl hover:bg-surface/20 transition-colors shadow-2xl"
+                  className="brand-primary backdrop-blur-sm border-2 border-outline-variant text-on-primary px-10 py-7 text-body rounded-xl hover:bg-surface/20 transition-colors shadow-2xl"
                   onClick={() => navigate("/pricing")}
                 >
                   For Business Owners
@@ -356,9 +356,22 @@ export default function HomePage() {
           ═══════════════════════════════════════════ */}
       <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-heading md:text-display font-bold text-center mb-20 font-heading text-[hsl(var(--foreground))]">
-            Every journey starts<br />with a purpose.
-          </h2>
+          <div className="text-left mb-20">
+            <h2 className="text-display md:text-display font-bold text-left font-subheading">
+              The Online-to-Offline platform for all
+            </h2>
+            <p className="text-heading md:text-subheading mt-4 ">
+              <span className="cursor-pointer inline text-gradient-green-hover" onClick={() => navigate("/businesses")}>
+                Find local businesses and global favorites.
+              </span>
+              <span className="cursor-pointer inline text-gradient-green-hover" onClick={() => navigate("/businesses")}>
+                {" "}Explore on the go or from your couch.
+              </span>
+              <span className="cursor-pointer inline text-gradient-green-hover" onClick={() => navigate("/businesses")}>
+                {" "}Support neighborhood shops and city gems.
+              </span>
+            </p>
+          </div>
 
           {/* Subsection 1: Image left, text right */}
           <div className="grid md:grid-cols-2 gap-12 mb-24 items-center">
