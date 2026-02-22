@@ -189,13 +189,22 @@ export const api = {
     return response.json();
   },
 
-  async getActivityFeed(page: number = 1, pageSize: number = 20): Promise<ActivityFeedItem[]> {
+  async getActivityFeed(page: number = 1, pageSize: number = 20): Promise<{ items: ActivityFeedItem[]; has_more: boolean }> {
     const params = new URLSearchParams();
     params.append('page', page.toString());
     params.append('page_size', pageSize.toString());
     const response = await fetch(`${API_URL}/feed?${params}`);
     if (!response.ok) throw new Error('Failed to fetch activity feed');
-    return response.json();
+    const data = await response.json();
+    // Backend returns paginated object { items, total, page, page_size, has_more }
+    if (data && Array.isArray(data.items)) {
+      return { items: data.items, has_more: !!data.has_more };
+    }
+    // Fallback: if response is already an array (backwards compat)
+    if (Array.isArray(data)) {
+      return { items: data, has_more: data.length >= pageSize };
+    }
+    return { items: [], has_more: false };
   },
 
   async getBusinessActivity(businessId: string): Promise<BusinessActivityStatus> {
@@ -209,6 +218,18 @@ export const api = {
       headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch credibility');
+    return response.json();
+  },
+
+  // ─── Discovery (Google Places backfill) ──────
+  async discoverBusinesses(lat: number, lng: number, radius: number = 5, category?: string): Promise<Business[]> {
+    const params = new URLSearchParams();
+    params.append('lat', lat.toString());
+    params.append('lng', lng.toString());
+    params.append('radius', radius.toString());
+    if (category) params.append('category', category);
+    const response = await fetch(`${API_URL}/discover?${params}`);
+    if (!response.ok) throw new Error('Failed to discover businesses');
     return response.json();
   },
 

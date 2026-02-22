@@ -3,16 +3,8 @@ MongoDB Connection Module
 Provides async database connection using Motor driver
 """
 
-import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
-# MongoDB connection settings
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "vantage")
+from config import MONGODB_URI, DATABASE_NAME
 
 # Global database client
 client: AsyncIOMotorClient = None
@@ -32,11 +24,39 @@ async def connect_to_mongo():
         # Test connection
         await client.admin.command('ping')
         print(f"✅ Connected to MongoDB: {DATABASE_NAME}")
+
+        # Ensure indexes
+        await _ensure_indexes()
     except Exception as e:
         print(f"⚠️  MongoDB connection warning: {e}")
         print("⚠️  Server will start without database. Some features may not work.")
         print("   To fix: Install MongoDB or configure MongoDB Atlas connection string")
-        # Don't raise - allow server to start without DB for development
+
+
+async def _ensure_indexes():
+    """Create required indexes if they don't already exist."""
+    try:
+        businesses = get_businesses_collection()
+        await businesses.create_index([("location", "2dsphere")])
+        await businesses.create_index("place_id", unique=True, sparse=True)
+        await businesses.create_index("category")
+        await businesses.create_index("owner_id", sparse=True)
+        await businesses.create_index("live_visibility_score")
+
+        visits = get_visits_collection()
+        await visits.create_index([("user_id", 1), ("business_id", 1), ("created_at", -1)])
+        await visits.create_index("business_id")
+
+        geo_cache = get_geo_cache_collection()
+        await geo_cache.create_index([("cell_lat", 1), ("cell_lng", 1), ("radius_bucket", 1)], unique=True)
+        await geo_cache.create_index("fetched_at")
+
+        api_log = get_api_usage_log_collection()
+        await api_log.create_index("timestamp")
+
+        print("✅ MongoDB indexes ensured")
+    except Exception as e:
+        print(f"⚠️  Index creation warning: {e}")
 
 
 async def close_mongo_connection():
@@ -112,10 +132,18 @@ def get_visits_collection():
 
 
 def get_geo_cache_collection():
+<<<<<<< Updated upstream
     """Get geo-cache collection (tracks which areas have been fetched from Google)"""
+=======
+    """Get geo-area cache — tracks which lat/lng cells we already fetched from Google"""
+>>>>>>> Stashed changes
     return get_database()["geo_cache"]
 
 
 def get_api_usage_log_collection():
+<<<<<<< Updated upstream
     """Get API usage log collection (audits every Google API call)"""
+=======
+    """Get API usage log — every outbound Google Places call is recorded here"""
+>>>>>>> Stashed changes
     return get_database()["api_usage_log"]

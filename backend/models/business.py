@@ -79,6 +79,7 @@ class Business(BusinessBase):
     """Business schema returned to client"""
     id: str
     owner_id: Optional[str] = None
+    place_id: Optional[str] = None             # Google Places unique ID
     location: Optional[GeoLocation] = None
     rating: float = Field(default=0.0, ge=0, le=5)
     review_count: int = Field(default=0, ge=0)
@@ -93,6 +94,10 @@ class Business(BusinessBase):
     is_claimed: bool = False                  # Has an owner claimed this?
     claim_status: Optional[str] = None        # pending, verified, rejected
     is_seed: bool = True                      # From our seed database?
+
+    # ── Scoring ─────────────────────────────────────────────────────
+    credibility_score: float = 0.0            # Aggregate trust score
+    live_visibility_score: float = 0.0        # Real-time ranking score
 
     # ── Community Trust Layer ───────────────────────────────────────
     is_active_today: bool = False             # Had check-ins today?

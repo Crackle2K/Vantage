@@ -48,6 +48,7 @@ function timeAgo(dateStr: string): string {
 
 function CredibilityBadge({ tier }: { tier: CredibilityTier }) {
   const badge = credibilityBadges[tier]
+  if (!badge) return null
   const Icon = badge.icon
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-medium ${badge.color}`}>
@@ -62,6 +63,7 @@ export default function ActivityFeedPage() {
   const [feedItems, setFeedItems] = useState<ActivityFeedItem[]>([])
   const [myCredibility, setMyCredibility] = useState<UserCredibility | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
@@ -69,17 +71,21 @@ export default function ActivityFeedPage() {
 
   const loadFeed = useCallback(async (pageNum: number, append: boolean = false) => {
     try {
-      if (pageNum === 1) setLoading(true)
+      if (pageNum === 1) { setLoading(true); setError(null); }
       else setLoadingMore(true)
 
-      const items = await api.getActivityFeed(pageNum, 15)
+      const result = await api.getActivityFeed(pageNum, 15)
+      const items = result.items
 
-      if (items.length < 15) setHasMore(false)
-
+      setHasMore(result.has_more)
       setFeedItems(prev => append ? [...prev, ...items] : items)
       setPage(pageNum)
     } catch (err) {
       console.error('Failed to load feed:', err)
+      if (pageNum === 1) {
+        setError('Unable to load activity feed. The server may be unavailable.')
+        setFeedItems([])
+      }
     } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -147,6 +153,22 @@ export default function ActivityFeedPage() {
                   </div>
                 </div>
               ))
+            ) : error ? (
+              <div className="glass-card rounded-2xl p-10 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2 font-heading">Something went wrong</h3>
+                <p className="text-[hsl(var(--muted-foreground))] text-sm mb-4">
+                  {error}
+                </p>
+                <button
+                  onClick={() => loadFeed(1)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25"
+                >
+                  Try Again
+                </button>
+              </div>
             ) : feedItems.length === 0 ? (
               <div className="glass-card rounded-2xl p-10 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--secondary))] flex items-center justify-center mx-auto mb-4">

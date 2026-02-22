@@ -3,24 +3,16 @@ Authentication Routes for Vantage
 Handles user registration and login with JWT tokens
 """
 
-import os
 import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-from dotenv import load_dotenv
 
+from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from models.user import UserCreate, UserLogin, User, Token, TokenData
 from database.mongodb import get_users_collection
-
-load_dotenv()
-
-# JWT Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 # Security scheme
 security = HTTPBearer()
