@@ -27,18 +27,18 @@ interface BusinessCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  food: "from-[#4ade80] to-[#22c55e]",
-  retail: "from-[#052e16] to-[#4ade80]",
-  services: "from-[#052e16] to-[#22c55e]",
-  entertainment: "from-[#22c55e] to-[#4ade80]",
-  health: "from-[#4ade80] to-[#052e16]",
-  "Food & Dining": "from-[#4ade80] to-[#22c55e]",
-  "Retail": "from-[#052e16] to-[#4ade80]",
-  "Beauty & Spa": "from-[#4ade80] to-[#052e16]",
-  "Services": "from-[#052e16] to-[#22c55e]",
-  "Coffee & Bakery": "from-[#4ade80] to-[#22c55e]",
-  "Fitness": "from-[#22c55e] to-[#4ade80]",
-  "Hair & Salon": "from-[#052e16] to-[#4ade80]",
+  food: "from-brand-light to-brand",
+  retail: "from-brand-dark to-brand-light",
+  services: "from-brand-dark to-brand",
+  entertainment: "from-brand to-brand-light",
+  health: "from-brand-light to-brand-dark",
+  "Food & Dining": "from-brand-light to-brand",
+  "Retail": "from-brand-dark to-brand-light",
+  "Beauty & Spa": "from-brand-light to-brand-dark",
+  "Services": "from-brand-dark to-brand",
+  "Coffee & Bakery": "from-brand-light to-brand",
+  "Fitness": "from-brand to-brand-light",
+  "Hair & Salon": "from-brand-dark to-brand-light",
 }
 
 export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDetails }: BusinessCardProps) {
@@ -46,7 +46,7 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
   const reviewCount = business.review_count || business.reviews || 0
   const imageUrl = business.image_url || business.image || ''
   const hasDeal = business.has_deals || business.hasDeal
-  const gradient = categoryColors[business.category] || "from-[#4ade80] to-[#22c55e]"
+  const gradient = categoryColors[business.category] || "from-brand-light to-brand"
 
   return (
     <div
@@ -73,7 +73,7 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
         {/* Deal badge */}
         {hasDeal && (
           <div className="absolute top-3 left-3">
-            <Badge className="bg-[#22c55e] hover:bg-[#052e16] text-white border-0 shadow-lg shadow-[#22c55e]/25 gap-1">
+            <Badge className="bg-brand hover:bg-brand-dark text-white border-0 shadow-lg shadow-brand/25 gap-1">
               <Tag className="w-3 h-3" />
               Deal
             </Badge>
@@ -126,8 +126,8 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3 line-clamp-2 leading-relaxed">{business.description}</p>
 
         {business.dealText && (
-          <div className="mb-3 px-3 py-2 rounded-lg bg-[#4ade80]/10 dark:bg-[#4ade80]/15 border border-[#4ade80]/25 dark:border-[#4ade80]/20">
-            <p className="text-xs font-medium text-[#052e16] dark:text-[#4ade80]">{business.dealText}</p>
+          <div className="mb-3 px-3 py-2 rounded-lg bg-brand-light/10 dark:bg-brand-light/15 border border-brand-light/25 dark:border-brand-light/20">
+            <p className="text-xs font-medium text-brand-dark dark:text-brand-light">{business.dealText}</p>
           </div>
         )}
 

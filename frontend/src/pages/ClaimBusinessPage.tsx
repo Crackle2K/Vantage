@@ -94,7 +94,7 @@ export default function ClaimBusinessPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center animate-fade-in-up">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#22c55e]/20">
+          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/20">
             <Store className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
@@ -105,7 +105,7 @@ export default function ClaimBusinessPage() {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-[#22c55e]/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20">
           >
             Sign Up as Business Owner
           </Link>
@@ -130,7 +130,7 @@ export default function ClaimBusinessPage() {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-[#22c55e]/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
           >
             Create Business Account
           </Link>
@@ -150,7 +150,7 @@ export default function ClaimBusinessPage() {
               <div key={label} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                   i <= stepIndex
-                    ? 'gradient-primary text-white shadow-md shadow-[#22c55e]/25'
+                    ? 'gradient-primary text-white shadow-md shadow-brand/25'
                     : 'bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]'
                 }`}>
                   {i < stepIndex ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
@@ -162,7 +162,7 @@ export default function ClaimBusinessPage() {
                 </span>
                 {i < 2 && (
                   <div className={`w-16 h-0.5 ${
-                    i < stepIndex ? 'bg-[#22c55e]' : 'bg-[hsl(var(--secondary))]'
+                    i < stepIndex ? 'bg-brand' : 'bg-[hsl(var(--secondary))]'
                   }`} />
                 )}
               </div>
@@ -192,13 +192,13 @@ export default function ClaimBusinessPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Search by business name..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                 />
               </div>
               <button
                 onClick={handleSearch}
                 disabled={searching}
-                className="px-6 py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-[#22c55e]/25"
+                className="px-6 py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25">
               >
                 {searching ? 'Searching...' : 'Search'}
               </button>
@@ -213,7 +213,7 @@ export default function ClaimBusinessPage() {
                   onClick={() => !biz.is_claimed && handleSelectBusiness(biz)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4ade80] to-[#22c55e] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-light to-brand flex items-center justify-center">
                       <span className="text-lg font-bold text-white">{biz.name[0]}</span>
                     </div>
                     <div>
@@ -237,7 +237,7 @@ export default function ClaimBusinessPage() {
                   </div>
 
                   {!biz.is_claimed ? (
-                    <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium gradient-primary text-white shadow-md shadow-[#22c55e]/20">
+                    <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium gradient-primary text-white shadow-md shadow-brand/20">
                       Claim
                       <ArrowRight className="w-3 h-3" />
                     </button>
@@ -272,7 +272,7 @@ export default function ClaimBusinessPage() {
 
             {/* Selected Business Card */}
             <div className="glass-card rounded-xl p-4 mb-6 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#052e16] to-[#22c55e] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
                 <Store className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -281,7 +281,7 @@ export default function ClaimBusinessPage() {
               </div>
               <button
                 onClick={() => { setStep('search'); setSelectedBiz(null) }}
-                className="ml-auto text-xs text-[#22c55e] hover:underline"
+                className="ml-auto text-xs text-brand hover:underline">
               >
                 Change
               </button>
@@ -305,7 +305,7 @@ export default function ClaimBusinessPage() {
                   type="text"
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                   placeholder="Full name"
                 />
               </div>
@@ -336,7 +336,7 @@ export default function ClaimBusinessPage() {
                     type="tel"
                     value={ownerPhone}
                     onChange={(e) => setOwnerPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                     placeholder="Business phone"
                   />
                 </div>
@@ -349,7 +349,7 @@ export default function ClaimBusinessPage() {
                     type="email"
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                     placeholder="Business email"
                   />
                 </div>
@@ -364,7 +364,7 @@ export default function ClaimBusinessPage() {
                   value={proofDescription}
                   onChange={(e) => setProofDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30 resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
                   placeholder="e.g., I have a business license, I'm listed as the owner on public records, etc."
                 />
               </div>
@@ -372,7 +372,7 @@ export default function ClaimBusinessPage() {
               <button
                 onClick={handleSubmitClaim}
                 disabled={submitting}
-                className="w-full py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-[#22c55e]/25 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25 flex items-center justify-center gap-2">
               >
                 {submitting ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -404,7 +404,7 @@ export default function ClaimBusinessPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-[#22c55e]/25"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25"
               >
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4" />

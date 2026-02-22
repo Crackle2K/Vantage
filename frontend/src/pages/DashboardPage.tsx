@@ -70,7 +70,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center animate-fade-in-up">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#22c55e]/20">
+          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/20">
             <Store className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
@@ -83,7 +83,7 @@ export default function DashboardPage() {
           </p>
           <Link
             to={isAuthenticated ? '/account' : '/login'}
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-[#22c55e]/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20">
           >
             {isAuthenticated ? 'Go to Account' : 'Sign In'}
           </Link>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           {myBusinesses.length === 0 && (
             <Link
               to="/businesses"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-[#22c55e]/25"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25">
             >
               <Plus className="w-4 h-4" />
               Claim a Business
@@ -177,7 +177,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 to="/businesses"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-[#22c55e]/25"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25">
               >
                 Browse & Claim
                 <ArrowUpRight className="w-4 h-4" />
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                       onClick={() => selectBusiness(biz)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                         (biz.id || biz._id) === bizId
-                          ? 'gradient-primary text-white shadow-md shadow-[#22c55e]/25'
+                          ? 'gradient-primary text-white shadow-md shadow-brand/25'
                           : 'glass-card text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
                       }`}
                     >
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                   label="Active Deals"
                   value={String(deals.filter(d => d.is_active).length)}
                   sub={`${deals.length} total`}
-                  color="text-[#22c55e]"
+                  color="text-brand"
                 />
                 <StatCard
                   icon={MapPin}
@@ -344,14 +344,14 @@ export default function DashboardPage() {
                 {/* Subscription Status */}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
                   <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-[#22c55e]" />
+                    <Shield className="w-4 h-4 text-brand" />
                     Subscription
                   </h3>
 
                   {subscription && subscription.tier !== 'free' ? (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Crown className="w-5 h-5 text-[#22c55e]" />
+                        <Crown className="w-5 h-5 text-brand" />
                         <span className="font-bold text-[hsl(var(--foreground))] capitalize">{subscription.tier}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
                           subscription.status === 'active' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                       </p>
                       <Link
                         to="/pricing"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-[#22c55e] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline">
                       >
                         View Plans
                         <ChevronRight className="w-3 h-3" />
@@ -385,7 +385,7 @@ export default function DashboardPage() {
                 {/* Active Deals */}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                   <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-[#22c55e]" />
+                    <Tag className="w-4 h-4 text-brand" />
                     Active Deals
                   </h3>
 
@@ -411,7 +411,7 @@ export default function DashboardPage() {
                 {activityStatus && (
                   <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '250ms' }}>
                     <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
-                      <Eye className="w-4 h-4 text-[#22c55e]" />
+                      <Eye className="w-4 h-4 text-brand" />
                       Activity Signal
                     </h3>
 

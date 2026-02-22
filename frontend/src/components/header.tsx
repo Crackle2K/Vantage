@@ -68,7 +68,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-[#22c55e]/25 group-hover:shadow-lg group-hover:shadow-[#22c55e]/30 transition-shadow duration-300">
+            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-brand/25 group-hover:shadow-lg group-hover:shadow-brand/30 transition-shadow duration-300">
               <Store className="w-4.5 h-4.5 text-white" />
             </div>
             <span className="text-xl font-bold text-[hsl(var(--foreground))] tracking-tight font-heading">
@@ -85,7 +85,7 @@ export function Header() {
                 className={cn(
                   "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 font-sub",
                   isActive(link.to)
-                    ? "bg-[hsl(var(--primary))] text-white shadow-md shadow-[#22c55e]/25"
+                    ? "bg-[hsl(var(--primary))] text-white shadow-md shadow-brand/25"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
                 )}
               >
@@ -175,7 +175,7 @@ export function Header() {
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm" className="gap-1.5 gradient-primary text-white border-0 shadow-md shadow-[#22c55e]/25 hover:shadow-lg hover:shadow-[#22c55e]/30 transition-shadow">
+                  <Button size="sm" className="gap-1.5 gradient-primary text-white border-0 shadow-md shadow-brand/25 hover:shadow-lg hover:shadow-brand/30 transition-shadow">
                     <UserPlus className="w-4 h-4" />
                     Sign Up
                   </Button>

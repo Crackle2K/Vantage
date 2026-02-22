@@ -2,14 +2,14 @@ import { cn } from "@/lib/utils"
 import { Utensils, ShoppingBag, Scissors, Wrench, Coffee, Dumbbell, Sparkles, Grid3X3 } from "lucide-react"
 
 const categories = [
-  { name: "All Categories", icon: Grid3X3, gradient: "from-[#4ade80] to-[#22c55e]" },
-  { name: "Food & Dining", icon: Utensils, gradient: "from-[#4ade80] to-[#22c55e]" },
-  { name: "Retail", icon: ShoppingBag, gradient: "from-[#052e16] to-[#4ade80]" },
-  { name: "Beauty & Spa", icon: Sparkles, gradient: "from-[#4ade80] to-[#052e16]" },
-  { name: "Services", icon: Wrench, gradient: "from-[#052e16] to-[#22c55e]" },
-  { name: "Coffee & Bakery", icon: Coffee, gradient: "from-[#4ade80] to-[#22c55e]" },
-  { name: "Fitness", icon: Dumbbell, gradient: "from-[#22c55e] to-[#4ade80]" },
-  { name: "Hair & Salon", icon: Scissors, gradient: "from-[#052e16] to-[#4ade80]" },
+  { name: "All Categories", icon: Grid3X3, gradient: "from-brand-light to-brand" },
+  { name: "Food & Dining", icon: Utensils, gradient: "from-brand-light to-brand" },
+  { name: "Retail", icon: ShoppingBag, gradient: "from-brand-dark to-brand-light" },
+  { name: "Beauty & Spa", icon: Sparkles, gradient: "from-brand-light to-brand-dark" },
+  { name: "Services", icon: Wrench, gradient: "from-brand-dark to-brand" },
+  { name: "Coffee & Bakery", icon: Coffee, gradient: "from-brand-light to-brand" },
+  { name: "Fitness", icon: Dumbbell, gradient: "from-brand to-brand-light" },
+  { name: "Hair & Salon", icon: Scissors, gradient: "from-brand-dark to-brand-light" },
 ]
 
 interface CategorySidebarProps {
@@ -35,7 +35,7 @@ export function CategorySidebar({ selectedCategory, onSelectCategory }: Category
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isSelected
-                    ? "gradient-primary text-white shadow-lg shadow-[#22c55e]/20"
+                    ? "gradient-primary text-white shadow-lg shadow-brand/20"
                     : "text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
                 )}
               >

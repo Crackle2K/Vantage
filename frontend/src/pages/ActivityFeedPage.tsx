@@ -20,7 +20,7 @@ const activityIcons: Record<string, typeof MapPin> = {
 const activityColors: Record<string, string> = {
   checkin: 'bg-blue-500',
   review: 'bg-amber-500',
-  deal_posted: 'bg-[#22c55e]',
+  deal_posted: 'bg-brand',
   event_created: 'bg-purple-500',
   business_claimed: 'bg-green-500',
   milestone: 'bg-orange-500',
@@ -214,11 +214,11 @@ export default function ActivityFeedPage() {
 
                         {/* Engagement */}
                         <div className="flex items-center gap-4 mt-3">
-                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-[#22c55e] transition-colors">
+                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
                             <ThumbsUp className="w-3.5 h-3.5" />
                             {item.likes > 0 && item.likes}
                           </button>
-                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-[#22c55e] transition-colors">
+                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
                             <MessageCircle className="w-3.5 h-3.5" />
                             {item.comments > 0 && item.comments}
                           </button>
@@ -245,7 +245,7 @@ export default function ActivityFeedPage() {
             {isAuthenticated && myCredibility && (
               <div className="glass-card rounded-2xl p-5 animate-fade-in-up">
                 <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-4 font-sub flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-[#22c55e]" />
+                  <Shield className="w-4 h-4 text-brand" />
                   Your Credibility
                 </h3>
 
@@ -256,7 +256,7 @@ export default function ActivityFeedPage() {
                       <circle cx="18" cy="18" r="16" fill="none" className="stroke-[hsl(var(--secondary))]" strokeWidth="3" />
                       <circle
                         cx="18" cy="18" r="16" fill="none"
-                        className="stroke-[#22c55e]"
+                        className="stroke-brand"
                         strokeWidth="3"
                         strokeDasharray={`${myCredibility.credibility_score} ${100 - myCredibility.credibility_score}`}
                         strokeLinecap="round"

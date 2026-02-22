@@ -351,7 +351,7 @@ export default function HomePage() {
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 font-heading">
                 Find your next
                 <br />
-                <span className="text-[#4ade80]">{animatedWord}<span className="animate-pulse">|</span></span>
+                <span className="text-brand-light">{animatedWord}<span className="animate-pulse">|</span></span>
               </h1>
               <p className="text-lg md:text-xl text-white/90 mb-10">
                 Building real trust for local discovery
@@ -400,7 +400,7 @@ export default function HomePage() {
               />
             </div>
             <div>
-              <p className="text-sm uppercase tracking-wider text-[#22c55e] font-semibold mb-3">Step — 01</p>
+              <p className="text-sm uppercase tracking-wider text-brand font-semibold mb-3">Step — 01</p>
               <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
                 Explore Your Community
               </h3>
@@ -416,7 +416,7 @@ export default function HomePage() {
           {/* Subsection 2: Text left, image right */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
-              <p className="text-sm uppercase tracking-wider text-[#22c55e] font-semibold mb-3">Step — 02</p>
+              <p className="text-sm uppercase tracking-wider text-brand font-semibold mb-3">Step — 02</p>
               <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
                 Support Local Businesses
               </h3>
@@ -486,7 +486,7 @@ export default function HomePage() {
                   key={i} 
                   className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#4ade80] to-[#22c55e] flex items-center justify-center mb-6">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-light to-brand flex items-center justify-center mb-6">
                     <Icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-bold mb-3 font-sub text-[hsl(var(--foreground))]">
@@ -516,14 +516,14 @@ export default function HomePage() {
             <div className="flex gap-2">
               <button
                 onClick={prevBusiness}
-                className="w-12 h-12 rounded-full bg-[#4ade80] text-white flex items-center justify-center hover:bg-[#22c55e] transition-colors"
+                className="w-12 h-12 rounded-full bg-brand-light text-white flex items-center justify-center hover:bg-brand transition-colors"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={nextBusiness}
-                className="w-12 h-12 rounded-full bg-[#4ade80] text-white flex items-center justify-center hover:bg-[#22c55e] transition-colors"
+                className="w-12 h-12 rounded-full bg-brand-light text-white flex items-center justify-center hover:bg-brand transition-colors"
                 aria-label="Next"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -548,7 +548,7 @@ export default function HomePage() {
                       alt={business.name} 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-[#052e16]">
+                    <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-brand-dark">
                       ${business.price}
                     </div>
                   </div>
@@ -577,7 +577,7 @@ export default function HomePage() {
             Your trusted partner in tour
           </h2>
 
-          <div className="bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-3xl p-12 md:p-16 shadow-2xl">
+          <div className="bg-gradient-to-br from-brand-light to-brand rounded-3xl p-12 md:p-16 shadow-2xl">
             <div className="text-white">
               <p className="text-2xl md:text-3xl font-serif italic mb-8 leading-relaxed">
                 "{testimonials[testimonialIndex].quote}"
@@ -678,7 +678,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           NEWSLETTER SECTION - Email signup
           ═══════════════════════════════════════════ */}
-      <section className="py-20 bg-gradient-to-br from-[#4ade80] to-[#22c55e]">
+      <section className="py-20 bg-gradient-to-br from-brand-light to-brand">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">
             Stay updated with local deals
@@ -702,7 +702,7 @@ export default function HomePage() {
             <Button 
               type="submit"
               size="lg"
-              className="bg-[#052e16] hover:bg-[#052e16]/90 text-white px-8 py-4 rounded-xl transition-colors"
+              className="bg-brand-dark hover:bg-brand-dark/90 text-white px-8 py-4 rounded-xl transition-colors"
             >
               Subscribe
             </Button>

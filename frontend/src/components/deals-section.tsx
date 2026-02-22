@@ -4,11 +4,11 @@ import type { Deal } from "@/types"
 import { api } from "@/api"
 
 const colorPalette = [
-  "from-[#4ade80] to-[#22c55e]",
-  "from-[#052e16] to-[#4ade80]",
-  "from-[#22c55e] to-[#4ade80]",
-  "from-[#4ade80] to-[#052e16]",
-  "from-[#052e16] to-[#22c55e]",
+  "from-brand-light to-brand",
+  "from-brand-dark to-brand-light",
+  "from-brand to-brand-light",
+  "from-brand-light to-brand-dark",
+  "from-brand-dark to-brand",
 ]
 
 export function DealsSection() {
@@ -26,7 +26,7 @@ export function DealsSection() {
     return (
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <Tag className="w-5 h-5 text-[#4ade80]" />
+          <Tag className="w-5 h-5 text-brand-light" />
           <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -42,8 +42,8 @@ export function DealsSection() {
     <div className="mb-8 animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#4ade80]/15 dark:bg-[#4ade80]/20 flex items-center justify-center">
-            <Tag className="w-4 h-4 text-[#4ade80] dark:text-[#4ade80]" />
+          <div className="w-8 h-8 rounded-lg bg-brand-light/15 dark:bg-brand-light/20 flex items-center justify-center">
+            <Tag className="w-4 h-4 text-brand-light dark:text-brand-light" />
           </div>
           <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
         </div>
@@ -66,7 +66,7 @@ export function DealsSection() {
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
 
               <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#22c55e]/10`}>
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand/10`}>
                   {deal.discount_type === 'percentage' ? (
                     <Percent className="w-5 h-5 text-white" />
                   ) : (
@@ -80,7 +80,7 @@ export function DealsSection() {
               </div>
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[hsl(var(--border))]/50">
-                <span className="text-lg font-bold text-[#4ade80] dark:text-[#4ade80]">
+                <span className="text-lg font-bold text-brand-light dark:text-brand-light">
                   {deal.discount_type === 'percentage' ? `${deal.discount_value}% OFF` : `$${deal.discount_value} OFF`}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">

@@ -12,11 +12,11 @@ interface BusinessModalProps {
 }
 
 const categoryGradients: Record<string, string> = {
-  food: 'from-[#4ade80] to-[#22c55e]',
-  retail: 'from-[#052e16] to-[#4ade80]',
-  services: 'from-[#052e16] to-[#22c55e]',
-  entertainment: 'from-[#22c55e] to-[#4ade80]',
-  health: 'from-[#4ade80] to-[#052e16]',
+  food: 'from-brand-light to-brand',
+  retail: 'from-brand-dark to-brand-light',
+  services: 'from-brand-dark to-brand',
+  entertainment: 'from-brand to-brand-light',
+  health: 'from-brand-light to-brand-dark',
 }
 
 export function BusinessModal({ business, onClose }: BusinessModalProps) {
@@ -37,7 +37,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
   const [checkedIn, setCheckedIn] = useState(false)
 
   const businessId = business.id || business._id || ''
-  const gradient = categoryGradients[business.category] || 'from-[#4ade80] to-[#22c55e]'
+  const gradient = categoryGradients[business.category] || 'from-brand-light to-brand'
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -199,7 +199,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
               ) : business.is_seed !== false && isAuthenticated && user?.role === 'business_owner' ? (
                 <button
                   onClick={() => { onClose(); navigate(`/claim?business=${businessId}`) }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/5 transition-colors text-sm font-medium"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-brand/30 text-brand hover:bg-brand/5 transition-colors text-sm font-medium">
                 >
                   <Award className="w-4 h-4" />
                   Claim This Business
@@ -233,7 +233,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                     'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all',
                     checkedIn
                       ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                      : 'gradient-primary text-white shadow-md shadow-[#22c55e]/20 hover:shadow-lg'
+                      : 'gradient-primary text-white shadow-md shadow-brand/20 hover:shadow-lg'
                   )}
                 >
                   {checkingIn ? (
@@ -379,7 +379,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
-                          {review.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#4ade80]" />}
+                          {review.verified && <CheckCircle2 className="w-3.5 h-3.5 text-brand-light" />}
                           <Clock className="w-3 h-3" />
                           {new Date(review.created_at).toLocaleDateString()}
                         </div>
@@ -410,15 +410,15 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                   <div key={deal.id || deal._id} className="p-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#4ade80]/15 dark:bg-[#4ade80]/20 flex items-center justify-center flex-shrink-0">
-                          <Tag className="w-5 h-5 text-[#4ade80] dark:text-[#4ade80]" />
+                        <div className="w-10 h-10 rounded-lg bg-brand-light/15 dark:bg-brand-light/20 flex items-center justify-center flex-shrink-0">
+                          <Tag className="w-5 h-5 text-brand-light dark:text-brand-light" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-[hsl(var(--foreground))]">{deal.title}</h4>
                           <p className="text-sm text-[hsl(var(--muted-foreground))]">{deal.description}</p>
                         </div>
                       </div>
-                      <span className="text-lg font-bold text-[#4ade80] dark:text-[#4ade80] flex-shrink-0">
+                      <span className="text-lg font-bold text-brand-light dark:text-brand-light flex-shrink-0">
                         {deal.discount_type === 'percentage' ? `${deal.discount_value}%` : `$${deal.discount_value}`}
                       </span>
                     </div>

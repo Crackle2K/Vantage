@@ -14,9 +14,9 @@ const tierIcons: Record<string, typeof Star> = {
 
 const tierGradients: Record<string, string> = {
   free: 'from-gray-400 to-gray-500',
-  starter: 'from-[#22c55e] to-[#4ade80]',
-  pro: 'from-[#22c55e] to-[#22c55e]',
-  premium: 'from-[#052e16] to-[#22c55e]',
+  starter: 'from-brand to-brand-light',
+  pro: 'from-brand to-brand',
+  premium: 'from-brand-dark to-brand',
 }
 
 export default function PricingPage() {
@@ -131,7 +131,7 @@ export default function PricingPage() {
             <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
               className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${
-                billingCycle === 'yearly' ? 'bg-[#22c55e]' : 'bg-[hsl(var(--secondary))]'
+                billingCycle === 'yearly' ? 'bg-brand' : 'bg-[hsl(var(--secondary))]'
               }`}
             >
               <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 ${
@@ -142,7 +142,7 @@ export default function PricingPage() {
               Yearly
             </span>
             {billingCycle === 'yearly' && (
-              <span className="text-xs font-semibold text-[#22c55e] bg-[#22c55e]/10 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full">
                 Save ~20%
               </span>
             )}
@@ -193,13 +193,13 @@ export default function PricingPage() {
               <div
                 key={tier.tier}
                 className={`relative glass-card rounded-2xl p-6 flex flex-col animate-fade-in-up ${
-                  isHighlighted ? 'ring-2 ring-[#22c55e] shadow-xl shadow-[#22c55e]/10' : ''
+                  isHighlighted ? 'ring-2 ring-brand shadow-xl shadow-brand/10' : ''
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {isHighlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1 rounded-full text-xs font-bold text-white gradient-primary shadow-lg shadow-[#22c55e]/25">
+                    <span className="px-4 py-1 rounded-full text-xs font-bold text-white gradient-primary shadow-lg shadow-brand/25">
                       Most Popular
                     </span>
                   </div>
@@ -241,7 +241,7 @@ export default function PricingPage() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {tier.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#22c55e] mt-0.5 flex-shrink-0" />
+                      <Check className="w-4 h-4 text-brand mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-[hsl(var(--foreground))]">{feature}</span>
                     </li>
                   ))}
@@ -253,7 +253,7 @@ export default function PricingPage() {
                   disabled={subscribing || isCurrent}
                   className={`w-full py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
                     isHighlighted
-                      ? 'gradient-primary text-white shadow-lg shadow-[#22c55e]/25 hover:shadow-xl hover:shadow-[#22c55e]/30'
+                      ? 'gradient-primary text-white shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30'
                       : isCurrent
                         ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 cursor-default'
                         : tier.monthly_price === 0

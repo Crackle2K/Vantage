@@ -48,6 +48,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        brand: {
+          DEFAULT: "var(--color-primary)",
+          light: "var(--color-accent)",
+          dark: "var(--color-dark)",
+        },
+        vantage: {
+          primary: "var(--color-primary)",
+          accent: "var(--color-accent)",
+          dark: "var(--color-dark)",
+          light: "var(--color-light)",
+          muted: "var(--color-muted)",
+          warning: "var(--color-warning)",
+          danger: "var(--color-danger)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
