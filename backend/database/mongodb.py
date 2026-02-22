@@ -64,13 +64,17 @@ async def close_mongo_connection():
 def get_database():
     """Get the database instance."""
     if database is None:
-        raise Exception("Database not initialized. Call connect_to_mongo() first.")
+        raise Exception(
+            "MongoDB is not connected. Please ensure MongoDB is running and accessible at the configured URI. "
+            "Start MongoDB or check your MONGODB_URI in the .env file."
+        )
     return database
 
 
 # ── Collection getters ──────────────────────────────────────────────
 
 def get_users_collection():
+    """Get users collection with connection check."""
     return get_database()["users"]
 
 def get_businesses_collection():

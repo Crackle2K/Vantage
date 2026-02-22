@@ -74,7 +74,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except JWTError:
         raise credentials_exception
     
-    users_collection = get_users_collection()
+    try:
+        users_collection = get_users_collection()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable"
+        )
     user = await users_collection.find_one({"email": token_data.email})
     
     if user is None:
@@ -92,7 +98,13 @@ async def register(user_data: UserCreate):
     - Creates user account with hashed password
     - Returns JWT access token
     """
-    users_collection = get_users_collection()
+    try:
+        users_collection = get_users_collection()
+    except Exception as db_error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database unavailable: {str(db_error)}"
+        )
     
     # Check if user already exists
     existing_user = await users_collection.find_one({"email": user_data.email})
@@ -134,7 +146,13 @@ async def login(user_credentials: UserLogin):
     - Validates email and password
     - Returns JWT access token
     """
-    users_collection = get_users_collection()
+    try:
+        users_collection = get_users_collection()
+    except Exception as db_error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database unavailable: {str(db_error)}"
+        )
     
     # Find user by email
     user = await users_collection.find_one({"email": user_credentials.email})
