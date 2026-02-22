@@ -83,7 +83,7 @@ export default function DashboardPage() {
           </p>
           <Link
             to={isAuthenticated ? '/account' : '/login'}
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20">
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
           >
             {isAuthenticated ? 'Go to Account' : 'Sign In'}
           </Link>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           {myBusinesses.length === 0 && (
             <Link
               to="/businesses"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25">
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25"
             >
               <Plus className="w-4 h-4" />
               Claim a Business
@@ -177,7 +177,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 to="/businesses"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25">
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25"
               >
                 Browse & Claim
                 <ArrowUpRight className="w-4 h-4" />
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                       </p>
                       <Link
                         to="/pricing"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline">
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
                       >
                         View Plans
                         <ChevronRight className="w-3 h-3" />

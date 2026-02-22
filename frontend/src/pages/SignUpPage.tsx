@@ -157,7 +157,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={loading || !name || !email || !password || !confirmPassword}
-              className="w-full h-11 gradient-primary text-white border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium">
+              className="w-full h-11 gradient-primary text-white border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating account...</>

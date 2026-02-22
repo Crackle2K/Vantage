@@ -209,7 +209,7 @@ export default function Businesses() {
                 <Button
                   onClick={requestLocation}
                   disabled={loading}
-                  className="gradient-primary text-white border-0 shadow-md shadow-brand/20 hover:shadow-lg transition-all rounded-xl">
+                  className="gradient-primary text-white border-0 shadow-md shadow-brand/20 hover:shadow-lg transition-all rounded-xl"
                 >
                   {loading ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Getting Location...</>
@@ -351,7 +351,7 @@ export default function Businesses() {
                 <Button
                   onClick={requestLocation}
                   size="lg"
-                  className="gradient-primary text-white border-0 shadow-lg shadow-brand/20 rounded-xl px-8 py-6">
+                  className="gradient-primary text-white border-0 shadow-lg shadow-brand/20 rounded-xl px-8 py-6"
                 >
                   <Navigation className="w-5 h-5 mr-2" />
                   Enable Location Access
@@ -522,7 +522,7 @@ export default function Businesses() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full gradient-primary text-white shadow-lg shadow-brand/25 flex items-center justify-center hover:scale-110 transition-transform">
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full gradient-primary text-white shadow-lg shadow-brand/25 flex items-center justify-center hover:scale-110 transition-transform"
         >
           <ChevronUp className="w-5 h-5" />
         </button>

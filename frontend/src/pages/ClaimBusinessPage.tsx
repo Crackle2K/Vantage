@@ -105,7 +105,7 @@ export default function ClaimBusinessPage() {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20">
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
           >
             Sign Up as Business Owner
           </Link>
@@ -198,7 +198,7 @@ export default function ClaimBusinessPage() {
               <button
                 onClick={handleSearch}
                 disabled={searching}
-                className="px-6 py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25">
+                className="px-6 py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25"
               >
                 {searching ? 'Searching...' : 'Search'}
               </button>
@@ -281,7 +281,7 @@ export default function ClaimBusinessPage() {
               </div>
               <button
                 onClick={() => { setStep('search'); setSelectedBiz(null) }}
-                className="ml-auto text-xs text-brand hover:underline">
+                className="ml-auto text-xs text-brand hover:underline"
               >
                 Change
               </button>
@@ -372,7 +372,7 @@ export default function ClaimBusinessPage() {
               <button
                 onClick={handleSubmitClaim}
                 disabled={submitting}
-                className="w-full py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25 flex items-center justify-center gap-2">
+                className="w-full py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

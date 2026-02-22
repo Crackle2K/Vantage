@@ -199,7 +199,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
               ) : business.is_seed !== false && isAuthenticated && user?.role === 'business_owner' ? (
                 <button
                   onClick={() => { onClose(); navigate(`/claim?business=${businessId}`) }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-brand/30 text-brand hover:bg-brand/5 transition-colors text-sm font-medium">
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-brand/30 text-brand hover:bg-brand/5 transition-colors text-sm font-medium"
                 >
                   <Award className="w-4 h-4" />
                   Claim This Business

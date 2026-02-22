@@ -21,7 +21,7 @@ export default function AccountPage() {
           <p className="text-[hsl(var(--muted-foreground))] mb-6">Please sign in to access your account settings</p>
           <Link
             to="/login"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20">
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
           >
             Sign In
           </Link>
