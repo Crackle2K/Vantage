@@ -116,16 +116,16 @@ export default function PricingPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
+          <h1 className="text-heading md:text-display font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
             Grow Your <span className="gradient-text font-serif">Business</span>
           </h1>
-          <p className="text-lg text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
+          <p className="text-body text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
             Free for community members. Business owners pay only for the tools they need to grow locally.
           </p>
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-3 mt-8">
-            <span className={`text-sm font-medium ${billingCycle === 'monthly' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
+            <span className={`text-ui font-medium ${billingCycle === 'monthly' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
               Monthly
             </span>
             <button
@@ -134,15 +134,15 @@ export default function PricingPage() {
                 billingCycle === 'yearly' ? 'bg-brand' : 'bg-[hsl(var(--secondary))]'
               }`}
             >
-              <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 ${
+              <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-surface shadow-md transition-transform duration-300 ${
                 billingCycle === 'yearly' ? 'translate-x-7.5' : 'translate-x-0.5'
               }`} />
             </button>
-            <span className={`text-sm font-medium ${billingCycle === 'yearly' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
+            <span className={`text-ui font-medium ${billingCycle === 'yearly' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
               Yearly
             </span>
             {billingCycle === 'yearly' && (
-              <span className="text-xs font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full">
+              <span className="text-caption font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full">
                 Save ~20%
               </span>
             )}
@@ -152,13 +152,13 @@ export default function PricingPage() {
         {/* Business selector for owners */}
         {isAuthenticated && user?.role === 'business_owner' && myBusinesses.length > 0 && (
           <div className="max-w-md mx-auto mb-8">
-            <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+            <label className="block text-ui font-medium text-[hsl(var(--foreground))] mb-2">
               Select your business
             </label>
             <select
               value={selectedBusiness}
               onChange={(e) => setSelectedBusiness(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm"
+              className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui"
             >
               {myBusinesses.map(b => (
                 <option key={b.id || b._id} value={b.id || b._id}>
@@ -170,12 +170,12 @@ export default function PricingPage() {
         )}
 
         {error && (
-          <div className="max-w-md mx-auto mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm text-center">
+          <div className="max-w-md mx-auto mb-6 p-4 rounded-xl bg-error dark:bg-error/20 border border-error text-error dark:text-error text-ui text-center">
             {error}
           </div>
         )}
         {success && (
-          <div className="max-w-md mx-auto mb-6 p-4 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm text-center">
+          <div className="max-w-md mx-auto mb-6 p-4 rounded-xl bg-success dark:bg-success/20 border border-success dark:border-success text-success dark:text-success text-ui text-center">
             {success}
           </div>
         )}
@@ -199,7 +199,7 @@ export default function PricingPage() {
               >
                 {isHighlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1 rounded-full text-xs font-bold text-white gradient-primary shadow-lg shadow-brand/25">
+                    <span className="px-4 py-1 rounded-full text-caption font-bold text-brand-on-primary gradient-primary shadow-lg shadow-brand/25">
                       Most Popular
                     </span>
                   </div>
@@ -207,7 +207,7 @@ export default function PricingPage() {
 
                 {isCurrent && (
                   <div className="absolute -top-3 right-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-green-500">
+                    <span className="px-3 py-1 rounded-full text-caption font-bold text-on-primary bg-success">
                       Current
                     </span>
                   </div>
@@ -215,23 +215,23 @@ export default function PricingPage() {
 
                 {/* Tier Icon */}
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-lg`}>
-                  <Icon className="w-6 h-6 text-white" />
+                  <Icon className="w-6 h-6 text-brand-on-primary" />
                 </div>
 
                 {/* Tier Info */}
-                <h3 className="text-xl font-bold text-[hsl(var(--foreground))] font-heading">{tier.name}</h3>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1 mb-4">{tier.description}</p>
+                <h3 className="text-subheading font-bold text-[hsl(var(--foreground))] font-heading">{tier.name}</h3>
+                <p className="text-ui text-[hsl(var(--muted-foreground))] mt-1 mb-4">{tier.description}</p>
 
                 {/* Price */}
                 <div className="mb-6">
-                  <span className="text-4xl font-bold text-[hsl(var(--foreground))]">
+                  <span className="text-heading font-bold text-[hsl(var(--foreground))]">
                     ${billingCycle === 'yearly' ? Math.round(price / 12) : price}
                   </span>
                   {tier.monthly_price > 0 && (
-                    <span className="text-sm text-[hsl(var(--muted-foreground))]">/mo</span>
+                    <span className="text-ui text-[hsl(var(--muted-foreground))]">/mo</span>
                   )}
                   {billingCycle === 'yearly' && tier.yearly_price > 0 && (
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+                    <p className="text-caption text-[hsl(var(--muted-foreground))] mt-1">
                       ${price}/year billed annually
                     </p>
                   )}
@@ -242,7 +242,7 @@ export default function PricingPage() {
                   {tier.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-brand mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-[hsl(var(--foreground))]">{feature}</span>
+                      <span className="text-ui text-[hsl(var(--foreground))]">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -251,11 +251,11 @@ export default function PricingPage() {
                 <button
                   onClick={() => handleSubscribe(tier.tier)}
                   disabled={subscribing || isCurrent}
-                  className={`w-full py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
+                  className={`w-full py-3 rounded-xl font-medium text-ui flex items-center justify-center gap-2 transition-all duration-200 ${
                     isHighlighted
-                      ? 'gradient-primary text-white shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30'
+                      ? 'gradient-primary text-on-primary shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30'
                       : isCurrent
-                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 cursor-default'
+                        ? 'bg-success dark:bg-success/20 text-success dark:text-success cursor-default'
                         : tier.monthly_price === 0
                           ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]/80'
                           : 'border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
@@ -271,10 +271,10 @@ export default function PricingPage() {
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <p className="text-[hsl(var(--muted-foreground))] text-sm mb-2">
+          <p className="text-[hsl(var(--muted-foreground))] text-ui mb-2">
             Community members always browse for free. Subscriptions are for business owners only.
           </p>
-          <p className="text-[hsl(var(--muted-foreground))] text-xs">
+          <p className="text-[hsl(var(--muted-foreground))] text-caption">
             Cancel anytime. No contracts. No hidden fees.
           </p>
         </div>

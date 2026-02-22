@@ -63,7 +63,7 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-            <span className="text-4xl font-bold text-white/80">{business.name[0]}</span>
+            <span className="text-heading font-bold text-on-primary/80">{business.name[0]}</span>
           </div>
         )}
 
@@ -73,7 +73,7 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
         {/* Deal badge */}
         {hasDeal && (
           <div className="absolute top-3 left-3">
-            <Badge className="bg-brand hover:bg-brand-dark text-white border-0 shadow-lg shadow-brand/25 gap-1">
+            <Badge className="bg-brand hover:bg-brand-dark text-on-primary border-0 shadow-lg shadow-brand/25 gap-1">
               <Tag className="w-3 h-3" />
               Deal
             </Badge>
@@ -86,8 +86,8 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
           className={cn(
             "absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg",
             isFavorite
-              ? "bg-red-500 text-white scale-110"
-              : "bg-white/80 dark:bg-black/50 text-[hsl(var(--foreground))] hover:bg-white dark:hover:bg-black/70 backdrop-blur-sm"
+              ? "bg-error text-on-primary scale-110"
+              : "bg-surface/80 dark:bg-scrim-dark/50 text-[hsl(var(--foreground))] hover:bg-surface dark:hover:bg-scrim-dark/70 backdrop-blur-sm"
           )}
         >
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
@@ -95,7 +95,7 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
 
         {/* View arrow (on hover) */}
         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-          <div className="w-8 h-8 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-surface/90 dark:bg-scrim-dark/60 backdrop-blur-sm flex items-center justify-center">
             <ArrowUpRight className="w-4 h-4 text-[hsl(var(--foreground))]" />
           </div>
         </div>
@@ -111,11 +111,11 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
 
         <div className="flex items-center gap-2 mb-2.5">
           <span className={`inline-block w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`} />
-          <span className="text-xs font-medium text-[hsl(var(--muted-foreground))] capitalize font-mono">{business.category}</span>
+          <span className="text-caption font-medium text-[hsl(var(--muted-foreground))] capitalize font-mono">{business.category}</span>
           {business.distance !== undefined && (
             <>
               <span className="text-[hsl(var(--border))]">|</span>
-              <div className="flex items-center gap-0.5 text-xs text-[hsl(var(--muted-foreground))]">
+              <div className="flex items-center gap-0.5 text-caption text-[hsl(var(--muted-foreground))]">
                 <MapPin className="w-3 h-3" />
                 {business.distance.toFixed(1)} km
               </div>
@@ -123,11 +123,11 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
           )}
         </div>
 
-        <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3 line-clamp-2 leading-relaxed">{business.description}</p>
+        <p className="text-ui text-[hsl(var(--muted-foreground))] mb-3 line-clamp-2 leading-relaxed">{business.description}</p>
 
         {business.dealText && (
           <div className="mb-3 px-3 py-2 rounded-lg bg-brand-light/10 dark:bg-brand-light/15 border border-brand-light/25 dark:border-brand-light/20">
-            <p className="text-xs font-medium text-brand-dark dark:text-brand-light">{business.dealText}</p>
+            <p className="text-caption font-medium text-brand-dark dark:text-brand-light">{business.dealText}</p>
           </div>
         )}
 
@@ -140,14 +140,14 @@ export function BusinessCard({ business, isFavorite, onToggleFavorite, onViewDet
                 className={cn(
                   "w-3.5 h-3.5",
                   i <= Math.round(rating)
-                    ? "text-amber-400 fill-amber-400"
+                    ? "text-warning fill-amber-400"
                     : "text-[hsl(var(--border))]"
                 )}
               />
             ))}
           </div>
-          <span className="text-sm font-semibold text-[hsl(var(--foreground))]">{rating.toFixed(1)}</span>
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">({reviewCount})</span>
+          <span className="text-ui font-semibold text-[hsl(var(--foreground))]">{rating.toFixed(1)}</span>
+          <span className="text-caption text-[hsl(var(--muted-foreground))]">({reviewCount})</span>
         </div>
       </div>
     </div>

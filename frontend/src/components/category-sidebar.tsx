@@ -21,7 +21,7 @@ export function CategorySidebar({ selectedCategory, onSelectCategory }: Category
   return (
     <aside className="hidden lg:block w-64 flex-shrink-0">
       <div className="glass-card rounded-2xl p-4 sticky top-24">
-        <h2 className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-widest px-3 mb-3">
+        <h2 className="text-caption font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-widest px-3 mb-3">
           Categories
         </h2>
         <nav className="space-y-1">
@@ -33,19 +33,19 @@ export function CategorySidebar({ selectedCategory, onSelectCategory }: Category
                 key={category.name}
                 onClick={() => onSelectCategory(category.name)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-ui font-medium transition-all duration-200",
                   isSelected
-                    ? "gradient-primary text-white shadow-lg shadow-brand/20"
+                    ? "gradient-primary text-on-primary shadow-lg shadow-brand/20"
                     : "text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
                 )}
               >
                 <div className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all",
                   isSelected
-                    ? "bg-white/20"
+                    ? "bg-surface/20"
                     : `bg-gradient-to-br ${category.gradient} bg-opacity-10`
                 )}>
-                  <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-white" : "text-white")} />
+                  <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-on-primary" : "text-brand-on-primary")} />
                 </div>
                 {category.name}
               </button>

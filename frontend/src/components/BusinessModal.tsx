@@ -104,7 +104,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-scrim-dark/60 backdrop-blur-sm" />
 
       {/* Modal */}
       <div
@@ -114,7 +114,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors"
+          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-scrim-dark/40 backdrop-blur-sm text-on-primary flex items-center justify-center hover:bg-scrim-dark/60 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -125,23 +125,23 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
             <img src={business.image_url} alt={business.name} className="w-full h-full object-cover" />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-              <span className="text-7xl font-bold text-white/30">{business.name[0]}</span>
+              <span className="text-display font-bold text-on-primary/30">{business.name[0]}</span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
           {/* Title overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-6">
-            <h2 className="text-2xl font-bold text-white mb-1 font-heading tracking-tight">{business.name}</h2>
-            <div className="flex items-center gap-3 text-white/80 text-sm">
+            <h2 className="text-subheading font-bold text-on-primary mb-1 font-heading tracking-tight">{business.name}</h2>
+            <div className="flex items-center gap-3 text-on-primary/80 text-ui">
               <span className="capitalize">{business.category}</span>
               <span>|</span>
               <div className="flex items-center gap-1">
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} className={cn('w-3.5 h-3.5', i <= Math.round(business.rating) ? 'text-amber-400 fill-amber-400' : 'text-white/40')} />
+                  <Star key={i} className={cn('w-3.5 h-3.5', i <= Math.round(business.rating) ? 'text-warning fill-amber-400' : 'text-on-primary/40')} />
                 ))}
                 <span className="ml-1 font-medium">{business.rating.toFixed(1)}</span>
-                <span className="text-white/60">({business.review_count})</span>
+                <span className="text-secondary">({business.review_count})</span>
               </div>
               {business.distance !== undefined && (
                 <>
@@ -160,7 +160,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex-1 px-4 py-3 text-sm font-medium transition-colors relative',
+                'flex-1 px-4 py-3 text-ui font-medium transition-colors relative',
                 activeTab === tab.id
                   ? 'text-[hsl(var(--primary))]'
                   : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
@@ -181,10 +181,10 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
             <div className="space-y-5 animate-fade-in">
               {/* Activity Signal */}
               {activityStatus && activityStatus.is_active_today && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium text-green-700 dark:text-green-400">Active Today</span>
-                  <span className="text-xs text-green-600 dark:text-green-500 ml-auto">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-success dark:bg-success/20 border border-success dark:border-success">
+                  <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-ui font-medium text-success dark:text-success">Active Today</span>
+                  <span className="text-caption text-success dark:text-success ml-auto">
                     {activityStatus.checkins_today} check-in{activityStatus.checkins_today !== 1 ? 's' : ''} today
                   </span>
                 </div>
@@ -192,14 +192,14 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
 
               {/* Claimed badge or Claim button */}
               {business.is_claimed ? (
-                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                <div className="flex items-center gap-2 text-ui text-success dark:text-success">
                   <CheckCircle2 className="w-4 h-4" />
                   <span className="font-medium">Verified Business</span>
                 </div>
               ) : business.is_seed !== false && isAuthenticated && user?.role === 'business_owner' ? (
                 <button
                   onClick={() => { onClose(); navigate(`/claim?business=${businessId}`) }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-brand/30 text-brand hover:bg-brand/5 transition-colors text-sm font-medium"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-brand/30 text-brand hover:bg-brand/5 transition-colors text-ui font-medium"
                 >
                   <Award className="w-4 h-4" />
                   Claim This Business
@@ -230,10 +230,10 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                   }}
                   disabled={checkingIn || checkedIn}
                   className={cn(
-                    'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all',
+                    'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-ui font-medium transition-all',
                     checkedIn
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                      : 'gradient-primary text-white shadow-md shadow-brand/20 hover:shadow-lg'
+                      ? 'bg-success dark:bg-success/20 text-success dark:text-success'
+                      : 'gradient-primary text-on-primary shadow-md shadow-brand/20 hover:shadow-lg'
                   )}
                 >
                   {checkingIn ? (
@@ -249,28 +249,28 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
               <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">{business.description}</p>
 
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-[hsl(var(--foreground))] uppercase tracking-wide font-mono">Contact</h4>
+                <h4 className="text-ui font-semibold text-[hsl(var(--foreground))] uppercase tracking-wide font-mono">Contact</h4>
                 <div className="space-y-2.5">
                   {business.address && (
-                    <div className="flex items-start gap-3 text-sm">
+                    <div className="flex items-start gap-3 text-ui">
                       <MapPin className="w-4 h-4 text-[hsl(var(--primary))] flex-shrink-0 mt-0.5" />
                       <span className="text-[hsl(var(--muted-foreground))]">{business.address}</span>
                     </div>
                   )}
                   {business.phone && (
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-3 text-ui">
                       <Phone className="w-4 h-4 text-[hsl(var(--primary))]" />
                       <a href={`tel:${business.phone}`} className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors">{business.phone}</a>
                     </div>
                   )}
                   {business.email && (
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-3 text-ui">
                       <Mail className="w-4 h-4 text-[hsl(var(--primary))]" />
                       <a href={`mailto:${business.email}`} className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors">{business.email}</a>
                     </div>
                   )}
                   {business.website && (
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-3 text-ui">
                       <Globe className="w-4 h-4 text-[hsl(var(--primary))]" />
                       <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--primary))] hover:underline">{business.website}</a>
                     </div>
@@ -296,7 +296,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
 
               {!isAuthenticated && (
                 <div className="p-4 rounded-xl bg-[hsl(var(--secondary))] text-center">
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  <p className="text-ui text-[hsl(var(--muted-foreground))]">
                     <a href="/login" className="text-[hsl(var(--primary))] font-medium hover:underline">Sign in</a> to write a review
                   </p>
                 </div>
@@ -305,7 +305,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
               {showReviewForm && (
                 <form onSubmit={handleSubmitReview} className="p-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/30 space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">Rating</label>
+                    <label className="text-ui font-medium text-[hsl(var(--foreground))] mb-2 block">Rating</label>
                     <div className="flex items-center gap-1">
                       {[1,2,3,4,5].map(i => (
                         <button
@@ -316,32 +316,32 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                           onMouseLeave={() => setReviewHover(0)}
                           className="p-0.5"
                         >
-                          <Star className={cn('w-7 h-7 transition-colors', i <= (reviewHover || reviewRating) ? 'text-amber-400 fill-amber-400' : 'text-[hsl(var(--border))]')} />
+                          <Star className={cn('w-7 h-7 transition-colors', i <= (reviewHover || reviewRating) ? 'text-warning fill-amber-400' : 'text-[hsl(var(--border))]')} />
                         </button>
                       ))}
-                      <span className="ml-2 text-sm text-[hsl(var(--muted-foreground))]">
+                      <span className="ml-2 text-ui text-[hsl(var(--muted-foreground))]">
                         {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][reviewRating]}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">Your Review</label>
+                    <label className="text-ui font-medium text-[hsl(var(--foreground))] mb-2 block">Your Review</label>
                     <textarea
                       value={reviewComment}
                       onChange={(e) => setReviewComment(e.target.value)}
                       placeholder="Share your experience..."
-                      className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))] min-h-[100px] resize-none"
+                      className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))] min-h-[100px] resize-none"
                       required
                     />
                   </div>
                   {submitError && (
-                    <p className="text-sm text-red-500">{submitError}</p>
+                    <p className="text-ui text-error">{submitError}</p>
                   )}
                   <div className="flex gap-2 justify-end">
-                    <button type="button" onClick={() => setShowReviewForm(false)} className="px-4 py-2 rounded-xl text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary))] transition-colors">
+                    <button type="button" onClick={() => setShowReviewForm(false)} className="px-4 py-2 rounded-xl text-ui font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary))] transition-colors">
                       Cancel
                     </button>
-                    <button type="submit" disabled={submitting || reviewComment.length < 5} className="px-5 py-2 rounded-xl text-sm font-medium gradient-primary text-white disabled:opacity-50 flex items-center gap-2">
+                    <button type="submit" disabled={submitting || reviewComment.length < 5} className="px-5 py-2 rounded-xl text-ui font-medium gradient-primary text-on-primary disabled:opacity-50 flex items-center gap-2">
                       {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       Submit
                     </button>
@@ -358,7 +358,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                 <div className="text-center py-10">
                   <MessageSquare className="w-10 h-10 text-[hsl(var(--muted-foreground))] mx-auto mb-3 opacity-40" />
                   <p className="font-medium text-[hsl(var(--foreground))]">No reviews yet</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">Be the first to share your experience</p>
+                  <p className="text-ui text-[hsl(var(--muted-foreground))]">Be the first to share your experience</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -366,25 +366,25 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                     <div key={review.id || review._id} className="p-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-white">
+                          <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-caption font-bold text-brand-on-primary">
                             {review.user_name?.[0]?.toUpperCase() || '?'}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{review.user_name}</p>
+                            <p className="text-ui font-semibold text-[hsl(var(--foreground))]">{review.user_name}</p>
                             <div className="flex items-center gap-1">
                               {[1,2,3,4,5].map(i => (
-                                <Star key={i} className={cn('w-3 h-3', i <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-[hsl(var(--border))]')} />
+                                <Star key={i} className={cn('w-3 h-3', i <= review.rating ? 'text-warning fill-amber-400' : 'text-[hsl(var(--border))]')} />
                               ))}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+                        <div className="flex items-center gap-1.5 text-caption text-[hsl(var(--muted-foreground))]">
                           {review.verified && <CheckCircle2 className="w-3.5 h-3.5 text-brand-light" />}
                           <Clock className="w-3 h-3" />
                           {new Date(review.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">{review.comment}</p>
+                      <p className="text-ui text-[hsl(var(--muted-foreground))] leading-relaxed">{review.comment}</p>
                     </div>
                   ))}
                 </div>
@@ -403,7 +403,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                 <div className="text-center py-10">
                   <Tag className="w-10 h-10 text-[hsl(var(--muted-foreground))] mx-auto mb-3 opacity-40" />
                   <p className="font-medium text-[hsl(var(--foreground))]">No active deals</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">Check back later for special offers</p>
+                  <p className="text-ui text-[hsl(var(--muted-foreground))]">Check back later for special offers</p>
                 </div>
               ) : (
                 deals.map(deal => (
@@ -415,18 +415,18 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                         </div>
                         <div>
                           <h4 className="font-semibold text-[hsl(var(--foreground))]">{deal.title}</h4>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">{deal.description}</p>
+                          <p className="text-ui text-[hsl(var(--muted-foreground))]">{deal.description}</p>
                         </div>
                       </div>
-                      <span className="text-lg font-bold text-brand-light dark:text-brand-light flex-shrink-0">
+                      <span className="text-body font-bold text-brand-light dark:text-brand-light flex-shrink-0">
                         {deal.discount_type === 'percentage' ? `${deal.discount_value}%` : `$${deal.discount_value}`}
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-[hsl(var(--border))]/50">
                       {deal.code && (
-                        <span className="px-3 py-1 rounded-lg bg-[hsl(var(--secondary))] font-mono text-sm text-[hsl(var(--foreground))]">{deal.code}</span>
+                        <span className="px-3 py-1 rounded-lg bg-[hsl(var(--secondary))] font-mono text-ui text-[hsl(var(--foreground))]">{deal.code}</span>
                       )}
-                      <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <span className="text-caption text-[hsl(var(--muted-foreground))]">
                         Valid until {new Date(deal.valid_until).toLocaleDateString()}
                       </span>
                     </div>

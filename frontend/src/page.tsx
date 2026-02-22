@@ -177,7 +177,7 @@ function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], po
   return (
     <>
       {/* Pure black background - always visible behind video */}
-      <div className="absolute inset-0 bg-black" />
+      <div className="absolute inset-0 bg-scrim-dark" />
       
       {/* Video with fade transitions */}
       <video
@@ -250,7 +250,7 @@ export default function HomePage() {
     ['adventure', 'local gem', 'favorite spot', 'hidden treasure', 'experience'],
     100,  // typing speed
     50,   // deleting speed  
-    3000  // pause duration (3 seconds)
+    5000  // pause duration (3 seconds)
   )
   
   // State for carousel and testimonials
@@ -322,7 +322,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           HERO SECTION - Full viewport with cycling video playlist
           ═══════════════════════════════════════════ */}
-      <section className="relative h-screen overflow-hidden bg-slate-900">
+      <section className="relative h-screen overflow-hidden bg-surface">
         {/* Video Playlist - Cycles through 3 videos */}
         {!isMobile ? (
           <VideoPlaylist 
@@ -342,18 +342,18 @@ export default function HomePage() {
         )}
         
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-scrim-dark/40" />
 
         {/* Content - Left-aligned */}
         <div className="absolute inset-0 flex items-center z-10">
           <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 w-full">
             <div className="max-w-4xl">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 font-heading">
+              <h1 className="text-display md:text-display lg:text-display font-bold text-on-primary mb-4 font-heading">
                 Find your next
                 <br />
                 <span className="text-brand-light">{animatedWord}<span className="animate-pulse">|</span></span>
               </h1>
-              <p className="text-lg md:text-xl text-white/90 mb-10">
+              <p className="text-body md:text-subheading text-on-primary/90 mb-10">
                 Building real trust for local discovery
               </p>
 
@@ -361,7 +361,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
-                  className="gradient-primary text-white px-10 py-7 text-lg rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+                  className="gradient-primary text-on-primary px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
                   onClick={() => navigate("/businesses")}
                 >
                   Explore Businesses
@@ -370,7 +370,7 @@ export default function HomePage() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-10 py-7 text-lg rounded-xl hover:bg-white/20 transition-colors shadow-2xl"
+                  className="bg-surface/10 backdrop-blur-sm border-2 border-outline-variant text-on-primary px-10 py-7 text-body rounded-xl hover:bg-surface/20 transition-colors shadow-2xl"
                   onClick={() => navigate("/pricing")}
                 >
                   For Business Owners
@@ -384,9 +384,9 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           PURPOSE SECTION - Alternating layout
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-white dark:bg-slate-900">
+      <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 font-heading text-[hsl(var(--foreground))]">
+          <h2 className="text-heading md:text-display font-bold text-center mb-20 font-heading text-[hsl(var(--foreground))]">
             Every journey starts<br />with a purpose.
           </h2>
 
@@ -400,14 +400,14 @@ export default function HomePage() {
               />
             </div>
             <div>
-              <p className="text-sm uppercase tracking-wider text-brand font-semibold mb-3">Step — 01</p>
-              <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
+              <p className="text-ui uppercase tracking-wider text-brand font-semibold mb-3">Step — 01</p>
+              <h3 className="text-heading font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
                 Explore Your Community
               </h3>
-              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
+              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
                 Discover hidden gems and local favorites in your neighborhood. From cozy cafes to unique boutiques, find businesses that make your community special.
               </p>
-              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed">
                 Our platform connects you with authentic local experiences, helping you build meaningful relationships with business owners who care about their community.
               </p>
             </div>
@@ -416,14 +416,14 @@ export default function HomePage() {
           {/* Subsection 2: Text left, image right */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
-              <p className="text-sm uppercase tracking-wider text-brand font-semibold mb-3">Step — 02</p>
-              <h3 className="text-3xl font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
+              <p className="text-ui uppercase tracking-wider text-brand font-semibold mb-3">Step — 02</p>
+              <h3 className="text-heading font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
                 Support Local Businesses
               </h3>
-              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
+              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
                 Every purchase you make helps your neighbors thrive. Access exclusive deals and promotions while supporting entrepreneurs who bring life to your area.
               </p>
-              <p className="text-lg text-[hsl(var(--muted-foreground))] leading-relaxed">
+              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed">
                 Read honest reviews, share your experiences, and become part of a community that values quality, authenticity, and local pride.
               </p>
             </div>
@@ -457,8 +457,8 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex items-center justify-center md:justify-start">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-            <div className="max-w-xl text-white">
-              <p className="text-lg md:text-xl leading-relaxed">
+            <div className="max-w-xl text-brand-on-primary">
+              <p className="text-body md:text-subheading leading-relaxed">
                 Join thousands of community members discovering, reviewing, and celebrating local businesses that make our neighborhoods vibrant and unique.
               </p>
             </div>
@@ -469,12 +469,12 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           FEATURES GRID - 4 feature cards
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-gray-50 dark:bg-slate-900/50">
+      <section className="py-24 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 font-heading text-[hsl(var(--foreground))]">
+          <h2 className="text-heading md:text-display font-bold text-center mb-6 font-heading text-[hsl(var(--foreground))]">
             Your comfort and safety are<br />always our priority.
           </h2>
-          <p className="text-center text-lg text-[hsl(var(--muted-foreground))] mb-16 max-w-2xl mx-auto">
+          <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-16 max-w-2xl mx-auto">
             We verify every business and ensure you have all the information you need to make confident decisions.
           </p>
 
@@ -484,12 +484,12 @@ export default function HomePage() {
               return (
                 <div 
                   key={i} 
-                  className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300"
+                  className="bg-surface dark:bg-surface-elevated rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-light to-brand flex items-center justify-center mb-6">
-                    <Icon className="w-7 h-7 text-white" />
+                    <Icon className="w-7 h-7 text-brand-on-primary" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 font-sub text-[hsl(var(--foreground))]">
+                  <h3 className="text-subheading font-bold mb-3 font-sub text-[hsl(var(--foreground))]">
                     {feature.title}
                   </h3>
                   <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
@@ -505,25 +505,25 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           BUSINESS CAROUSEL - Horizontal scroll
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-white dark:bg-slate-900">
+      <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading text-[hsl(var(--foreground))]">
+              <h2 className="text-heading md:text-display font-bold mb-4 font-heading text-[hsl(var(--foreground))]">
                 Fresh journeys<br />for your tour
               </h2>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={prevBusiness}
-                className="w-12 h-12 rounded-full bg-brand-light text-white flex items-center justify-center hover:bg-brand transition-colors"
+                className="w-12 h-12 rounded-full bg-brand-light text-on-primary flex items-center justify-center hover:bg-brand transition-colors"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={nextBusiness}
-                className="w-12 h-12 rounded-full bg-brand-light text-white flex items-center justify-center hover:bg-brand transition-colors"
+                className="w-12 h-12 rounded-full bg-brand-light text-on-primary flex items-center justify-center hover:bg-brand transition-colors"
                 aria-label="Next"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -548,12 +548,12 @@ export default function HomePage() {
                       alt={business.name} 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-brand-dark">
+                    <div className="absolute top-4 right-4 bg-surface px-3 py-1 rounded-full text-ui font-bold text-brand-dark">
                       ${business.price}
                     </div>
                   </div>
-                  <div className="p-6 bg-white dark:bg-slate-800">
-                    <h3 className="text-xl font-bold mb-2 font-sub text-[hsl(var(--foreground))]">
+                  <div className="p-6 bg-surface dark:bg-surface-elevated">
+                    <h3 className="text-subheading font-bold mb-2 font-sub text-[hsl(var(--foreground))]">
                       {business.name}
                     </h3>
                     <p className="text-[hsl(var(--muted-foreground))] flex items-center gap-2">
@@ -571,33 +571,33 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           TESTIMONIAL SECTION - Large quote card
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-gray-50 dark:bg-slate-900/50">
+      <section className="py-24 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 font-heading text-[hsl(var(--foreground))]">
+          <h2 className="text-heading md:text-display font-bold text-center mb-16 font-heading text-[hsl(var(--foreground))]">
             Your trusted partner in tour
           </h2>
 
           <div className="bg-gradient-to-br from-brand-light to-brand rounded-3xl p-12 md:p-16 shadow-2xl">
-            <div className="text-white">
-              <p className="text-2xl md:text-3xl font-serif italic mb-8 leading-relaxed">
+            <div className="text-brand-on-primary">
+              <p className="text-subheading md:text-heading font-serif italic mb-8 leading-relaxed">
                 "{testimonials[testimonialIndex].quote}"
               </p>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xl font-bold mb-1">{testimonials[testimonialIndex].name}</p>
-                  <p className="text-white/80">{testimonials[testimonialIndex].title}</p>
+                  <p className="text-subheading font-bold mb-1">{testimonials[testimonialIndex].name}</p>
+                  <p className="text-secondary">{testimonials[testimonialIndex].title}</p>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={prevTestimonial}
-                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/30 transition-colors"
+                    className="w-12 h-12 rounded-full bg-surface/20 backdrop-blur-sm text-on-primary flex items-center justify-center hover:bg-surface/30 transition-colors"
                     aria-label="Previous testimonial"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextTestimonial}
-                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/30 transition-colors"
+                    className="w-12 h-12 rounded-full bg-surface/20 backdrop-blur-sm text-on-primary flex items-center justify-center hover:bg-surface/30 transition-colors"
                     aria-label="Next testimonial"
                   >
                     <ChevronRight className="w-6 h-6" />
@@ -625,15 +625,15 @@ export default function HomePage() {
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-scrim-dark/50" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
+          <div className="text-center text-on-primary px-4">
+            <h2 className="text-heading md:text-display font-bold mb-6 font-heading">
               Ready to explore?<br />Start your adventure today!
             </h2>
             <Button 
               size="lg"
-              className="gradient-primary text-white px-10 py-7 text-lg rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+              className="gradient-primary text-on-primary px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
               onClick={() => navigate("/businesses")}
             >
               Get Started
@@ -646,12 +646,12 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           INSTAGRAM SECTION - 4-column grid
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-white dark:bg-slate-900">
+      <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
+          <h2 className="text-heading md:text-display font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
             Connect with us on<br />Instagram
           </h2>
-          <p className="text-center text-lg text-[hsl(var(--muted-foreground))] mb-12">
+          <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-12">
             Follow us to see the latest from our community
           </p>
 
@@ -680,29 +680,29 @@ export default function HomePage() {
           ═══════════════════════════════════════════ */}
       <section className="py-20 bg-gradient-to-br from-brand-light to-brand">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">
+          <h2 className="text-heading md:text-heading font-bold text-on-primary mb-4 font-heading">
             Stay updated with local deals
           </h2>
-          <p className="text-lg text-white/90 mb-8">
+          <p className="text-body text-on-primary/90 mb-8">
             Get exclusive offers and discover new businesses delivered to your inbox every week.
           </p>
 
           <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <div className="flex-1 flex items-center gap-3 px-5 py-4 bg-white rounded-xl">
-              <Mail className="w-5 h-5 text-gray-400" />
+            <div className="flex-1 flex items-center gap-3 px-5 py-4 bg-surface rounded-xl">
+              <Mail className="w-5 h-5 text-muted" />
               <input 
                 type="email" 
                 placeholder="Your email address" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-500"
+                className="bg-transparent border-none outline-none w-full text-default placeholder-gray-500"
               />
             </div>
             <Button 
               type="submit"
               size="lg"
-              className="bg-brand-dark hover:bg-brand-dark/90 text-white px-8 py-4 rounded-xl transition-colors"
+              className="bg-brand-dark hover:bg-brand-dark/90 text-on-primary px-8 py-4 rounded-xl transition-colors"
             >
               Subscribe
             </Button>

@@ -47,24 +47,24 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand/25">
-              <Store className="w-7 h-7 text-white" />
+              <Store className="w-7 h-7 text-brand-on-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 font-heading">Welcome <span className="font-serif">back</span></h1>
-            <p className="text-[hsl(var(--muted-foreground))] text-sm font-sub">Sign in to your Vantage account</p>
+            <h1 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-1 font-heading">Welcome <span className="font-serif">back</span></h1>
+            <p className="text-[hsl(var(--muted-foreground))] text-ui font-sub">Sign in to your Vantage account</p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 flex items-start gap-3 animate-scale-in">
-              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="mb-6 p-3.5 rounded-xl bg-error dark:bg-error/30 border border-error dark:border-error/50 flex items-start gap-3 animate-scale-in">
+              <AlertCircle className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />
+              <p className="text-ui text-error dark:text-error">{error}</p>
             </div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium text-[hsl(var(--foreground))]">Email</Label>
+              <Label htmlFor="email" className="text-ui font-medium text-[hsl(var(--foreground))]">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -79,7 +79,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium text-[hsl(var(--foreground))]">Password</Label>
+              <Label htmlFor="password" className="text-ui font-medium text-[hsl(var(--foreground))]">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -105,7 +105,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !email || !password}
-              className="w-full h-11 gradient-primary text-white border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium"
+              className="w-full h-11 gradient-primary text-on-primary border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in...</>
@@ -117,7 +117,7 @@ export default function LoginPage() {
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="text-ui text-[hsl(var(--muted-foreground))]">
               Don't have an account?{' '}
               <Link to="/signup" className="font-medium text-[hsl(var(--primary))] hover:underline">
                 Create one

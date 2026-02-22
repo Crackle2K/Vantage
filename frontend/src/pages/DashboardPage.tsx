@@ -71,9 +71,9 @@ export default function DashboardPage() {
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center animate-fade-in-up">
           <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/20">
-            <Store className="w-8 h-8 text-white" />
+            <Store className="w-8 h-8 text-brand-on-primary" />
           </div>
-          <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
+          <h2 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
             Business <span className="font-serif">Dashboard</span>
           </h2>
           <p className="text-[hsl(var(--muted-foreground))] mb-6">
@@ -83,7 +83,7 @@ export default function DashboardPage() {
           </p>
           <Link
             to={isAuthenticated ? '/account' : '/login'}
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium shadow-lg shadow-brand/20"
           >
             {isAuthenticated ? 'Go to Account' : 'Sign In'}
           </Link>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 animate-fade-in-up">
           <div>
-            <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] font-heading">
+            <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
               Business <span className="gradient-text font-serif">Dashboard</span>
             </h1>
             <p className="text-[hsl(var(--muted-foreground))] mt-1">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           {myBusinesses.length === 0 && (
             <Link
               to="/businesses"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-on-primary font-medium text-ui shadow-lg shadow-brand/25"
             >
               <Plus className="w-4 h-4" />
               Claim a Business
@@ -133,8 +133,8 @@ export default function DashboardPage() {
             {/* Pending Claims */}
             {myClaims.length > 0 && (
               <div className="glass-card rounded-2xl p-6 animate-fade-in-up">
-                <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4 font-heading flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-amber-500" />
+                <h3 className="text-body font-semibold text-[hsl(var(--foreground))] mb-4 font-heading flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-warning" />
                   Pending Claims
                 </h3>
                 <div className="space-y-3">
@@ -144,17 +144,17 @@ export default function DashboardPage() {
                       className="flex items-center justify-between p-4 rounded-xl bg-[hsl(var(--secondary))]/50"
                     >
                       <div>
-                        <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <p className="text-ui font-medium text-[hsl(var(--foreground))]">
                           Business ID: {claim.business_id}
                         </p>
-                        <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                        <p className="text-caption text-[hsl(var(--muted-foreground))]">
                           Submitted {new Date(claim.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        claim.status === 'pending' ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' :
-                        claim.status === 'verified' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                        'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                      <span className={`px-3 py-1 rounded-full text-caption font-medium ${
+                        claim.status === 'pending' ? 'bg-warning dark:bg-warning/20 text-warning dark:text-warning' :
+                        claim.status === 'verified' ? 'bg-success dark:bg-success/20 text-success dark:text-success' :
+                        'bg-error dark:bg-error/20 text-error dark:text-error'
                       }`}>
                         {claim.status}
                       </span>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               <div className="w-20 h-20 rounded-2xl bg-[hsl(var(--secondary))] flex items-center justify-center mx-auto mb-6">
                 <Store className="w-10 h-10 text-[hsl(var(--muted-foreground))]" />
               </div>
-              <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2 font-heading">
+              <h3 className="text-subheading font-semibold text-[hsl(var(--foreground))] mb-2 font-heading">
                 No claimed businesses yet
               </h3>
               <p className="text-[hsl(var(--muted-foreground))] mb-6 max-w-md mx-auto">
@@ -177,7 +177,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 to="/businesses"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium shadow-lg shadow-brand/25"
               >
                 Browse & Claim
                 <ArrowUpRight className="w-4 h-4" />
@@ -194,9 +194,9 @@ export default function DashboardPage() {
                     <button
                       key={biz.id || biz._id}
                       onClick={() => selectBusiness(biz)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-ui font-medium whitespace-nowrap transition-all ${
                         (biz.id || biz._id) === bizId
-                          ? 'gradient-primary text-white shadow-md shadow-brand/25'
+                          ? 'gradient-primary text-on-primary shadow-md shadow-brand/25'
                           : 'glass-card text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
                       }`}
                     >
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                   label="Rating"
                   value={selectedBiz.rating?.toFixed(1) || '0.0'}
                   sub={`${selectedBiz.review_count || 0} reviews`}
-                  color="text-amber-500"
+                  color="text-warning"
                 />
                 <StatCard
                   icon={Tag}
@@ -230,14 +230,14 @@ export default function DashboardPage() {
                   label="Check-ins Today"
                   value={String(activityStatus?.checkins_today || 0)}
                   sub={`${activityStatus?.checkins_this_week || 0} this week`}
-                  color="text-blue-500"
+                  color="text-info"
                 />
                 <StatCard
                   icon={Flame}
                   label="Trending Score"
                   value={String(activityStatus?.trending_score?.toFixed(1) || '0.0')}
                   sub={activityStatus?.is_active_today ? 'Active Today' : 'Not active'}
-                  color="text-orange-500"
+                  color="text-warning"
                 />
               </div>
             )}
@@ -251,23 +251,23 @@ export default function DashboardPage() {
                   <div className="glass-card rounded-2xl p-6 animate-fade-in-up">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-[hsl(var(--foreground))] font-heading flex items-center gap-2">
+                        <h3 className="text-subheading font-bold text-[hsl(var(--foreground))] font-heading flex items-center gap-2">
                           {selectedBiz.name}
                           {selectedBiz.is_claimed && (
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            <CheckCircle2 className="w-5 h-5 text-success" />
                           )}
                         </h3>
-                        <p className="text-sm text-[hsl(var(--muted-foreground))] capitalize">{selectedBiz.category}</p>
+                        <p className="text-ui text-[hsl(var(--muted-foreground))] capitalize">{selectedBiz.category}</p>
                       </div>
                       {subscription && subscription.tier !== 'free' && (
-                        <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold gradient-primary text-white">
+                        <span className="flex items-center gap-1 px-3 py-1 rounded-full text-caption font-bold gradient-primary text-brand-on-primary">
                           <Crown className="w-3 h-3" />
                           {subscription.tier.toUpperCase()}
                         </span>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-ui">
                       <div className="flex items-center gap-2 text-[hsl(var(--muted-foreground))]">
                         <MapPin className="w-4 h-4" />
                         {selectedBiz.address}
@@ -284,14 +284,14 @@ export default function DashboardPage() {
                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[hsl(var(--border))]">
                       <Link
                         to="/pricing"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]/80 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-caption font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]/80 transition-colors"
                       >
                         <Crown className="w-3 h-3" />
                         {subscription?.tier === 'free' || !subscription ? 'Upgrade Plan' : 'Manage Plan'}
                       </Link>
                       <Link
                         to="/activity"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]/80 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-caption font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]/80 transition-colors"
                       >
                         <TrendingUp className="w-3 h-3" />
                         Activity Feed
@@ -303,15 +303,15 @@ export default function DashboardPage() {
                 {/* Recent Reviews */}
                 <div className="glass-card rounded-2xl p-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] font-heading flex items-center gap-2">
-                      <Star className="w-5 h-5 text-amber-500" />
+                    <h3 className="text-body font-semibold text-[hsl(var(--foreground))] font-heading flex items-center gap-2">
+                      <Star className="w-5 h-5 text-warning" />
                       Recent Reviews
                     </h3>
-                    <span className="text-xs text-[hsl(var(--muted-foreground))]">{reviews.length} total</span>
+                    <span className="text-caption text-[hsl(var(--muted-foreground))]">{reviews.length} total</span>
                   </div>
 
                   {reviews.length === 0 ? (
-                    <p className="text-sm text-[hsl(var(--muted-foreground))] text-center py-6">
+                    <p className="text-ui text-[hsl(var(--muted-foreground))] text-center py-6">
                       No reviews yet. Share your business to get feedback!
                     </p>
                   ) : (
@@ -319,19 +319,19 @@ export default function DashboardPage() {
                       {reviews.slice(0, 5).map(review => (
                         <div key={review.id} className="p-3 rounded-xl bg-[hsl(var(--secondary))]/50">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-[hsl(var(--foreground))]">
+                            <span className="text-ui font-medium text-[hsl(var(--foreground))]">
                               {review.user_name}
                             </span>
                             <div className="flex items-center gap-1">
                               {Array.from({ length: 5 }).map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`w-3 h-3 ${i < review.rating ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`}
+                                  className={`w-3 h-3 ${i < review.rating ? 'text-warning fill-amber-500' : 'text-muted'}`}
                                 />
                               ))}
                             </div>
                           </div>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))] line-clamp-2">{review.comment}</p>
+                          <p className="text-caption text-[hsl(var(--muted-foreground))] line-clamp-2">{review.comment}</p>
                         </div>
                       ))}
                     </div>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
               <div className="space-y-6">
                 {/* Subscription Status */}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
-                  <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
+                  <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                     <Shield className="w-4 h-4 text-brand" />
                     Subscription
                   </h3>
@@ -353,27 +353,27 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-2 mb-3">
                         <Crown className="w-5 h-5 text-brand" />
                         <span className="font-bold text-[hsl(var(--foreground))] capitalize">{subscription.tier}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${
-                          subscription.status === 'active' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                        <span className={`px-2 py-0.5 rounded-full text-caption ${
+                          subscription.status === 'active' ? 'bg-success dark:bg-success/20 text-success dark:text-success' : 'bg-error dark:bg-error/20 text-error dark:text-error'
                         }`}>
                           {subscription.status}
                         </span>
                       </div>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <p className="text-caption text-[hsl(var(--muted-foreground))]">
                         {subscription.billing_cycle} billing
                       </p>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <p className="text-caption text-[hsl(var(--muted-foreground))]">
                         Renews {new Date(subscription.current_period_end).toLocaleDateString()}
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
+                      <p className="text-ui text-[hsl(var(--muted-foreground))] mb-3">
                         Free plan Ã¢â‚¬â€ upgrade to unlock analytics, more deals, events & boosts.
                       </p>
                       <Link
                         to="/pricing"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
+                        className="inline-flex items-center gap-1.5 text-caption font-medium text-brand hover:underline"
                       >
                         View Plans
                         <ChevronRight className="w-3 h-3" />
@@ -384,21 +384,21 @@ export default function DashboardPage() {
 
                 {/* Active Deals */}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                  <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
+                  <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                     <Tag className="w-4 h-4 text-brand" />
                     Active Deals
                   </h3>
 
                   {deals.filter(d => d.is_active).length === 0 ? (
-                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                    <p className="text-ui text-[hsl(var(--muted-foreground))]">
                       No active deals. Post a deal to attract customers!
                     </p>
                   ) : (
                     <div className="space-y-2">
                       {deals.filter(d => d.is_active).map(deal => (
                         <div key={deal.id} className="p-3 rounded-lg bg-[hsl(var(--secondary))]/50">
-                          <p className="text-sm font-medium text-[hsl(var(--foreground))]">{deal.title}</p>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                          <p className="text-ui font-medium text-[hsl(var(--foreground))]">{deal.title}</p>
+                          <p className="text-caption text-[hsl(var(--muted-foreground))]">
                             {deal.discount_value}% off Ã¢â‚¬Â¢ Expires {new Date(deal.valid_until).toLocaleDateString()}
                           </p>
                         </div>
@@ -410,19 +410,19 @@ export default function DashboardPage() {
                 {/* Activity Signal */}
                 {activityStatus && (
                   <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '250ms' }}>
-                    <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
+                    <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                       <Eye className="w-4 h-4 text-brand" />
                       Activity Signal
                     </h3>
 
                     <div className="flex items-center gap-2 mb-3">
-                      <div className={`w-3 h-3 rounded-full ${activityStatus.is_active_today ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                      <span className="text-sm font-medium text-[hsl(var(--foreground))]">
+                      <div className={`w-3 h-3 rounded-full ${activityStatus.is_active_today ? 'bg-success animate-pulse' : 'bg-surface-elevated'}`} />
+                      <span className="text-ui font-medium text-[hsl(var(--foreground))]">
                         {activityStatus.is_active_today ? 'Active Today' : 'Not Active'}
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs text-[hsl(var(--muted-foreground))]">
+                    <div className="space-y-2 text-caption text-[hsl(var(--muted-foreground))]">
                       <div className="flex justify-between">
                         <span>Check-ins today</span>
                         <span className="font-medium text-[hsl(var(--foreground))]">{activityStatus.checkins_today}</span>
@@ -458,10 +458,10 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
     <div className="glass-card rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-2">
         <Icon className={`w-5 h-5 ${color}`} />
-        <span className="text-xs text-[hsl(var(--muted-foreground))] font-medium">{label}</span>
+        <span className="text-caption text-[hsl(var(--muted-foreground))] font-medium">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-[hsl(var(--foreground))]">{value}</p>
-      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{sub}</p>
+      <p className="text-subheading font-bold text-[hsl(var(--foreground))]">{value}</p>
+      <p className="text-caption text-[hsl(var(--muted-foreground))] mt-0.5">{sub}</p>
     </div>
   )
 }

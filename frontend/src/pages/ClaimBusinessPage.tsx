@@ -95,9 +95,9 @@ export default function ClaimBusinessPage() {
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center animate-fade-in-up">
           <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/20">
-            <Store className="w-8 h-8 text-white" />
+            <Store className="w-8 h-8 text-brand-on-primary" />
           </div>
-          <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
+          <h2 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
             Claim Your <span className="font-serif">Business</span>
           </h2>
           <p className="text-[hsl(var(--muted-foreground))] mb-6">
@@ -105,7 +105,7 @@ export default function ClaimBusinessPage() {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium shadow-lg shadow-brand/20"
           >
             Sign Up as Business Owner
           </Link>
@@ -118,10 +118,10 @@ export default function ClaimBusinessPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center animate-fade-in-up">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-8 h-8 text-amber-600" />
+          <div className="w-16 h-16 rounded-2xl bg-warning dark:bg-warning/20 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-warning" />
           </div>
-          <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
+          <h2 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-2 font-heading">
             Business Owner <span className="font-serif">Only</span>
           </h2>
           <p className="text-[hsl(var(--muted-foreground))] mb-6">
@@ -130,7 +130,7 @@ export default function ClaimBusinessPage() {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/20"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium shadow-lg shadow-brand/20"
           >
             Create Business Account
           </Link>
@@ -148,14 +148,14 @@ export default function ClaimBusinessPage() {
             const stepIndex = step === 'search' ? 0 : step === 'claim' ? 1 : 2
             return (
               <div key={label} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-ui font-bold transition-all ${
                   i <= stepIndex
-                    ? 'gradient-primary text-white shadow-md shadow-brand/25'
+                    ? 'gradient-primary text-on-primary shadow-md shadow-brand/25'
                     : 'bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]'
                 }`}>
                   {i < stepIndex ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-sm font-medium ${
+                <span className={`text-ui font-medium ${
                   i <= stepIndex ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'
                 }`}>
                   {label}
@@ -174,7 +174,7 @@ export default function ClaimBusinessPage() {
         {step === 'search' && (
           <div className="animate-fade-in-up">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] font-heading">
+              <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
                 Find Your <span className="gradient-text font-serif">Business</span>
               </h1>
               <p className="text-[hsl(var(--muted-foreground))] mt-2">
@@ -192,13 +192,13 @@ export default function ClaimBusinessPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Search by business name..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui focus:outline-none focus:ring-2 focus:ring-brand/30"
                 />
               </div>
               <button
                 onClick={handleSearch}
                 disabled={searching}
-                className="px-6 py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25"
+                className="px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium text-ui shadow-lg shadow-brand/25"
               >
                 {searching ? 'Searching...' : 'Search'}
               </button>
@@ -214,21 +214,21 @@ export default function ClaimBusinessPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-light to-brand flex items-center justify-center">
-                      <span className="text-lg font-bold text-white">{biz.name[0]}</span>
+                      <span className="text-body font-bold text-brand-on-primary">{biz.name[0]}</span>
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-[hsl(var(--foreground))]">{biz.name}</h3>
+                        <h3 className="text-ui font-semibold text-[hsl(var(--foreground))]">{biz.name}</h3>
                         {biz.is_claimed && (
-                          <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                          <span className="flex items-center gap-1 text-caption text-success dark:text-success">
                             <CheckCircle2 className="w-3 h-3" />
                             Claimed
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-[hsl(var(--muted-foreground))] capitalize">{biz.category}</span>
-                        <span className="text-xs text-[hsl(var(--muted-foreground))] flex items-center gap-1">
+                        <span className="text-caption text-[hsl(var(--muted-foreground))] capitalize">{biz.category}</span>
+                        <span className="text-caption text-[hsl(var(--muted-foreground))] flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {biz.address}
                         </span>
@@ -237,12 +237,12 @@ export default function ClaimBusinessPage() {
                   </div>
 
                   {!biz.is_claimed ? (
-                    <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium gradient-primary text-white shadow-md shadow-brand/20">
+                    <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-caption font-medium gradient-primary text-on-primary shadow-md shadow-brand/20">
                       Claim
                       <ArrowRight className="w-3 h-3" />
                     </button>
                   ) : (
-                    <span className="text-xs text-[hsl(var(--muted-foreground))] px-3 py-1.5 rounded-lg bg-[hsl(var(--secondary))]">
+                    <span className="text-caption text-[hsl(var(--muted-foreground))] px-3 py-1.5 rounded-lg bg-[hsl(var(--secondary))]">
                       Already claimed
                     </span>
                   )}
@@ -262,7 +262,7 @@ export default function ClaimBusinessPage() {
         {step === 'claim' && selectedBiz && (
           <div className="animate-fade-in-up">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] font-heading">
+              <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
                 Verify <span className="gradient-text font-serif">Ownership</span>
               </h1>
               <p className="text-[hsl(var(--muted-foreground))] mt-2">
@@ -273,22 +273,22 @@ export default function ClaimBusinessPage() {
             {/* Selected Business Card */}
             <div className="glass-card rounded-xl p-4 mb-6 flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
-                <Store className="w-6 h-6 text-white" />
+                <Store className="w-6 h-6 text-brand-on-primary" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[hsl(var(--foreground))]">{selectedBiz.name}</h3>
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">{selectedBiz.address}</p>
+                <h3 className="text-ui font-semibold text-[hsl(var(--foreground))]">{selectedBiz.name}</h3>
+                <p className="text-caption text-[hsl(var(--muted-foreground))]">{selectedBiz.address}</p>
               </div>
               <button
                 onClick={() => { setStep('search'); setSelectedBiz(null) }}
-                className="ml-auto text-xs text-brand hover:underline"
+                className="ml-auto text-caption text-brand hover:underline"
               >
                 Change
               </button>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
+              <div className="mb-4 p-3 rounded-xl bg-error dark:bg-error/20 border border-error text-error dark:text-error text-ui flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -297,7 +297,7 @@ export default function ClaimBusinessPage() {
             {/* Form */}
             <div className="glass-card rounded-2xl p-6 space-y-5">
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
                   <User className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                   Your Name *
                 </label>
@@ -305,20 +305,20 @@ export default function ClaimBusinessPage() {
                   type="text"
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui focus:outline-none focus:ring-2 focus:ring-brand/30"
                   placeholder="Full name"
                 />
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
                   <Shield className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                   Your Role
                 </label>
                 <select
                   value={ownerRole}
                   onChange={(e) => setOwnerRole(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui"
                 >
                   <option value="owner">Owner</option>
                   <option value="manager">Manager</option>
@@ -328,7 +328,7 @@ export default function ClaimBusinessPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                  <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
                     <Phone className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                     Phone
                   </label>
@@ -336,12 +336,12 @@ export default function ClaimBusinessPage() {
                     type="tel"
                     value={ownerPhone}
                     onChange={(e) => setOwnerPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui focus:outline-none focus:ring-2 focus:ring-brand/30"
                     placeholder="Business phone"
                   />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                  <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
                     <Mail className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                     Email
                   </label>
@@ -349,14 +349,14 @@ export default function ClaimBusinessPage() {
                     type="email"
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui focus:outline-none focus:ring-2 focus:ring-brand/30"
                     placeholder="Business email"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
                   <FileText className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                   How can you prove ownership?
                 </label>
@@ -364,7 +364,7 @@ export default function ClaimBusinessPage() {
                   value={proofDescription}
                   onChange={(e) => setProofDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] text-ui focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
                   placeholder="e.g., I have a business license, I'm listed as the owner on public records, etc."
                 />
               </div>
@@ -372,10 +372,10 @@ export default function ClaimBusinessPage() {
               <button
                 onClick={handleSubmitClaim}
                 disabled={submitting}
-                className="w-full py-3 rounded-xl gradient-primary text-white font-medium text-sm shadow-lg shadow-brand/25 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl gradient-primary text-on-primary font-medium text-ui shadow-lg shadow-brand/25 flex items-center justify-center gap-2"
               >
                 {submitting ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-outline-variant border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     Submit Claim
@@ -390,10 +390,10 @@ export default function ClaimBusinessPage() {
         {/* Step 3: Success */}
         {step === 'success' && (
           <div className="text-center animate-fade-in-up">
-            <div className="w-20 h-20 rounded-2xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
+            <div className="w-20 h-20 rounded-2xl bg-success dark:bg-success/20 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-success dark:text-success" />
             </div>
-            <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-3 font-heading">
+            <h1 className="text-heading font-bold text-[hsl(var(--foreground))] mb-3 font-heading">
               Claim <span className="gradient-text font-serif">Submitted!</span>
             </h1>
             <p className="text-[hsl(var(--muted-foreground))] mb-8 max-w-md mx-auto">
@@ -404,7 +404,7 @@ export default function ClaimBusinessPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-brand/25"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-on-primary font-medium shadow-lg shadow-brand/25"
               >
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4" />

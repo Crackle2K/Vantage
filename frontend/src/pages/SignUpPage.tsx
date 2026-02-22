@@ -58,24 +58,24 @@ export default function SignUpPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand/25">
-              <UserPlus className="w-7 h-7 text-white" />
+              <UserPlus className="w-7 h-7 text-brand-on-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1 font-heading">Create <span className="font-serif">account</span></h1>
-            <p className="text-[hsl(var(--muted-foreground))] text-sm font-sub">Join Vantage to discover local businesses</p>
+            <h1 className="text-subheading font-bold text-[hsl(var(--foreground))] mb-1 font-heading">Create <span className="font-serif">account</span></h1>
+            <p className="text-[hsl(var(--muted-foreground))] text-ui font-sub">Join Vantage to discover local businesses</p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 flex items-start gap-3 animate-scale-in">
-              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="mb-6 p-3.5 rounded-xl bg-error dark:bg-error/30 border border-error dark:border-error/50 flex items-start gap-3 animate-scale-in">
+              <AlertCircle className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />
+              <p className="text-ui text-error dark:text-error">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Role Selector */}
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-[hsl(var(--foreground))]">Account type</Label>
+              <Label className="text-ui font-medium text-[hsl(var(--foreground))]">Account type</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -89,13 +89,13 @@ export default function SignUpPage() {
                 >
                   <div className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center",
-                    role === 'customer' ? "gradient-primary text-white" : "bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]"
+                    role === 'customer' ? "gradient-primary text-brand-on-primary" : "bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]"
                   )}>
                     <User className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-[hsl(var(--foreground))]">Customer</div>
-                    <div className="text-xs text-[hsl(var(--muted-foreground))]">Discover & review</div>
+                    <div className="text-ui font-semibold text-[hsl(var(--foreground))]">Customer</div>
+                    <div className="text-caption text-[hsl(var(--muted-foreground))]">Discover & review</div>
                   </div>
                 </button>
                 <button
@@ -110,32 +110,32 @@ export default function SignUpPage() {
                 >
                   <div className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center",
-                    role === 'business_owner' ? "gradient-primary text-white" : "bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]"
+                    role === 'business_owner' ? "gradient-primary text-brand-on-primary" : "bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]"
                   )}>
                     <Store className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-[hsl(var(--foreground))]">Business</div>
-                    <div className="text-xs text-[hsl(var(--muted-foreground))]">List & manage</div>
+                    <div className="text-ui font-semibold text-[hsl(var(--foreground))]">Business</div>
+                    <div className="text-caption text-[hsl(var(--muted-foreground))]">List & manage</div>
                   </div>
                 </button>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-sm font-medium text-[hsl(var(--foreground))]">Full Name</Label>
+              <Label htmlFor="name" className="text-ui font-medium text-[hsl(var(--foreground))]">Full Name</Label>
               <Input id="name" type="text" value={name} onChange={e => setName(e.target.value)}
                 placeholder="John Doe" required autoComplete="name" className="h-11 rounded-xl bg-[hsl(var(--background))]" disabled={loading} />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium text-[hsl(var(--foreground))]">Email</Label>
+              <Label htmlFor="email" className="text-ui font-medium text-[hsl(var(--foreground))]">Email</Label>
               <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com" required autoComplete="email" className="h-11 rounded-xl bg-[hsl(var(--background))]" disabled={loading} />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium text-[hsl(var(--foreground))]">Password</Label>
+              <Label htmlFor="password" className="text-ui font-medium text-[hsl(var(--foreground))]">Password</Label>
               <div className="relative">
                 <Input id="password" type={showPassword ? 'text' : 'password'} value={password}
                   onChange={e => setPassword(e.target.value)} placeholder="Min 6 characters" required
@@ -148,7 +148,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-[hsl(var(--foreground))]">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-ui font-medium text-[hsl(var(--foreground))]">Confirm Password</Label>
               <Input id="confirmPassword" type="password" value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" required
                 autoComplete="new-password" className="h-11 rounded-xl bg-[hsl(var(--background))]" disabled={loading} minLength={6} />
@@ -157,7 +157,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={loading || !name || !email || !password || !confirmPassword}
-              className="w-full h-11 gradient-primary text-white border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium"
+              className="w-full h-11 gradient-primary text-on-primary border-0 rounded-xl shadow-md shadow-brand/20 hover:shadow-lg transition-all font-medium"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating account...</>
@@ -168,7 +168,7 @@ export default function SignUpPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="text-ui text-[hsl(var(--muted-foreground))]">
               Already have an account?{' '}
               <Link to="/login" className="font-medium text-[hsl(var(--primary))] hover:underline">
                 Sign in

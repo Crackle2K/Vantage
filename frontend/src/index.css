@@ -14,14 +14,261 @@
    ═══════════════════════════════════════════ */
 
 @theme {
-  /* Complete Color System - 7 Total Colors */
-  --color-primary: #22c55e;    /* 1. Primary green - main brand */
-  --color-accent: #4ade80;     /* 2. Light green - highlights, accents */
-  --color-dark: #052e16;       /* 3. Dark green - backgrounds, depth */
-  --color-light: #f0fdf4;      /* 4. Light - backgrounds, cards */
-  --color-muted: #64748b;      /* 5. Gray - secondary text, borders */
-  --color-warning: #f59e0b;    /* 6. Amber - warnings, alerts */
-  --color-danger: #ef4444;     /* 7. Red - errors, destructive actions */
+  /* ═══════════════════════════════════════════
+     LIGHT MODE (6 colors)
+     ═══════════════════════════════════════════ */
+  --surface-primary: #ffffff;           /* Main background */
+  --surface-elevated: #f9fafb;          /* Cards, raised elements */
+  --on-surface: #111827;                /* Primary text on surfaces */
+  --on-surface-variant: #6b7280;        /* Secondary text, muted content */
+  --outline: #e5e7eb;                   /* Default borders */
+  --outline-variant: #f3f4f6;           /* Subtle borders, dividers */
+
+  /* ═══════════════════════════════════════════
+     DARK MODE (6 colors)
+     ═══════════════════════════════════════════ */
+  --surface-primary-dark: #0f172a;      /* Main background (dark) */
+  --surface-elevated-dark: #1e293b;     /* Cards, raised elements (dark) */
+  --on-surface-dark: #f1f5f9;           /* Primary text on surfaces (dark) */
+  --on-surface-variant-dark: #94a3b8;   /* Secondary text, muted (dark) */
+  --outline-dark: #334155;              /* Default borders (dark) */
+  --outline-variant-dark: #475569;      /* Subtle borders (dark) */
+
+  /* ═══════════════════════════════════════════
+     STATUS (4 colors)
+     ═══════════════════════════════════════════ */
+  --status-success: #22c55e;            /* Success/positive actions */
+  --status-error: #ef4444;              /* Errors/destructive actions */
+  --status-warning: #f59e0b;            /* Warnings/caution */
+  --status-info: #3b82f6;               /* Informational/neutral */
+
+  /* ═══════════════════════════════════════════
+     BRAND (5 colors)
+     ═══════════════════════════════════════════ */
+  --brand-primary: #22c55e;             /* Primary brand color */
+  --brand-secondary: #16a34a;           /* Secondary brand emphasis */
+  --brand-tertiary: #4ade80;            /* Tertiary brand accent */
+  --brand-accent: #dcfce7;              /* Light brand tint */
+  --brand-on-primary: #ffffff;          /* Text on brand-primary bg */
+
+  /* ═══════════════════════════════════════════
+     EFFECTS (4 colors)
+     ═══════════════════════════════════════════ */
+  --gradient-primary: linear-gradient(135deg, #22c55e, #16a34a);
+  --gradient-accent: linear-gradient(135deg, #4ade80, #22c55e);
+  --scrim-light: rgba(255, 255, 255, 0.1);
+  --scrim-dark: rgba(0, 0, 0, 0.4);
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY SCALE (6 sizes)
+     Based on 1.333 Perfect Fourth scale
+     ═══════════════════════════════════════════ */
+  --text-display: 4rem;          /* 64px - Hero sections, marketing */
+  --text-heading: 3rem;          /* 48px - Page titles (H1) */
+  --text-subheading: 1.5rem;     /* 24px - Section headings (H2-H3) */
+  --text-body: 1rem;             /* 16px - Paragraphs, main content */
+  --text-ui: 0.875rem;           /* 14px - Buttons, labels, UI elements */
+  --text-caption: 0.75rem;       /* 12px - Metadata, timestamps, footnotes */
+}
+
+/* ═══════════════════════════════════════════
+   CENTRALIZED COLOR UTILITIES
+   All colors in one place. No hardcoded colors in components.
+   ═══════════════════════════════════════════ */
+
+/* ---------------------------------------------
+   TEXT COLORS
+   --------------------------------------------- */
+/* Primary text - theme aware */
+.text-default { color: var(--on-surface); }
+.dark .text-default { color: var(--on-surface-dark); }
+
+/* Secondary/muted text - theme aware */
+.text-secondary { color: var(--on-surface-variant); }
+.dark .text-secondary { color: var(--on-surface-variant-dark); }
+
+/* Brand colors */
+.text-brand-primary { color: var(--brand-primary); }
+.text-brand-secondary { color: var(--brand-secondary); }
+.text-brand-tertiary { color: var(--brand-tertiary); }
+.text-brand-on-primary { color: var(--brand-on-primary); }
+
+/* Legacy aliases for compatibility */
+.text-brand { color: var(--brand-primary); }
+.text-brand-light { color: var(--brand-tertiary); }
+.text-on-primary { color: var(--brand-on-primary); }
+
+/* Status colors */
+.text-success { color: var(--status-success); }
+.text-error { color: var(--status-error); }
+.text-warning { color: var(--status-warning); }
+.text-info { color: var(--status-info); }
+
+/* ---------------------------------------------
+   BACKGROUND COLORS
+   --------------------------------------------- */
+/* Surface backgrounds - theme aware */
+.bg-surface { background-color: var(--surface-primary); }
+.dark .bg-surface { background-color: var(--surface-primary-dark); }
+
+.bg-surface-elevated { background-color: var(--surface-elevated); }
+.dark .bg-surface-elevated { background-color: var(--surface-elevated-dark); }
+
+/* Brand backgrounds */
+.bg-brand-primary { background-color: var(--brand-primary); }
+.bg-brand-secondary { background-color: var(--brand-secondary); }
+.bg-brand-tertiary { background-color: var(--brand-tertiary); }
+.bg-brand-accent { background-color: var(--brand-accent); }
+
+/* Legacy aliases */
+.bg-brand { background-color: var(--brand-primary); }
+.bg-brand-light { background-color: var(--brand-tertiary); }
+.bg-brand-subtle { background-color: rgb(34 197 94 / 0.1); }
+.dark .bg-brand-subtle { background-color: rgb(34 197 94 / 0.15); }
+
+/* Status backgrounds - complex with text/border */
+.bg-success {
+  background-color: rgb(220 252 231);
+  color: rgb(21 128 61);
+}
+.dark .bg-success {
+  background-color: rgb(22 101 52 / 0.3);
+  color: rgb(134 239 172);
+}
+
+.bg-error {
+  background-color: rgb(254 226 226);
+  color: rgb(153 27 27);
+}
+.dark .bg-error {
+  background-color: rgb(153 27 27 / 0.3);
+  color: rgb(252 165 165);
+}
+
+.bg-warning {
+  background-color: rgb(254 243 199);
+  color: rgb(146 64 14);
+}
+.dark .bg-warning {
+  background-color: rgb(146 64 14 / 0.3);
+  color: rgb(252 211 77);
+}
+
+.bg-info {
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+}
+.dark .bg-info {
+  background-color: rgb(30 64 175 / 0.3);
+  color: rgb(147 197 253);
+}
+
+/* Scrim overlays */
+.bg-scrim-light { background-color: var(--scrim-light); }
+.bg-scrim-dark { background-color: var(--scrim-dark); }
+
+/* ---------------------------------------------
+   BORDER COLORS
+   --------------------------------------------- */
+/* Default borders - theme aware */
+.border-outline { border-color: var(--outline); }
+.dark .border-outline { border-color: var(--outline-dark); }
+
+.border-outline-variant { border-color: var(--outline-variant); }
+.dark .border-outline-variant { border-color: var(--outline-variant-dark); }
+
+/* Brand borders */
+.border-brand-primary { border-color: var(--brand-primary); }
+.border-brand-tertiary { border-color: var(--brand-tertiary); }
+
+/* Legacy aliases */
+.border-brand { border-color: var(--brand-primary); }
+.border-brand-light { border-color: var(--brand-tertiary); }
+
+/* Status borders */
+.border-success { border-color: rgb(187 247 208); }
+.dark .border-success { border-color: rgb(22 101 52); }
+
+.border-error { border-color: rgb(254 226 226); }
+.dark .border-error { border-color: rgb(127 29 29); }
+
+.border-warning { border-color: rgb(253 230 138); }
+.dark .border-warning { border-color: rgb(146 64 14); }
+
+.border-info { border-color: rgb(191 219 254); }
+.dark .border-info { border-color: rgb(30 64 175); }
+
+/* ---------------------------------------------
+   TYPOGRAPHY SCALE UTILITIES
+   --------------------------------------------- */
+.text-display {
+  font-size: var(--text-display);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-heading {
+  font-size: var(--text-heading);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.text-subheading {
+  font-size: var(--text-subheading);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+.text-ui {
+  font-size: var(--text-ui);
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------
+   HOVER STATES
+   --------------------------------------------- */
+.hover-surface-elevated:hover { background-color: var(--surface-elevated); }
+.dark .hover-surface-elevated:hover { background-color: var(--surface-elevated-dark); }
+
+.hover-error:hover {
+  background-color: rgb(254 226 226);
+}
+.dark .hover-error:hover {
+  background-color: rgb(153 27 27 / 0.3);
+}
+
+.hover-overlay-light:hover {
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+.hover-overlay-medium:hover {
+  background-color: rgb(255 255 255 / 0.3);
+}
+
+/* ---------------------------------------------
+   FILL COLORS (for SVG icons)
+   --------------------------------------------- */
+.fill-success { fill: var(--color-status-success); }
+.fill-warning { fill: var(--color-status-warning); }
+.fill-muted { fill: var(--color-light-text-muted); }
+.dark .fill-muted { fill: var(--color-dark-text-muted); }
+
+/* ---------------------------------------------
+   STATUS INDICATORS & PULSES
+   --------------------------------------------- */
+.pulse-success {
+  background-color: var(--color-status-success);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 :root {
@@ -252,10 +499,10 @@ body {
    ═══════════════════════════════════════════ */
 
 .gradient-primary { 
-  background: linear-gradient(135deg, var(--color-primary), var(--color-dark)); 
+  background: linear-gradient(135deg, var(--color-primary), var(--color-dark-highlight)); 
 }
 .gradient-accent { 
-  background: linear-gradient(135deg, var(--color-dark), var(--color-primary)); 
+  background: linear-gradient(135deg, var(--color-dark-highlight), var(--color-primary)); 
 }
 .gradient-warm { 
   background: linear-gradient(135deg, var(--color-accent), var(--color-primary)); 
@@ -372,7 +619,7 @@ body {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-primary), var(--color-dark));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-primary), var(--color-dark-highlight));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

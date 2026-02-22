@@ -27,7 +27,7 @@ export function DealsSection() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Tag className="w-5 h-5 text-brand-light" />
-          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
+          <h2 className="text-body font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1,2,3,4].map(i => <div key={i} className="h-28 rounded-xl skeleton" />)}
@@ -45,9 +45,9 @@ export function DealsSection() {
           <div className="w-8 h-8 rounded-lg bg-brand-light/15 dark:bg-brand-light/20 flex items-center justify-center">
             <Tag className="w-4 h-4 text-brand-light dark:text-brand-light" />
           </div>
-          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
+          <h2 className="text-body font-semibold text-[hsl(var(--foreground))] font-heading">Hot <span className="font-serif">Deals</span></h2>
         </div>
-        <button className="flex items-center gap-1 text-sm font-medium text-[hsl(var(--primary))] hover:underline">
+        <button className="flex items-center gap-1 text-ui font-medium text-[hsl(var(--primary))] hover:underline">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -68,22 +68,22 @@ export function DealsSection() {
               <div className="flex items-start gap-3">
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand/10`}>
                   {deal.discount_type === 'percentage' ? (
-                    <Percent className="w-5 h-5 text-white" />
+                    <Percent className="w-5 h-5 text-brand-on-primary" />
                   ) : (
-                    <DollarSign className="w-5 h-5 text-white" />
+                    <DollarSign className="w-5 h-5 text-brand-on-primary" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-[hsl(var(--foreground))] truncate">{deal.title}</h3>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 truncate">{deal.business_name || deal.description}</p>
+                  <h3 className="font-semibold text-ui text-[hsl(var(--foreground))] truncate">{deal.title}</h3>
+                  <p className="text-caption text-[hsl(var(--muted-foreground))] mt-0.5 truncate">{deal.business_name || deal.description}</p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[hsl(var(--border))]/50">
-                <span className="text-lg font-bold text-brand-light dark:text-brand-light">
+                <span className="text-body font-bold text-brand-light dark:text-brand-light">
                   {deal.discount_type === 'percentage' ? `${deal.discount_value}% OFF` : `$${deal.discount_value} OFF`}
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-warning dark:bg-warning/30 text-warning dark:text-warning">
                   <Clock className="w-2.5 h-2.5" />
                   {daysLeft}d left
                 </span>
@@ -91,7 +91,7 @@ export function DealsSection() {
 
               {deal.code && (
                 <div className="mt-2 px-2.5 py-1 rounded-lg bg-[hsl(var(--secondary))] text-center">
-                  <span className="text-xs font-mono text-[hsl(var(--muted-foreground))]">Code: <span className="font-semibold text-[hsl(var(--foreground))]">{deal.code}</span></span>
+                  <span className="text-caption font-mono text-[hsl(var(--muted-foreground))]">Code: <span className="font-semibold text-[hsl(var(--foreground))]">{deal.code}</span></span>
                 </div>
               )}
             </div>

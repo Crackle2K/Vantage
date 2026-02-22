@@ -69,9 +69,9 @@ export function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-brand/25 group-hover:shadow-lg group-hover:shadow-brand/30 transition-shadow duration-300">
-              <Store className="w-4.5 h-4.5 text-white" />
+              <Store className="w-4.5 h-4.5 text-brand-on-primary" />
             </div>
-            <span className="text-xl font-bold text-[hsl(var(--foreground))] tracking-tight font-heading">
+            <span className="text-subheading font-bold text-[hsl(var(--foreground))] tracking-tight font-heading">
               Van<span className="gradient-text font-serif">tage</span>
             </span>
           </Link>
@@ -83,9 +83,9 @@ export function Header() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 font-sub",
+                  "px-4 py-2 rounded-lg text-ui font-medium transition-all duration-200 font-sub",
                   isActive(link.to)
-                    ? "bg-[hsl(var(--primary))] text-white shadow-md shadow-brand/25"
+                    ? "bg-[hsl(var(--primary))] text-on-primary shadow-md shadow-brand/25"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
                 )}
               >
@@ -112,10 +112,10 @@ export function Header() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[hsl(var(--secondary))] transition-all duration-200"
                 >
-                  <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-on-primary text-caption font-bold">
                     {user.name?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <span className="text-sm font-medium text-[hsl(var(--foreground))] max-w-[120px] truncate">
+                  <span className="text-ui font-medium text-[hsl(var(--foreground))] max-w-[120px] truncate">
                     {user.name}
                   </span>
                 </button>
@@ -125,14 +125,14 @@ export function Header() {
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
                     <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-xl shadow-black/10 dark:shadow-black/30 z-50 animate-slide-down overflow-hidden">
                       <div className="p-3 border-b border-[hsl(var(--border))]">
-                        <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{user.name}</p>
-                        <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{user.email}</p>
+                        <p className="text-ui font-semibold text-[hsl(var(--foreground))]">{user.name}</p>
+                        <p className="text-caption text-[hsl(var(--muted-foreground))] truncate">{user.email}</p>
                       </div>
                       <div className="p-1.5">
                         {user.role === 'business_owner' && (
                           <button
                             onClick={() => { navigate('/dashboard'); setUserMenuOpen(false); }}
-                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-ui text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
                           >
                             <LayoutDashboard className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                             Dashboard
@@ -141,7 +141,7 @@ export function Header() {
                         {user.role === 'business_owner' && (
                           <button
                             onClick={() => { navigate('/claim'); setUserMenuOpen(false); }}
-                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-ui text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
                           >
                             <Award className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                             Claim Business
@@ -149,14 +149,14 @@ export function Header() {
                         )}
                         <button
                           onClick={() => { navigate('/account'); setUserMenuOpen(false); }}
-                          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
+                          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-ui text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
                         >
                           <User className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                           My Account
                         </button>
                         <button
                           onClick={handleSignOut}
-                          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-ui text-error dark:text-error hover:bg-error dark:hover:bg-error/30 transition-colors"
                         >
                           <LogOut className="w-4 h-4" />
                           Sign Out
@@ -175,7 +175,7 @@ export function Header() {
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm" className="gap-1.5 gradient-primary text-white border-0 shadow-md shadow-brand/25 hover:shadow-lg hover:shadow-brand/30 transition-shadow">
+                  <Button size="sm" className="gap-1.5 gradient-primary text-on-primary border-0 shadow-md shadow-brand/25 hover:shadow-lg hover:shadow-brand/30 transition-shadow">
                     <UserPlus className="w-4 h-4" />
                     Sign Up
                   </Button>
@@ -202,9 +202,9 @@ export function Header() {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "px-4 py-2.5 rounded-lg text-ui font-medium transition-colors",
                     isActive(link.to)
-                      ? "bg-[hsl(var(--primary))] text-white"
+                      ? "bg-[hsl(var(--primary))] text-brand-on-primary"
                       : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary))]"
                   )}
                 >
@@ -215,24 +215,24 @@ export function Header() {
             {isAuthenticated ? (
               <div className="flex flex-col gap-1 border-t border-[hsl(var(--border))] pt-3">
                 {user?.role === 'business_owner' && (
-                  <Link to="/dashboard" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
+                  <Link to="/dashboard" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-ui font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
                     <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </Link>
                 )}
                 {user?.role === 'business_owner' && (
-                  <Link to="/claim" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
+                  <Link to="/claim" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-ui font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
                     <Award className="w-4 h-4" />
                     Claim Business
                   </Link>
                 )}
-                <Link to="/account" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
+                <Link to="/account" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-ui font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]">
                   <User className="w-4 h-4" />
                   My Account
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 text-left"
+                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-ui font-medium text-error hover:bg-error dark:hover:bg-error/30 text-left"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -244,7 +244,7 @@ export function Header() {
                   <Button variant="outline" className="w-full">Sign In</Button>
                 </Link>
                 <Link to="/signup" className="flex-1">
-                  <Button className="w-full gradient-primary text-white border-0">Sign Up</Button>
+                  <Button className="w-full gradient-primary text-on-primary border-0">Sign Up</Button>
                 </Link>
               </div>
             )}

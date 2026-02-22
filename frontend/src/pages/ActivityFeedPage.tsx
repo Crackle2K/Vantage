@@ -18,20 +18,20 @@ const activityIcons: Record<string, typeof MapPin> = {
 }
 
 const activityColors: Record<string, string> = {
-  checkin: 'bg-blue-500',
-  review: 'bg-amber-500',
+  checkin: 'bg-info',
+  review: 'bg-warning',
   deal_posted: 'bg-brand',
-  event_created: 'bg-purple-500',
-  business_claimed: 'bg-green-500',
-  milestone: 'bg-orange-500',
+  event_created: 'bg-brand-tertiary',
+  business_claimed: 'bg-success',
+  milestone: 'bg-warning',
 }
 
 const credibilityBadges: Record<CredibilityTier, { label: string; color: string; icon: typeof Shield }> = {
-  new: { label: 'Newcomer', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400', icon: Users },
-  regular: { label: 'Regular', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400', icon: CheckCircle2 },
-  trusted: { label: 'Trusted', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400', icon: Shield },
-  local_guide: { label: 'Local Guide', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400', icon: Award },
-  ambassador: { label: 'Ambassador', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', icon: Flame },
+  new: { label: 'Newcomer', color: 'bg-surface-elevated dark:bg-surface-elevated text-muted dark:text-muted', icon: Users },
+  regular: { label: 'Regular', color: 'bg-info dark:bg-info/30 text-info dark:text-info', icon: CheckCircle2 },
+  trusted: { label: 'Trusted', color: 'bg-success dark:bg-success/30 text-success dark:text-success', icon: Shield },
+  local_guide: { label: 'Local Guide', color: 'bg-brand-tertiary dark:bg-brand-tertiary/30 text-brand-tertiary dark:text-brand-tertiary', icon: Award },
+  ambassador: { label: 'Ambassador', color: 'bg-warning dark:bg-warning/30 text-warning dark:text-warning', icon: Flame },
 }
 
 function timeAgo(dateStr: string): string {
@@ -50,7 +50,7 @@ function CredibilityBadge({ tier }: { tier: CredibilityTier }) {
   const badge = credibilityBadges[tier]
   const Icon = badge.icon
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-medium ${badge.color}`}>
       <Icon className="w-3 h-3" />
       {badge.label}
     </span>
@@ -117,7 +117,7 @@ export default function ActivityFeedPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 animate-fade-in-up">
           <div>
-            <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] font-heading">
+            <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
               Local <span className="gradient-text font-serif">Activity</span>
             </h1>
             <p className="text-[hsl(var(--muted-foreground))] mt-1">
@@ -127,8 +127,8 @@ export default function ActivityFeedPage() {
 
           {/* Live indicator */}
           <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm font-medium text-[hsl(var(--foreground))]">Live Feed</span>
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+            <span className="text-ui font-medium text-[hsl(var(--foreground))]">Live Feed</span>
           </div>
         </div>
 
@@ -152,15 +152,15 @@ export default function ActivityFeedPage() {
                 <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--secondary))] flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-8 h-8 text-[hsl(var(--muted-foreground))]" />
                 </div>
-                <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2 font-heading">No activity yet</h3>
-                <p className="text-[hsl(var(--muted-foreground))] text-sm">
+                <h3 className="text-body font-semibold text-[hsl(var(--foreground))] mb-2 font-heading">No activity yet</h3>
+                <p className="text-[hsl(var(--muted-foreground))] text-ui">
                   Be the first to check in at a local business and start the community feed!
                 </p>
               </div>
             ) : (
               feedItems.map((item, index) => {
                 const Icon = activityIcons[item.activity_type] || TrendingUp
-                const color = activityColors[item.activity_type] || 'bg-gray-500'
+                const color = activityColors[item.activity_type] || 'bg-surface-elevated'
 
                 return (
                   <div
@@ -171,14 +171,14 @@ export default function ActivityFeedPage() {
                     <div className="flex items-start gap-3">
                       {/* Activity Icon */}
                       <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center flex-shrink-0`}>
-                        <Icon className="w-5 h-5 text-white" />
+                        <Icon className="w-5 h-5 text-brand-on-primary" />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         {/* Title & Badge */}
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <p className="text-sm font-medium text-[hsl(var(--foreground))] leading-snug">
+                            <p className="text-ui font-medium text-[hsl(var(--foreground))] leading-snug">
                               {item.title}
                             </p>
                             {item.user_credibility_tier && (
@@ -187,7 +187,7 @@ export default function ActivityFeedPage() {
                               </div>
                             )}
                           </div>
-                          <span className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap flex items-center gap-1">
+                          <span className="text-caption text-[hsl(var(--muted-foreground))] whitespace-nowrap flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {timeAgo(item.created_at)}
                           </span>
@@ -195,18 +195,18 @@ export default function ActivityFeedPage() {
 
                         {/* Description */}
                         {item.description && (
-                          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2 line-clamp-2">
+                          <p className="text-ui text-[hsl(var(--muted-foreground))] mt-2 line-clamp-2">
                             {item.description}
                           </p>
                         )}
 
                         {/* Business tag */}
                         <div className="flex items-center gap-2 mt-3">
-                          <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
+                          <span className="text-caption font-medium px-2.5 py-1 rounded-lg bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
                             {item.business_name}
                           </span>
                           {item.business_category && (
-                            <span className="text-xs text-[hsl(var(--muted-foreground))] capitalize">
+                            <span className="text-caption text-[hsl(var(--muted-foreground))] capitalize">
                               {item.business_category}
                             </span>
                           )}
@@ -214,11 +214,11 @@ export default function ActivityFeedPage() {
 
                         {/* Engagement */}
                         <div className="flex items-center gap-4 mt-3">
-                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
+                          <button className="flex items-center gap-1.5 text-caption text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
                             <ThumbsUp className="w-3.5 h-3.5" />
                             {item.likes > 0 && item.likes}
                           </button>
-                          <button className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
+                          <button className="flex items-center gap-1.5 text-caption text-[hsl(var(--muted-foreground))] hover:text-brand transition-colors">
                             <MessageCircle className="w-3.5 h-3.5" />
                             {item.comments > 0 && item.comments}
                           </button>
@@ -244,7 +244,7 @@ export default function ActivityFeedPage() {
             {/* My Credibility Card */}
             {isAuthenticated && myCredibility && (
               <div className="glass-card rounded-2xl p-5 animate-fade-in-up">
-                <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-4 font-sub flex items-center gap-2">
+                <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-4 font-sub flex items-center gap-2">
                   <Shield className="w-4 h-4 text-brand" />
                   Your Credibility
                 </h3>
@@ -263,14 +263,14 @@ export default function ActivityFeedPage() {
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold text-[hsl(var(--foreground))]">
+                      <span className="text-ui font-bold text-[hsl(var(--foreground))]">
                         {Math.round(myCredibility.credibility_score)}
                       </span>
                     </div>
                   </div>
                   <div>
                     <CredibilityBadge tier={myCredibility.tier} />
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+                    <p className="text-caption text-[hsl(var(--muted-foreground))] mt-1">
                       Keep engaging to level up!
                     </p>
                   </div>
@@ -287,7 +287,7 @@ export default function ActivityFeedPage() {
                     <div key={stat.label} className="flex items-center gap-2 p-2 rounded-lg bg-[hsl(var(--secondary))]/50">
                       <stat.icon className="w-3.5 h-3.5 text-[hsl(var(--muted-foreground))]" />
                       <div>
-                        <p className="text-sm font-bold text-[hsl(var(--foreground))]">{stat.value}</p>
+                        <p className="text-ui font-bold text-[hsl(var(--foreground))]">{stat.value}</p>
                         <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{stat.label}</p>
                       </div>
                     </div>
@@ -298,7 +298,7 @@ export default function ActivityFeedPage() {
 
             {/* How Credibility Works */}
             <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-              <h3 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 font-sub">
+              <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub">
                 Community Trust Tiers
               </h3>
               <div className="space-y-2.5">
@@ -309,12 +309,12 @@ export default function ActivityFeedPage() {
                       <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${badge.color}`}>
                         <Icon className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-xs text-[hsl(var(--foreground))] font-medium">{badge.label}</span>
+                      <span className="text-caption text-[hsl(var(--foreground))] font-medium">{badge.label}</span>
                     </div>
                   )
                 })}
               </div>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] mt-3 leading-relaxed">
+              <p className="text-caption text-[hsl(var(--muted-foreground))] mt-3 leading-relaxed">
                 Check in at businesses, leave reviews, and confirm others' visits to build your community credibility score.
               </p>
             </div>
