@@ -18,21 +18,21 @@
      LIGHT MODE (6 colors)
      ═══════════════════════════════════════════ */
   --surface-primary: #ffffff;           /* Main background */
-  --surface-elevated: #f9fafb;          /* Cards, raised elements */
-  --on-surface: #111827;                /* Primary text on surfaces */
-  --on-surface-variant: #6b7280;        /* Secondary text, muted content */
-  --outline: #e5e7eb;                   /* Default borders */
-  --outline-variant: #f3f4f6;           /* Subtle borders, dividers */
+  --surface-elevated: #e8e7e7;          /* Cards, raised elements */
+  --on-surface: #1e1e1e;                /* Primary text on surfaces */
+  --on-surface-variant: #2e2e2e;        /* Secondary text, muted content */
+  --outline: #057933;                   /* Default borders */
+  --outline-variant: #8cfff5;           /* Subtle borders, dividers */
 
   /* ═══════════════════════════════════════════
      DARK MODE (6 colors)
      ═══════════════════════════════════════════ */
-  --surface-primary-dark: #0f172a;      /* Main background (dark) */
-  --surface-elevated-dark: #1e293b;     /* Cards, raised elements (dark) */
-  --on-surface-dark: #f1f5f9;           /* Primary text on surfaces (dark) */
-  --on-surface-variant-dark: #94a3b8;   /* Secondary text, muted (dark) */
-  --outline-dark: #334155;              /* Default borders (dark) */
-  --outline-variant-dark: #475569;      /* Subtle borders (dark) */
+  --surface-primary-dark: #1e1e1e;      /* Main background (dark) */
+  --surface-elevated-dark: #2e2e2e;     /* Cards, raised elements (dark) */
+  --on-surface-dark: #ffffff;           /* Primary text on surfaces (dark) */
+  --on-surface-variant-dark: #e8e7e7;   /* Secondary text, muted (dark) */
+  --outline-dark: #057933;              /* Default borders (dark) */
+  --outline-variant-dark: #8cfff5;      /* Subtle borders (dark) */
 
   /* ═══════════════════════════════════════════
      STATUS (4 colors)
@@ -63,12 +63,12 @@
      TYPOGRAPHY SCALE (6 sizes)
      Based on 1.333 Perfect Fourth scale
      ═══════════════════════════════════════════ */
-  --text-display: 4rem;          /* 64px - Hero sections, marketing */
-  --text-heading: 3rem;          /* 48px - Page titles (H1) */
-  --text-subheading: 1.5rem;     /* 24px - Section headings (H2-H3) */
-  --text-body: 1rem;             /* 16px - Paragraphs, main content */
-  --text-ui: 0.875rem;           /* 14px - Buttons, labels, UI elements */
-  --text-caption: 0.75rem;       /* 12px - Metadata, timestamps, footnotes */
+  --text-display: 64px;          /* 64px - Hero sections, marketing */
+  --text-heading: 48px;          /* 48px - Page titles (H1) */
+  --text-subheading: 24px;     /* 24px - Section headings (H2-H3) */
+  --text-body: 16px;             /* 16px - Paragraphs, main content */
+  --text-ui: 14px;           /* 14px - Buttons, labels, UI elements */
+  --text-caption: 12px;       /* 12px - Metadata, timestamps, footnotes */
 }
 
 /* ═══════════════════════════════════════════
