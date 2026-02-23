@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint Python with flake8
+        run: |
+          flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Check Python formatting with black
+        run: black --check backend
+
+      - name: Check Python imports with isort
+        run: isort --check-only backend
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint frontend with ESLint
+        working-directory: ./frontend
+        run: npm run lint --if-present
+
+      - name: Type check frontend
+        working-directory: ./frontend
+        run: npm run type-check --if-present
