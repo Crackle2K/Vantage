@@ -8,7 +8,6 @@ from typing import List, Optional
 from datetime import datetime
 from enum import Enum
 
-
 class CategoryEnum(str, Enum):
     """Business category enumeration — covers both legacy lowercase and rich Google Places values."""
     # Legacy lowercase values (user-created businesses)

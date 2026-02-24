@@ -4,9 +4,19 @@ Loads all secrets from .env — never hardcode or expose API keys.
 """
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Resolve env files deterministically so running from repo root still loads backend/.env.
+_HERE = Path(__file__).resolve().parent
+_BACKEND_ENV = _HERE / ".env"
+_ROOT_ENV = _HERE.parent / ".env"
+
+if _BACKEND_ENV.exists():
+    load_dotenv(dotenv_path=_BACKEND_ENV)
+else:
+    # Fallback for setups that keep a project-level .env file.
+    load_dotenv(dotenv_path=_ROOT_ENV)
 
 # ── MongoDB ─────────────────────────────────────────────────────────
 MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017")

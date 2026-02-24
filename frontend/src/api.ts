@@ -223,11 +223,20 @@ export const api = {
   },
 
   // ─── Discovery (Google Places backfill) ──────
-  async discoverBusinesses(lat: number, lng: number, radius: number = 5, category?: string): Promise<Business[]> {
+  async discoverBusinesses(
+    lat: number,
+    lng: number,
+    radius: number = 5,
+    category?: string,
+    limit: number = 200,
+    refresh: boolean = false
+  ): Promise<Business[]> {
     const params = new URLSearchParams();
     params.append('lat', lat.toString());
     params.append('lng', lng.toString());
     params.append('radius', radius.toString());
+    params.append('limit', limit.toString());
+    if (refresh) params.append('refresh', 'true');
     params.append('sort_by', 'local_confidence'); // server pre-sorts by local independent confidence
     if (category) params.append('category', category);
     const response = await fetch(`${API_URL}/discover?${params}`);

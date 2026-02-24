@@ -5,7 +5,7 @@ Determines whether a Google Places API result (old or New API) represents a
 local independent brick-and-mortar business, and returns a confidence score.
 
 Confidence is in [0.0, 1.0].  A place is considered definitively local only
-when confidence >= LOCAL_CONFIDENCE_THRESHOLD (0.75).
+when confidence >= LOCAL_CONFIDENCE_THRESHOLD (0.60).
 
 Decision flow
 ─────────────
@@ -28,7 +28,7 @@ import re
 from typing import Tuple
 
 # ── Threshold ───────────────────────────────────────────────────────────────
-LOCAL_CONFIDENCE_THRESHOLD = 0.75
+LOCAL_CONFIDENCE_THRESHOLD = 0.60
 
 
 # ── Types that unconditionally disqualify a place ───────────────────────────
@@ -324,7 +324,9 @@ def classify_local_business(place: dict) -> Tuple[bool, float]:
     if _STREET_NUM_RE.match(address.strip()):
         score += 0.10
     else:
-        score -= 0.20  # no street number is a meaningful red flag
+        # Nearby Search vicinity often omits street numbers for valid businesses.
+        # Keep this as a soft signal so we don't over-prune real local places.
+        score -= 0.05
 
     # ── 3. Type-based scoring ─────────────────────────────────────────────────
     types: list[str] = place.get("types") or []

@@ -3,7 +3,7 @@ Google Places Nearby Search integration for Vantage.
 
 - Maps Google place types to rich Vantage categories.
 - Returns MongoDB-ready dicts with place_id, GeoJSON location, etc.
-- Follows up to 2 next_page_token pages (max 60 results).
+- Uses multi-query nearby fetches with pagination for broader local coverage.
 - Every API call is logged to the api_usage_log collection.
 - Contains geo_cell_key() helper for geo-cache cell computation.
 """
@@ -138,6 +138,56 @@ def geo_cell_key(lat: float, lng: float, radius_m: int) -> dict:
 # ── Main search function ───────────────────────────────────────────
 
 GOOGLE_NEARBY_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+MAX_RETURN_RESULTS = 250
+
+
+async def _fetch_nearby_pages(client: httpx.AsyncClient, base_params: dict, label: str) -> list[dict]:
+    """Fetch first page + up to 2 token pages for one Nearby Search query."""
+    resp = await client.get(GOOGLE_NEARBY_URL, params=base_params)
+    data = resp.json()
+    status = data.get("status")
+    results = data.get("results", [])
+    await _log_api_call(label, base_params, status, len(results))
+
+    if status not in ("OK", "ZERO_RESULTS"):
+        print(f"Google Places error: {status} - {data.get('error_message', '')}")
+        return []
+
+    all_results = list(results)
+
+    for _ in range(2):
+        token = data.get("next_page_token")
+        if not token:
+            break
+
+        page_data = None
+        for __ in range(3):
+            await asyncio.sleep(2)
+            page_resp = await client.get(
+                GOOGLE_NEARBY_URL,
+                params={"pagetoken": token, "key": GOOGLE_API_KEY},
+            )
+            page_data = page_resp.json()
+            if page_data.get("status") != "INVALID_REQUEST":
+                break
+
+        if not page_data:
+            break
+
+        await _log_api_call(
+            f"{label}:page",
+            {"pagetoken": token[:20]},
+            page_data.get("status"),
+            len(page_data.get("results", [])),
+        )
+
+        if page_data.get("status") not in ("OK", "ZERO_RESULTS"):
+            break
+
+        all_results.extend(page_data.get("results", []))
+        data = page_data
+
+    return all_results
 
 
 async def search_google_places(
@@ -145,54 +195,50 @@ async def search_google_places(
     lng: float,
     radius_m: int = 5000,
     keyword: Optional[str] = None,
+    max_results: int = MAX_RETURN_RESULTS,
 ) -> List[Dict]:
     """
-    Call Google Places Nearby Search and return a list of MongoDB-ready dicts.
-    Follows up to 2 next_page_token pages (max 60 total results).
+    Call Google Places Nearby Search and return MongoDB-ready dicts.
+    Uses one broad query plus several type-specific queries and de-dupes by place_id.
     Every call is logged to api_usage_log.
     """
     if not GOOGLE_API_KEY:
-        print("⚠️  GOOGLE_API_KEY not set – skipping Places lookup")
+        print("GOOGLE_API_KEY not set - skipping Places lookup")
         return []
 
-    params = {
+    base_params = {
         "location": f"{lat},{lng}",
         "radius": radius_m,
         "key": GOOGLE_API_KEY,
     }
     if keyword:
-        params["keyword"] = keyword
-
-    all_results: list[dict] = []
+        base_params["keyword"] = keyword
 
     async with httpx.AsyncClient(timeout=15) as client:
-        # First page
-        resp = await client.get(GOOGLE_NEARBY_URL, params=params)
-        data = resp.json()
-        await _log_api_call("nearbysearch", params, data.get("status"), len(data.get("results", [])))
+        all_results: list[dict] = []
+        all_results.extend(await _fetch_nearby_pages(client, dict(base_params), "nearbysearch"))
 
-        if data.get("status") not in ("OK", "ZERO_RESULTS"):
-            print(f"⚠️  Google Places error: {data.get('status')} – {data.get('error_message', '')}")
-            return []
-
-        all_results.extend(data.get("results", []))
-
-        # Follow up to 2 next_page_token pages (max 60 results total)
-        for _ in range(2):
-            token = data.get("next_page_token")
-            if not token:
+        typed_queries = ["restaurant", "cafe", "bar", "store", "beauty_salon"]
+        for place_type in typed_queries:
+            query_params = dict(base_params)
+            query_params["type"] = place_type
+            all_results.extend(
+                await _fetch_nearby_pages(client, query_params, f"nearbysearch:{place_type}")
+            )
+            if len(all_results) >= max_results * 2:
                 break
-            await asyncio.sleep(2)  # Google requires a short delay
-            resp = await client.get(GOOGLE_NEARBY_URL, params={"pagetoken": token, "key": GOOGLE_API_KEY})
-            data = resp.json()
-            await _log_api_call("nearbysearch:page", {"pagetoken": token[:20]}, data.get("status"), len(data.get("results", [])))
-            all_results.extend(data.get("results", []))
 
     # Convert to MongoDB-ready documents
-    # Only keep places classified as local independent businesses (confidence >= 0.75)
     documents = []
     skipped_non_local = 0
+    seen_place_ids: set[str] = set()
+
     for place in all_results:
+        place_id = place.get("place_id")
+        if not place_id or place_id in seen_place_ids:
+            continue
+        seen_place_ids.add(place_id)
+
         loc = place.get("geometry", {}).get("location", {})
         p_lat = loc.get("lat")
         p_lng = loc.get("lng")
@@ -218,9 +264,9 @@ async def search_google_places(
 
         doc = {
             "name": place.get("name", "Unknown"),
-            "place_id": place.get("place_id"),
+            "place_id": place_id,
             "category": _map_category(place.get("types", [])),
-            "google_types": place.get("types", []),   # raw types stored for re-classification
+            "google_types": place.get("types", []),
             "description": place.get("vicinity", ""),
             "address": place.get("vicinity", ""),
             "local_confidence": confidence,
@@ -249,12 +295,13 @@ async def search_google_places(
             "updated_at": datetime.utcnow(),
         }
         documents.append(doc)
+        if len(documents) >= max_results:
+            break
 
     if skipped_non_local:
-        print(f"🏪  Local classifier: kept {len(documents)}, skipped {skipped_non_local} non-local/chain results")
+        print(f"Local classifier: kept {len(documents)}, skipped {skipped_non_local} non-local/chain results")
 
     return documents
-
 
 async def _log_api_call(endpoint: str, params: dict, status: str, result_count: int):
     """Log every Google API call for auditing and cost tracking."""
@@ -270,3 +317,4 @@ async def _log_api_call(endpoint: str, params: dict, status: str, result_count: 
         })
     except Exception as e:
         print(f"⚠️  Failed to log API call: {e}")
+

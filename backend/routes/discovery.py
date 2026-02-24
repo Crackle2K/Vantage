@@ -4,10 +4,10 @@ Smart business search + verified visits + live visibility scoring
 
 Key endpoint: GET /discover
   1. Query MongoDB (2dsphere) for businesses near lat/lng
-  2. If >= 20 results → return sorted by live_visibility_score
-  3. If < 20 AND the area hasn't been fetched recently (geo_cache TTL)
+  2. If >= threshold results → return sorted by requested sort mode
+  3. If below threshold and area wasn't fetched recently (geo_cache TTL)
      → call Google Places → bulk-insert new businesses → re-query
-  4. Always return results sorted by live_visibility_score descending
+  4. Return results sorted by requested sort mode
 
 COST-SAVING RULES:
   • geo_cache stores which lat/lng cells have been fetched and when.
@@ -40,7 +40,7 @@ from services.local_business_classifier import classify_local_business
 
 router = APIRouter()
 
-MIN_RESULTS = 20         # Threshold before considering a Google backfill
+MIN_RESULTS = 80         # Threshold before considering a Google backfill
 CACHE_TTL_HOURS = 24     # Don't re-fetch the same area within this window
 
 
@@ -90,15 +90,16 @@ async def discover_businesses(
     lng: float = Query(..., ge=-180, le=180),
     radius: float = Query(5, ge=0.1, le=50, description="Radius in km"),
     category: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(200, ge=1, le=300),
     sort_by: Optional[str] = Query(None, description="Sort: score | local_confidence | rating | newest"),
+    refresh: bool = Query(False, description="Force bypass geo cache and refetch Places data"),
 ):
     """
     Smart business discovery with aggressive caching.
 
       1. Search MongoDB via 2dsphere index.
-      2. If >= 20 results, return immediately (no API call).
-      3. If < 20 results, check geo_cache:
+      2. If >= threshold results, return immediately (no API call).
+      3. If below threshold, check geo_cache:
          a. If this area was fetched within the last 24 hours → skip Google,
             return whatever we have from MongoDB.
          b. If NOT cached → call Google Places, bulk-insert new businesses,
@@ -138,13 +139,13 @@ async def discover_businesses(
         "fetched_at": {"$gte": cache_cutoff},
     })
 
-    if cached:
+    if cached and not refresh:
         # Already fetched this area recently — return what MongoDB has
-        results.sort(key=lambda b: b.get("live_visibility_score", 0), reverse=True)
+        _sort_businesses(results, sort_by)
         return [business_helper(b) for b in results]
 
     # ── Step 4: Call Google Places (cache miss) ─────────────────────
-    new_places = await search_google_places(lat, lng, int(radius_meters))
+    new_places = await search_google_places(lat, lng, int(radius_meters), max_results=limit)
 
     if new_places:
         # Bulk dedup: collect all incoming place_ids, query MongoDB once

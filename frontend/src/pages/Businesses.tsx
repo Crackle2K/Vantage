@@ -127,7 +127,7 @@ export default function Businesses() {
       setLoading(true);
       setError(null);
       try {
-        const data = await api.discoverBusinesses(lat, lng, r);
+        const data = await api.discoverBusinesses(lat, lng, r, undefined, 200, forceRefresh);
         setBusinesses(data);
         if (data.length > 0) setCache(key, data);
       } catch {
