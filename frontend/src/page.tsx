@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { 
-  MapPin, Store, Search, Calendar, Info, DollarSign, Star, Shield, 
+  MapPin, Info, DollarSign, Star, Shield, 
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
