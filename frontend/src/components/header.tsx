@@ -68,11 +68,11 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-brand/25 group-hover:shadow-lg group-hover:shadow-brand/30 transition-shadow duration-300">
-              <Store className="w-4.5 h-4.5 text-brand-on-primary" />
+            <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-brand/25 group-hover:shadow-lg group-hover:shadow-brand/30 transition-shadow duration-300">
+              <Store className="w-6 h-6 text-brand-on-primary" />
             </div>
             <span className="text-subheading font-bold text-[hsl(var(--foreground))] tracking-tight font-heading">
-              Van<span className="gradient-text font-serif">tage</span>
+              Vantage
             </span>
           </Link>
 
