@@ -336,9 +336,6 @@ export default function ActivityFeedPage() {
                   )
                 })}
               </div>
-              <p className="text-caption text-[hsl(var(--muted-foreground))] mt-3 leading-relaxed">
-                Check in at businesses, leave reviews, and confirm others' visits to build your community credibility score.
-              </p>
             </div>
           </div>
         </div>
@@ -346,3 +343,4 @@ export default function ActivityFeedPage() {
     </div>
   )
 }
+
