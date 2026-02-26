@@ -213,6 +213,44 @@ Scores are normalized (0–100) for display.
 
 ---
 
+## Deployment
+
+### Vercel Deployment
+
+This application is configured for deployment on Vercel. For detailed deployment instructions, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md).
+
+**Quick Deploy Checklist:**
+
+1. Set up MongoDB Atlas with network access from anywhere (`0.0.0.0/0`)
+2. Configure environment variables in Vercel dashboard
+3. Ensure `FRONTEND_URL` and `MONGODB_URI` are correctly set
+4. Push to GitHub and let Vercel auto-deploy
+
+**Required Environment Variables for Production:**
+
+```env
+# MongoDB
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
+DATABASE_NAME=vantage
+
+# Security
+SECRET_KEY=<generate-with-openssl-rand-hex-32>
+
+# URLs
+API_URL=https://your-app.vercel.app
+FRONTEND_URL=https://your-app.vercel.app
+VITE_API_URL=https://your-app.vercel.app
+
+# Google Services
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_API_KEY=your-api-key
+```
+
+For complete setup instructions, troubleshooting, and optimization tips, refer to the [deployment guide](./VERCEL_DEPLOYMENT.md).
+
+---
+
 ## License
 
 For educational and competition use.

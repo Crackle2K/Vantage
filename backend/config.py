@@ -36,3 +36,6 @@ GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
 # ── API ─────────────────────────────────────────────────────────────
 API_URL: str = os.getenv("API_URL", "http://localhost:8000")
+
+# ── Frontend ────────────────────────────────────────────────────────
+FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
