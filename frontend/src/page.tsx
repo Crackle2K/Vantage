@@ -359,49 +359,71 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Subsection 1: Image left, text right */}
-          <div className="grid md:grid-cols-2 gap-12 mb-24 items-center">
-            <div className="rounded-3xl overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=800&h=600&fit=crop" 
-                alt="Explore community" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <p className="text-ui uppercase tracking-wider text-brand font-semibold mb-3">Step — 01</p>
-              <h3 className="text-heading font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
-                Explore Your Community
-              </h3>
-              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
-                Discover hidden gems and local favorites in your neighborhood. From cozy cafes to unique boutiques, find businesses that make your community special.
-              </p>
-              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed">
-                Our platform connects you with authentic local experiences, helping you build meaningful relationships with business owners who care about their community.
-              </p>
-            </div>
-          </div>
+          {/* Section Title */}
+          <h3 className="text-heading md:text-display font-bold text-left mb-8 font-heading text-[hsl(var(--foreground))]">
+            Our Top Picks
+          </h3>
 
-          {/* Subsection 2: Text left, image right */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <p className="text-ui uppercase tracking-wider text-brand font-semibold mb-3">Step — 02</p>
-              <h3 className="text-heading font-bold mb-4 font-sub text-[hsl(var(--foreground))]">
-                Support Local Businesses
-              </h3>
-              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed mb-6">
-                Every purchase you make helps your neighbors thrive. Access exclusive deals and promotions while supporting entrepreneurs who bring life to your area.
-              </p>
-              <p className="text-body text-[hsl(var(--muted-foreground))] leading-relaxed">
-                Read honest reviews, share your experiences, and become part of a community that values quality, authenticity, and local pride.
-              </p>
-            </div>
-            <div className="rounded-3xl overflow-hidden order-1 md:order-2">
+          {/* 3-Column Image Card Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6">
+            {/* Card 1: Thick */}
+            <div 
+              className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => navigate("/businesses")}
+            >
               <img 
-                src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop" 
-                alt="Support local" 
+                src="/Images/volosgreekcuisine.webp"
+                alt="Brand 1"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white">
+                  Volos Greek Cuisine
+                </p>
+                <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-white">
+                  133 Richmond St W, Toronto, ON M5H 2L3
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2: Thin */}
+            <div 
+              className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => navigate("/businesses")}
+            >
+              <img 
+                src="/Images/laperlasalon&spa.webp"
+                alt="La Perla Salon & Spa"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white">
+                  La Perla Salon & Spa
+                </p>
+                <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-white">
+                  112 Elizabeth St, Toronto, ON M5G 1P5
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Thick */}
+            <div 
+              className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => navigate("/businesses")}
+            >
+              <img 
+                src="/Images/dineencoffeeco.webp"
+                alt="Dineen Coffee Co"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white">
+                  Dineen Coffee Co
+                </p>
+                <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-white">
+                   311 York Mills Rd, North York, ON M2L 1L3
+                </p>
+              </div>
             </div>
           </div>
         </div>
