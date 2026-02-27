@@ -4,6 +4,8 @@ Handles user registration and login with JWT tokens
 """
 
 import bcrypt
+import asyncio
+import json
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
@@ -11,10 +13,22 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
+from urllib import request as urllib_request, error as urllib_error
 
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, GOOGLE_CLIENT_ID
-from models.user import UserCreate, UserLogin, User, Token, TokenData
+from config import (
+    SECRET_KEY,
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    GOOGLE_CLIENT_ID,
+    RECAPTCHA_ENTERPRISE_PROJECT_ID,
+    RECAPTCHA_ENTERPRISE_API_KEY,
+    RECAPTCHA_ENTERPRISE_SITE_KEY,
+    RECAPTCHA_SIGNUP_ACTION,
+    RECAPTCHA_MIN_SCORE,
+    RECAPTCHA_VERIFY_TIMEOUT_SECONDS,
+)
+from models.user import UserLogin, User, Token, TokenData, UserRole
 from database.mongodb import get_users_collection
 
 # Security scheme
@@ -28,6 +42,16 @@ router = APIRouter()
 class GoogleAuthRequest(BaseModel):
     """Request model for Google authentication"""
     credential: str  # Google ID token
+
+
+class RegisterRequest(BaseModel):
+    """Request model for user registration with bot protection."""
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    password: str = Field(..., min_length=6)
+    role: UserRole = UserRole.CUSTOMER
+    recaptcha_token: str = Field(..., min_length=10)
+    recaptcha_action: Optional[str] = None
 
 
 # Helper Functions
@@ -99,9 +123,83 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return User(**user)
 
 
+def _build_recaptcha_assessment_url() -> str:
+    return (
+        "https://recaptchaenterprise.googleapis.com/v1/projects/"
+        f"{RECAPTCHA_ENTERPRISE_PROJECT_ID}/assessments?key={RECAPTCHA_ENTERPRISE_API_KEY}"
+    )
+
+
+def _request_recaptcha_assessment(token: str, expected_action: str) -> dict:
+    payload = {
+        "event": {
+            "token": token,
+            "expectedAction": expected_action,
+            "siteKey": RECAPTCHA_ENTERPRISE_SITE_KEY,
+        }
+    }
+    req = urllib_request.Request(
+        _build_recaptcha_assessment_url(),
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib_request.urlopen(req, timeout=RECAPTCHA_VERIFY_TIMEOUT_SECONDS) as response:
+        body = response.read().decode("utf-8")
+        return json.loads(body)
+
+
+async def verify_signup_recaptcha(token: str, requested_action: Optional[str]) -> None:
+    if not RECAPTCHA_ENTERPRISE_PROJECT_ID or not RECAPTCHA_ENTERPRISE_API_KEY or not RECAPTCHA_ENTERPRISE_SITE_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="reCAPTCHA verification is not configured",
+        )
+
+    expected_action = (requested_action or RECAPTCHA_SIGNUP_ACTION or "SIGNUP").upper()
+    try:
+        assessment = await asyncio.to_thread(_request_recaptcha_assessment, token, expected_action)
+    except urllib_error.HTTPError:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="reCAPTCHA verification request failed",
+        )
+    except urllib_error.URLError:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Unable to reach reCAPTCHA verification service",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Unexpected reCAPTCHA verification error",
+        )
+
+    token_properties = assessment.get("tokenProperties", {})
+    if not token_properties.get("valid"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="reCAPTCHA token is invalid or expired. Please try again.",
+        )
+
+    token_action = (token_properties.get("action") or "").upper()
+    if token_action and token_action != expected_action:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="reCAPTCHA action mismatch. Please try again.",
+        )
+
+    score = float(assessment.get("riskAnalysis", {}).get("score", 0.0))
+    if score < RECAPTCHA_MIN_SCORE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Signup blocked by bot protection. Please try again.",
+        )
+
+
 # Routes
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserCreate):
+async def register(user_data: RegisterRequest):
     """
     Register a new user
     - Creates user account with hashed password
@@ -122,6 +220,8 @@ async def register(user_data: UserCreate):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
+
+    await verify_signup_recaptcha(user_data.recaptcha_token, user_data.recaptcha_action)
     
     # Hash the password
     hashed_password = get_password_hash(user_data.password)

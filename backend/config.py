@@ -34,6 +34,14 @@ GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
+# reCAPTCHA Enterprise
+RECAPTCHA_ENTERPRISE_PROJECT_ID: str = os.getenv("RECAPTCHA_ENTERPRISE_PROJECT_ID", "")
+RECAPTCHA_ENTERPRISE_API_KEY: str = os.getenv("RECAPTCHA_ENTERPRISE_API_KEY", "")
+RECAPTCHA_ENTERPRISE_SITE_KEY: str = os.getenv("RECAPTCHA_ENTERPRISE_SITE_KEY", "")
+RECAPTCHA_SIGNUP_ACTION: str = os.getenv("RECAPTCHA_SIGNUP_ACTION", "SIGNUP")
+RECAPTCHA_MIN_SCORE: float = float(os.getenv("RECAPTCHA_MIN_SCORE", "0.5"))
+RECAPTCHA_VERIFY_TIMEOUT_SECONDS: int = int(os.getenv("RECAPTCHA_VERIFY_TIMEOUT_SECONDS", "10"))
+
 # ── API ─────────────────────────────────────────────────────────────
 API_URL: str = os.getenv("API_URL", "http://localhost:8000")
 

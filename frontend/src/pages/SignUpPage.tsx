@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,24 @@ import { Label } from '@/components/ui/label';
 import { AlertCircle, Loader2, UserPlus, Eye, EyeOff, User, Store } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeKxXgsAAAAANwLN9rezo9U-4RZA6MFod2t5YVc';
+const RECAPTCHA_SIGNUP_ACTION = 'SIGNUP';
+
+type RecaptchaEnterprise = {
+  ready: (cb: () => void) => void;
+  render: (container: string | HTMLElement, params: { sitekey: string; action?: string }) => number;
+  getResponse: (widgetId?: number) => string;
+  reset: (widgetId?: number) => void;
+};
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      enterprise: RecaptchaEnterprise;
+    };
+  }
+}
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -19,6 +37,43 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recaptchaReady, setRecaptchaReady] = useState(false);
+  const [widgetId, setWidgetId] = useState<number | null>(null);
+  const recaptchaRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY || widgetId !== null) return;
+
+    let pollId: number | null = null;
+    const tryRender = () => {
+      const recaptcha = window.grecaptcha?.enterprise;
+      if (!recaptcha || !recaptchaRef.current) return false;
+
+      recaptcha.ready(() => {
+        if (!recaptchaRef.current || widgetId !== null) return;
+        const id = recaptcha.render(recaptchaRef.current, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          action: RECAPTCHA_SIGNUP_ACTION,
+        });
+        setWidgetId(id);
+        setRecaptchaReady(true);
+      });
+      return true;
+    };
+
+    if (!tryRender()) {
+      pollId = window.setInterval(() => {
+        if (tryRender() && pollId !== null) {
+          window.clearInterval(pollId);
+          pollId = null;
+        }
+      }, 300);
+    }
+
+    return () => {
+      if (pollId !== null) window.clearInterval(pollId);
+    };
+  }, [widgetId]);
 
   if (isAuthenticated) {
     navigate('/businesses');
@@ -38,12 +93,24 @@ export default function SignUpPage() {
       return;
     }
 
+    if (!recaptchaReady || widgetId === null) {
+      setError('Security check is still loading. Please wait a moment and try again.');
+      return;
+    }
+
+    const recaptchaToken = window.grecaptcha?.enterprise.getResponse(widgetId) || '';
+    if (!recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification before creating your account.');
+      return;
+    }
+
     setLoading(true);
-    const { error: err } = await signUp(name, email, password, role);
+    const { error: err } = await signUp(name, email, password, role, recaptchaToken, RECAPTCHA_SIGNUP_ACTION);
 
     if (err) {
       setError(err);
       setLoading(false);
+      window.grecaptcha?.enterprise.reset(widgetId);
     } else {
       navigate('/businesses');
     }
@@ -177,6 +244,13 @@ export default function SignUpPage() {
                 onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" required
                 autoComplete="new-password" className="h-11 rounded-xl bg-[hsl(var(--background))]" disabled={loading} minLength={6} />
             </div>
+
+            <div
+              ref={recaptchaRef}
+              className="g-recaptcha min-h-20"
+              data-sitekey={RECAPTCHA_SITE_KEY}
+              data-action={RECAPTCHA_SIGNUP_ACTION}
+            />
 
             <Button
               type="submit"

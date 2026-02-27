@@ -26,11 +26,25 @@ export const api = {
     return response.json();
   },
 
-  async register(name: string, email: string, password: string, role: string): Promise<AuthTokens> {
+  async register(
+    name: string,
+    email: string,
+    password: string,
+    role: string,
+    recaptchaToken: string,
+    recaptchaAction: string
+  ): Promise<AuthTokens> {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        role,
+        recaptcha_token: recaptchaToken,
+        recaptcha_action: recaptchaAction,
+      }),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));

@@ -7,7 +7,14 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (name: string, email: string, password: string, role: string) => Promise<{ error: string | null }>;
+  signUp: (
+    name: string,
+    email: string,
+    password: string,
+    role: string,
+    recaptchaToken: string,
+    recaptchaAction: string
+  ) => Promise<{ error: string | null }>;
   signInWithGoogle: (credential: string) => Promise<{ error: string | null }>;
   signOut: () => void;
   isAuthenticated: boolean;
@@ -69,9 +76,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (name: string, email: string, password: string, role: string) => {
+  const signUp = async (
+    name: string,
+    email: string,
+    password: string,
+    role: string,
+    recaptchaToken: string,
+    recaptchaAction: string
+  ) => {
     try {
-      const tokens = await api.register(name, email, password, role);
+      const tokens = await api.register(name, email, password, role, recaptchaToken, recaptchaAction);
       localStorage.setItem('vantage_token', tokens.access_token);
       await fetchUser();
       return { error: null };
