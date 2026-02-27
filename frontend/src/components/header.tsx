@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Store, User, LogOut, Moon, Sun, Menu, X, LogIn, UserPlus, LayoutDashboard, Award } from "lucide-react"
+import { User, LogOut, Moon, Sun, Menu, X, LogIn, UserPlus, LayoutDashboard, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
 import { cn } from "@/lib/utils"

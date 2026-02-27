@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { 
-  MapPin, Info, DollarSign, Star, Shield, 
+  MapPin, Info, DollarSign, Star, 
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
@@ -232,14 +232,6 @@ export default function HomePage() {
     { quote: "Vantage has transformed how I discover local businesses. The deals are incredible and the reviews are trustworthy!", name: "Sarah Mitchell", title: "Local Explorer" },
     { quote: "As a business owner, Vantage gave us the visibility we needed. Our customer engagement has tripled!", name: "James Rodriguez", title: "Business Owner" },
     { quote: "I love supporting local businesses through Vantage. It's so easy to find exactly what I'm looking for nearby.", name: "Emily Chen", title: "Community Advocate" },
-  ]
-
-  // Features data
-  const features = [
-    { icon: Info, title: "Comprehensive Information", description: "Access detailed business profiles, hours, services, and customer reviews all in one place." },
-    { icon: DollarSign, title: "Price Transparency", description: "Compare prices and access exclusive deals and discounts from local businesses." },
-    { icon: Star, title: "Best Services", description: "Discover top-rated businesses based on verified customer reviews and ratings." },
-    { icon: Shield, title: "Verified Businesses", description: "Every business is verified and monitored to ensure quality and authenticity." },
   ]
 
   // Tab features data
