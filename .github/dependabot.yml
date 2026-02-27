@@ -11,8 +11,6 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
-    # Force this to use GitHub's free servers
-    runs-on: "ubuntu-latest"
 
   # Backend: pip (FastAPI)
   - package-ecosystem: "pip"
@@ -25,5 +23,3 @@ updates:
     labels:
       - "dependencies"
       - "backend"
-    # Force this to use GitHub's free servers
-    runs-on: "ubuntu-latest"
