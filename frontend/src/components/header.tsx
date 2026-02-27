@@ -69,7 +69,7 @@ export function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-brand/25 group-hover:shadow-lg group-hover:shadow-brand/30 transition-shadow duration-300">
-              <Store className="w-6 h-6 text-brand-on-primary" />
+              <img className="w-8 h-8" src="/Images/Vantage.png" alt="Vantage Logo" />
             </div>
             <span className="text-subheading font-bold text-[hsl(var(--foreground))] tracking-tight font-heading">
               Vantage

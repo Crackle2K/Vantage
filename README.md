@@ -247,14 +247,4 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_API_KEY=your-api-key
 ```
 
-For complete setup instructions, troubleshooting, and optimization tips, refer to the [deployment guide](./VERCEL_DEPLOYMENT.md).
 
----
-
-## License
-
-For educational and competition use.
-
----
-
-If you need more customization or want to add badges and formatting, let me know!

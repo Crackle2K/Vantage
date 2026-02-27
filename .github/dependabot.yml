@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Enable version updates for npm (frontend)
+  # Frontend: npm
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -12,7 +12,7 @@ updates:
       - "dependencies"
       - "frontend"
 
-  # Enable version updates for pip (backend)
+  # Backend: pip (FastAPI)
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
