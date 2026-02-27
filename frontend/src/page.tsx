@@ -2,23 +2,10 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { 
-  MapPin, Store, Search, Calendar, Info, DollarSign, Star, Shield, 
+  MapPin, Info, DollarSign, Star, Shield, 
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
-function useScrollY() {
-  const [y, setY] = useState(0)
-  useEffect(() => {
-    let raf = 0
-    const handler = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => setY(window.scrollY))
-    }
-    window.addEventListener("scroll", handler, { passive: true })
-    return () => { window.removeEventListener("scroll", handler); cancelAnimationFrame(raf) }
-  }, [])
-  return y
-}
 
 // Typewriter animation hook - cycles through words with typing effect
 function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, pauseDuration = 3000) {
@@ -203,7 +190,6 @@ function LazyVideoComponent({ videoSrc, posterSrc }: { videoSrc: string, posterS
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const scrollY = useScrollY()
   
   // Mobile detection for video optimization
   const [isMobile, setIsMobile] = useState(false)

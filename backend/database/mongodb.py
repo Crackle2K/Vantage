@@ -18,7 +18,17 @@ async def connect_to_mongo():
     """Establish connection to MongoDB Atlas. Called on app startup."""
     global client, database
     try:
-        client = AsyncIOMotorClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        # Configure client for serverless/cloud deployment with connection pooling
+        client = AsyncIOMotorClient(
+            MONGODB_URI,
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=10000,
+            socketTimeoutMS=10000,
+            maxPoolSize=10,
+            minPoolSize=1,
+            maxIdleTimeMS=45000,
+            retryWrites=True
+        )
         database = client[DATABASE_NAME]
         await client.admin.command("ping")
         print(f"Connected to MongoDB: {DATABASE_NAME}")

@@ -44,19 +44,5 @@ GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
 # ── API ─────────────────────────────────────────────────────────────
 API_URL: str = os.getenv("API_URL", "http://localhost:8000")
 
-# ── CORS ────────────────────────────────────────────────────────────
-_DEFAULT_CORS_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://localhost:5174",
-]
-CORS_ORIGINS: list[str] = _parse_csv_env(os.getenv("CORS_ORIGINS", "")) or _DEFAULT_CORS_ORIGINS
-CORS_ORIGIN_REGEX: str = os.getenv(
-    "CORS_ORIGIN_REGEX",
-    r"https?://(localhost|127\.0\.0\.1)(:\d+)?$|https://([a-zA-Z0-9-]+\.)*vercel\.app$",
-)
-
-# Demo auth fallback (for local demos when DB is unavailable)
-DEMO_AUTH_ENABLED: bool = os.getenv("DEMO_AUTH_ENABLED", "false").lower() in ("1", "true", "yes", "on")
-DEMO_ADMIN_EMAIL: str = os.getenv("DEMO_ADMIN_EMAIL", "vantageadmin@gmail.com")
-DEMO_ADMIN_PASSWORD: str = os.getenv("DEMO_ADMIN_PASSWORD", "demo-admin-password")
+# ── Frontend ────────────────────────────────────────────────────────
+FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
