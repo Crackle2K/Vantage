@@ -213,6 +213,7 @@ export default function HomePage() {
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [email, setEmail] = useState("")
+  const [activeTab, setActiveTab] = useState(0)
 
   /* ═══════════════════════════════════════════
      MOCK DATA
@@ -239,6 +240,34 @@ export default function HomePage() {
     { icon: DollarSign, title: "Price Transparency", description: "Compare prices and access exclusive deals and discounts from local businesses." },
     { icon: Star, title: "Best Services", description: "Discover top-rated businesses based on verified customer reviews and ratings." },
     { icon: Shield, title: "Verified Businesses", description: "Every business is verified and monitored to ensure quality and authenticity." },
+  ]
+
+  // Tab features data
+  const tabFeatures = [
+    {
+      id: 0,
+      name: "Claim & Conversion",
+      icon: DollarSign,
+      title: "Claim & Conversion",
+      description: "Owners claim listings, launch deals, and turn discovery into real foot traffic.",
+      image: "/images/feature1.webp"
+    },
+    {
+      id: 1,
+      name: "Verified Trust System",
+      icon: Star,
+      title: "Verified Trust System",
+      description: "We rank businesses using verified check-ins, credibility-weighted reviews, and live activity signals. This eliminates fake or inactive listings and makes results genuinely trustworthy.",
+      image: "/images/feature2.webp"
+    },
+    {
+      id: 2,
+      name: "Community Engagement Feed",
+      icon: Info,
+      title: "Community Engagement Feed ",
+      description: "Users engage with real local activity (verified check-ins, likes, comments, active-today signals), turning Vantage from a one-time search into a habit-forming local community platform.",
+      image: "/images/feature3.webp"
+    }
   ]
 
   // Instagram images
@@ -430,65 +459,78 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          LARGE FEATURE SECTION - Full-width video with overlay
+          TABBED FEATURES SECTION - Interactive tabs with content switching
           ═══════════════════════════════════════════ */}
-      <section className="relative h-[600px] overflow-hidden">
-        {!isMobile ? (
-          <LazyVideoComponent 
-            videoSrc="/videos/feature.mp4"
-            posterSrc="https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=600&fit=crop"
-          />
-        ) : (
-          <img 
-            src="https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=600&fit=crop"
-            alt="Feature background"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
-        <div className="absolute inset-0 flex items-center justify-center md:justify-start">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-            <div className="max-w-xl text-brand-on-primary">
-              <p className="text-body md:text-subheading leading-relaxed">
-                Join thousands of community members discovering, reviewing, and celebrating local businesses that make our neighborhoods vibrant and unique.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════
-          FEATURES GRID - 4 feature cards
-          ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-surface-elevated dark:bg-surface/50">
+      <section className="py-32 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-heading md:text-display font-bold text-center mb-6 font-heading text-[hsl(var(--foreground))]">
-            Your comfort and safety are<br />always our priority.
+          <h2 className="text-heading md:text-display font-bold text-center mb-8 font-heading text-[hsl(var(--foreground))]">
+            "Turning real community support into <br></br>authentic local visibility"
           </h2>
           <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-16 max-w-2xl mx-auto">
-            We verify every business and ensure you have all the information you need to make confident decisions.
+            Our mission statement
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, i) => {
-              const Icon = feature.icon
+          {/* Tab Buttons */}
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
+            {tabFeatures.map((tab) => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.id
               return (
-                <div 
-                  key={i} 
-                  className="bg-surface dark:bg-surface-elevated rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow duration-300"
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex flex-col items-center p-6 rounded-xl transition-all duration-200 cursor-pointer border-2 min-w-[180px] ${
+                    isActive
+                      ? 'bg-surface-elevated border-brand shadow-lg'
+                      : 'bg-surface border-transparent hover:bg-surface-elevated hover:shadow-md'
+                  }`}
                 >
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-light to-brand flex items-center justify-center mb-6">
-                    <Icon className="w-7 h-7 text-brand-on-primary" />
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
+                    isActive ? 'bg-brand' : 'bg-surface-elevated'
+                  }`}>
+                    <Icon className={`w-6 h-6 ${isActive ? 'text-brand-on-primary' : 'text-[hsl(var(--foreground))]'}`} />
                   </div>
-                  <h3 className="text-subheading font-bold mb-3 font-sub text-[hsl(var(--foreground))]">
-                    {feature.title}
-                  </h3>
-                  <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
+                  <span className={`text-body font-semibold ${
+                    isActive ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'
+                  }`}>
+                    {tab.name}
+                  </span>
+                </button>
               )
             })}
+          </div>
+
+          {/* Content Area */}
+          <div 
+            key={activeTab}
+            className="grid md:grid-cols-2 gap-16 items-center animate-fade-in-up"
+          >
+            {/* Left Column - Text Content */}
+            <div>
+              <h3 className="text-heading md:text-display font-bold mb-8 font-heading text-[hsl(var(--foreground))]">
+                {tabFeatures[activeTab].title}
+              </h3>
+              <p className="text-body md:text-subheading text-[hsl(var(--muted-foreground))] leading-relaxed mb-10">
+                {tabFeatures[activeTab].description}
+              </p>
+              <Button
+                size="lg"
+                className="gradient-primary text-on-primary px-8 py-6 text-body rounded-xl hover:opacity-90 transition-opacity"
+                onClick={() => navigate("/businesses")}
+              >
+                Learn more
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+
+            {/* Right Column - Image */}
+            <div className="rounded-2xl overflow-hidden shadow-2xl min-h-[500px]">
+              <img
+                src={tabFeatures[activeTab].image}
+                alt={tabFeatures[activeTab].title}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
