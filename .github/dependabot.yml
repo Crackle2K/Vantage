@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Frontend: npm
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -10,7 +11,10 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    # Force this to use GitHub's free servers
+    runs-on: "ubuntu-latest"
 
+  # Backend: pip (FastAPI)
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
@@ -21,4 +25,5 @@ updates:
     labels:
       - "dependencies"
       - "backend"
-registries: {}
+    # Force this to use GitHub's free servers
+    runs-on: "ubuntu-latest"
