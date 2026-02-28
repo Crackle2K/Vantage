@@ -81,6 +81,9 @@ class BusinessCreate(BaseModel):
     email: Optional[str] = None
     website: Optional[str] = None
     image_url: Optional[str] = None
+    image_urls: List[str] = Field(default_factory=list, min_length=0, max_length=8)
+    short_description: Optional[str] = Field(None, max_length=160)
+    known_for: List[str] = Field(default_factory=list, min_length=0, max_length=6)
 
 
 class BusinessUpdate(BaseModel):
@@ -95,6 +98,15 @@ class BusinessUpdate(BaseModel):
     email: Optional[str] = None
     website: Optional[str] = None
     image_url: Optional[str] = None
+    image_urls: Optional[List[str]] = Field(None, min_length=0, max_length=8)
+    short_description: Optional[str] = Field(None, max_length=160)
+    known_for: Optional[List[str]] = Field(None, min_length=0, max_length=6)
+
+
+class BusinessProfileUpdate(BaseModel):
+    """Schema for owner-editable summary metadata."""
+    short_description: Optional[str] = Field(None, max_length=160)
+    known_for: Optional[List[str]] = Field(None, min_length=0, max_length=6)
 
 
 class Business(BusinessBase):
@@ -111,6 +123,9 @@ class Business(BusinessBase):
     email: Optional[str] = None
     website: Optional[str] = None
     image_url: Optional[str] = None
+    image_urls: List[str] = Field(default_factory=list)
+    short_description: Optional[str] = Field(default=None, max_length=160)
+    known_for: List[str] = Field(default_factory=list, min_length=0, max_length=6)
 
     # ── Hybrid Model: Seed vs Claimed ───────────────────────────────
     is_claimed: bool = False                  # Has an owner claimed this?

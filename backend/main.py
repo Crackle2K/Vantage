@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from pymongo.errors import PyMongoError
 
+from config import DEMO_MODE
 from database.mongodb import connect_to_mongo, close_mongo_connection
 from database.mongodb import DatabaseUnavailableError
 from models.auth import router as auth_router
@@ -19,6 +20,7 @@ from routes.claims import router as claims_router
 from routes.subscriptions import router as subscriptions_router
 from routes.activity import router as activity_router
 from routes.discovery import router as discovery_router
+from routes.saved import router as saved_router
 from routes.users import router as users_router
 
 
@@ -67,6 +69,7 @@ app.include_router(claims_router, prefix="/api", tags=["Claims"])
 app.include_router(subscriptions_router, prefix="/api", tags=["Subscriptions"])
 app.include_router(activity_router, prefix="/api", tags=["Activity"])
 app.include_router(discovery_router, prefix="/api", tags=["Discovery"])
+app.include_router(saved_router, prefix="/api", tags=["Saved"])
 app.include_router(users_router, prefix="/api/users", tags=["Users"])
 
 
@@ -98,11 +101,12 @@ async def root():
     return {
         "message": "Vantage API running",
         "status": "active",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "demo_mode": DEMO_MODE,
     }
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint for monitoring"""
-    return {"status": "healthy"}
+    return {"status": "healthy", "demo_mode": DEMO_MODE}
 

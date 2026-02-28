@@ -15,6 +15,8 @@ import PricingPage from './pages/PricingPage'
 import ActivityFeedPage from './pages/ActivityFeedPage'
 import DashboardPage from './pages/DashboardPage'
 import ClaimBusinessPage from './pages/ClaimBusinessPage'
+import DecidePage from './pages/DecidePage'
+import SavedPage from './pages/SavedPage'
 import './index.css'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -29,6 +31,8 @@ createRoot(document.getElementById('root')!).render(
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/businesses" element={<Businesses />} />
+                <Route path="/decide" element={<DecidePage />} />
+                <Route path="/saved" element={<SavedPage />} />
                 <Route path="/activity" element={<ActivityFeedPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />

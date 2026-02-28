@@ -81,6 +81,9 @@ Create a `.env` file inside `backend/` with the following:
 MONGO_URI=your_mongodb_connection_string
 GOOGLE_API_KEY=your_google_places_api_key
 USE_GOOGLE_API=true
+DEMO_MODE=false
+DEMO_LAT=43.6532
+DEMO_LNG=-79.3832
 ```
 
 **Important:**
@@ -202,6 +205,13 @@ Scores are normalized (0–100) for display.
 - Daily quota limits configured
 - Budget alerts enabled
 - External API calls can be disabled (`USE_GOOGLE_API=false`)
+- Demo Mode can seed a curated local showcase dataset (`DEMO_MODE=true`)
+
+### Demo Mode
+
+- Set `DEMO_MODE=true` in `backend/.env` to seed a compact curated cluster around `DEMO_LAT` / `DEMO_LNG` during backend startup.
+- The demo seed includes businesses, descriptions, generated image assets, verified check-ins, reviews, owner events, and activity feed entries so Explore, Pulse, and owner content still feel alive when local data is sparse.
+- For internal frontend builds, set `VITE_DEMO_MODE=true` to show a small `Demo Mode` label on Explore while running in development only.
 
 ---
 

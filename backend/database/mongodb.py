@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import UpdateOne
 from bson import ObjectId
 
-from config import MONGODB_URI, DATABASE_NAME
+from config import MONGODB_URI, DATABASE_NAME, DEMO_MODE, DEMO_LAT, DEMO_LNG
 
 # Global database client
 client: AsyncIOMotorClient = None
@@ -40,6 +40,11 @@ async def connect_to_mongo():
         print(f"Connected to MongoDB: {DATABASE_NAME}")
         await _ensure_indexes()
         await _normalize_platform_review_metrics()
+        if DEMO_MODE:
+            from services.demo_seed import seed_demo_dataset
+
+            await seed_demo_dataset(temp_database, DEMO_LAT, DEMO_LNG)
+            print(f"Demo Mode seeded around {DEMO_LAT:.4f}, {DEMO_LNG:.4f}")
     except Exception as e:
         client = None
         database = None
@@ -57,6 +62,12 @@ async def _ensure_indexes():
         await businesses.create_index("owner_id", sparse=True)
         await businesses.create_index("live_visibility_score")
 
+        owner_posts = get_owner_posts_collection()
+        await owner_posts.create_index("business_id")
+        await owner_posts.create_index("created_at")
+        await owner_posts.create_index("start_time")
+        await owner_posts.create_index("end_time")
+
         visits = get_visits_collection()
         await visits.create_index([("user_id", 1), ("business_id", 1), ("created_at", -1)])
         await visits.create_index("business_id")
@@ -69,6 +80,10 @@ async def _ensure_indexes():
 
         api_log = get_api_usage_log_collection()
         await api_log.create_index("timestamp")
+
+        saved = get_saved_collection()
+        await saved.create_index([("user_id", 1), ("business_id", 1)], unique=True)
+        await saved.create_index("created_at")
 
         print("MongoDB indexes ensured")
     except Exception as e:
@@ -176,6 +191,10 @@ def get_activity_feed_collection():
     return get_database()["activity_feed"]
 
 
+def get_owner_posts_collection():
+    return get_database()["owner_posts"]
+
+
 def get_credibility_collection():
     return get_database()["credibility"]
 
@@ -196,3 +215,8 @@ def get_geo_cache_collection():
 def get_api_usage_log_collection():
     """Every outbound Google Places call is recorded here."""
     return get_database()["api_usage_log"]
+
+
+def get_saved_collection():
+    """Stores user saved businesses."""
+    return get_database()["saved"]

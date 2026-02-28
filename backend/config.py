@@ -7,6 +7,11 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+
+def _get_bool(name: str, default: bool = False) -> bool:
+    raw = str(os.getenv(name, str(default))).strip().lower()
+    return raw in {"1", "true", "yes", "on"}
+
 # Resolve env files deterministically so running from repo root still loads backend/.env.
 _HERE = Path(__file__).resolve().parent
 _BACKEND_ENV = _HERE / ".env"
@@ -47,3 +52,8 @@ API_URL: str = os.getenv("API_URL", "http://localhost:8000")
 
 # ── Frontend ────────────────────────────────────────────────────────
 FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+# Demo Mode
+DEMO_MODE: bool = _get_bool("DEMO_MODE", False)
+DEMO_LAT: float = float(os.getenv("DEMO_LAT", "43.6532"))
+DEMO_LNG: float = float(os.getenv("DEMO_LNG", "-79.3832"))

@@ -28,11 +28,12 @@ from config import (
     RECAPTCHA_MIN_SCORE,
     RECAPTCHA_VERIFY_TIMEOUT_SECONDS,
 )
-from models.user import UserLogin, User, Token, TokenData, UserRole
+from models.user import UserLogin, User, Token, TokenData, UserRole, default_user_preferences
 from database.mongodb import get_users_collection
 
 # Security scheme
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 # Router
 router = APIRouter()
@@ -126,6 +127,19 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         user["created_at"] = user["created_at"].isoformat()
     
     return User(**user)
+
+
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
+) -> Optional[User]:
+    """Best-effort auth dependency for endpoints that can work anonymously."""
+    if credentials is None:
+        return None
+
+    try:
+        return await get_current_user(credentials)
+    except HTTPException:
+        return None
 
 
 def _build_recaptcha_assessment_url() -> str:
@@ -238,7 +252,8 @@ async def register(user_data: RegisterRequest):
         "hashed_password": hashed_password,
         "role": user_data.role,
         "favorites": [],
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        **default_user_preferences(),
     }
     
     # Insert into database
@@ -359,7 +374,8 @@ async def google_auth(auth_request: GoogleAuthRequest):
             "role": "customer",
             "favorites": [],
             "created_at": datetime.utcnow(),
-            "auth_provider": "google"
+            "auth_provider": "google",
+            **default_user_preferences(),
         }
         
         result = await users_collection.insert_one(user_dict)

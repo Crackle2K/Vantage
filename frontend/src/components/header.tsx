@@ -36,6 +36,8 @@ export function Header() {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/businesses', label: 'Explore' },
+    { to: '/decide', label: 'Decide' },
+    { to: '/saved', label: 'Saved' },
     { to: '/activity', label: 'Activity' },
     { to: '/pricing', label: 'Pricing' },
   ];

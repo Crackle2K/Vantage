@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
-import type { Business, Deal, Review, Subscription, BusinessActivityStatus, BusinessClaim } from '../types'
+import type { Business, Deal, Review, Subscription, BusinessActivityStatus, BusinessClaim, OwnerEvent } from '../types'
 import {
   Store, Star, Tag, TrendingUp, Plus,
   MapPin, Phone, Clock, Eye, CheckCircle2, Crown,
@@ -22,17 +22,20 @@ export default function DashboardPage() {
   const [selectedBiz, setSelectedBiz] = useState<Business | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [deals, setDeals] = useState<Deal[]>([])
+  const [ownerEvents, setOwnerEvents] = useState<OwnerEvent[]>([])
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [activityStatus, setActivityStatus] = useState<BusinessActivityStatus | null>(null)
   const [myClaims, setMyClaims] = useState<BusinessClaim[]>([])
+  const [eventTitle, setEventTitle] = useState('')
+  const [eventDescription, setEventDescription] = useState('')
+  const [eventStart, setEventStart] = useState('')
+  const [eventEnd, setEventEnd] = useState('')
+  const [eventImage, setEventImage] = useState('')
+  const [eventError, setEventError] = useState('')
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'business_owner') return
-    loadDashboard()
-  }, [isAuthenticated, user])
-
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     try {
       setLoading(true)
       const [businesses, claims] = await Promise.all([
@@ -52,24 +55,70 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'business_owner') return
+    loadDashboard()
+  }, [isAuthenticated, user, loadDashboard])
 
   const selectBusiness = async (biz: Business) => {
     setSelectedBiz(biz)
     const bizId = biz.id || biz._id || ''
     try {
-      const [bizReviews, bizDeals, bizSub, bizActivity] = await Promise.all([
+      const [bizReviews, bizDeals, bizEvents, bizSub, bizActivity] = await Promise.all([
         api.getBusinessReviews(bizId),
         api.getBusinessDeals(bizId),
+        api.getOwnerEvents({ businessId: bizId, includePast: true, limit: 12 }),
         api.getBusinessSubscription(bizId),
         api.getBusinessActivity(bizId).catch(() => null),
       ])
       setReviews(bizReviews)
       setDeals(bizDeals)
+      setOwnerEvents(bizEvents)
       setSubscription(bizSub)
       setActivityStatus(bizActivity)
     } catch (err) {
       console.error('Failed to load business data:', err)
+    }
+  }
+
+  const handleCreateEvent = async () => {
+    if (!selectedBiz) return
+    setEventError('')
+
+    if (!eventTitle.trim() || !eventDescription.trim() || !eventStart || !eventEnd) {
+      setEventError('Add a title, description, start time, and end time.')
+      return
+    }
+
+    const startIso = new Date(eventStart).toISOString()
+    const endIso = new Date(eventEnd).toISOString()
+    if (!startIso || !endIso || new Date(endIso) <= new Date(startIso)) {
+      setEventError('End time must be after start time.')
+      return
+    }
+
+    try {
+      setIsCreatingEvent(true)
+      const created = await api.createOwnerEvent({
+        business_id: selectedBiz.id || selectedBiz._id || '',
+        title: eventTitle.trim(),
+        description: eventDescription.trim(),
+        start_time: startIso,
+        end_time: endIso,
+        image_url: eventImage.trim() || undefined,
+      })
+      setOwnerEvents((current) => [created, ...current])
+      setEventTitle('')
+      setEventDescription('')
+      setEventStart('')
+      setEventEnd('')
+      setEventImage('')
+    } catch (err) {
+      setEventError(err instanceof Error ? err.message : 'Failed to create event')
+    } finally {
+      setIsCreatingEvent(false)
     }
   }
 
@@ -389,6 +438,82 @@ export default function DashboardPage() {
                       </Link>
                     </div>
                   )}
+                </div>
+
+                {/* Active Deals */}
+                <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '175ms' }}>
+                  <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-brand" />
+                    Create Event
+                  </h3>
+
+                  {eventError && (
+                    <div className="mb-3 rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-caption text-error">
+                      {eventError}
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      value={eventTitle}
+                      onChange={(e) => setEventTitle(e.target.value)}
+                      placeholder="Wine tasting, seasonal promo..."
+                      className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                    />
+                    <textarea
+                      value={eventDescription}
+                      onChange={(e) => setEventDescription(e.target.value)}
+                      placeholder="Tell nearby customers what is happening."
+                      rows={3}
+                      className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 resize-none"
+                    />
+                    <div className="grid grid-cols-1 gap-3">
+                      <input
+                        type="datetime-local"
+                        value={eventStart}
+                        onChange={(e) => setEventStart(e.target.value)}
+                        className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                      />
+                      <input
+                        type="datetime-local"
+                        value={eventEnd}
+                        onChange={(e) => setEventEnd(e.target.value)}
+                        className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                      />
+                    </div>
+                    <input
+                      type="url"
+                      value={eventImage}
+                      onChange={(e) => setEventImage(e.target.value)}
+                      placeholder="Optional image URL"
+                      className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                    />
+                    <button
+                      onClick={handleCreateEvent}
+                      disabled={isCreatingEvent || !selectedBiz}
+                      className="w-full rounded-xl gradient-primary px-4 py-2.5 text-ui font-medium text-on-primary shadow-lg shadow-brand/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isCreatingEvent ? 'Posting...' : 'Post event'}
+                    </button>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {ownerEvents.length === 0 ? (
+                      <p className="text-caption text-[hsl(var(--muted-foreground))]">
+                        No events yet. Add one to bring fresh activity into Explore.
+                      </p>
+                    ) : (
+                      ownerEvents.slice(0, 4).map(event => (
+                        <div key={event.id} className="rounded-xl bg-[hsl(var(--secondary))]/50 p-3">
+                          <p className="text-ui font-medium text-[hsl(var(--foreground))] line-clamp-1">{event.title}</p>
+                          <p className="text-caption text-[hsl(var(--muted-foreground))]">
+                            {new Date(event.start_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
 
                 {/* Active Deals */}

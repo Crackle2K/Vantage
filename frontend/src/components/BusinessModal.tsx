@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Star, MapPin, Phone, Mail, Globe, Tag, Send, Loader2, MessageSquare, Clock, CheckCircle2, Award, Zap } from 'lucide-react'
+import { X, Star, MapPin, Phone, Mail, Globe, Tag, Send, Loader2, MessageSquare, Clock, CheckCircle2, Award, Zap, Edit3, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BusinessImage } from '@/components/explore/BusinessImage'
 import type { Business, Review, Deal, BusinessActivityStatus } from '../types'
-import { api } from '../api'
+import { api, buildApiUrl } from '../api'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface BusinessModalProps {
   business: Business
   onClose: () => void
+  onBusinessUpdated?: (business: Business) => void
 }
 
 const categoryGradients: Record<string, string> = {
@@ -19,7 +21,7 @@ const categoryGradients: Record<string, string> = {
   health: 'from-brand-light to-brand-dark',
 }
 
-export function BusinessModal({ business, onClose }: BusinessModalProps) {
+export function BusinessModal({ business, onClose, onBusinessUpdated }: BusinessModalProps) {
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const [reviews, setReviews] = useState<Review[]>([])
@@ -35,9 +37,30 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
   const [submitError, setSubmitError] = useState('')
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
+  const [showFullDescription, setShowFullDescription] = useState(false)
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileError, setProfileError] = useState('')
+  const [shortDescription, setShortDescription] = useState(business.short_description || business.description || '')
+  const [knownFor, setKnownFor] = useState<string[]>(business.known_for || [])
+  const [knownForInput, setKnownForInput] = useState((business.known_for || []).join(', '))
 
   const businessId = business.id || business._id || ''
+  const isClaimedOwner = !!(isAuthenticated && business.is_claimed && user?.id === business.owner_id)
   const gradient = categoryGradients[business.category] || 'from-brand-light to-brand'
+  const displayShortDescription = shortDescription || business.short_description || business.description || ''
+  const displayKnownFor = knownFor.length > 0 ? knownFor : business.known_for || []
+  const detailDescription =
+    business.description && business.description !== business.address
+      ? business.description
+      : displayShortDescription
+  const showDescriptionToggle = detailDescription.length > 180
+  const modalProxyPhotoUrl = business.place_id
+    ? buildApiUrl(`/api/photos?place_id=${encodeURIComponent(business.place_id)}&maxwidth=1400`)
+    : undefined
+  const modalImageCandidates = Array.from(
+    new Set([modalProxyPhotoUrl, business.image_url, ...(business.image_urls || []), business.image].filter(Boolean) as string[])
+  )
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -95,6 +118,34 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
     }
   }
 
+  const handleSaveProfile = async () => {
+    if (!isClaimedOwner) return
+
+    setProfileError('')
+    setProfileSaving(true)
+    try {
+      const parsedTags = knownForInput
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+
+      const updated = await api.updateBusinessProfile(businessId, {
+        short_description: shortDescription,
+        known_for: parsedTags,
+      })
+
+      setShortDescription(updated.short_description || '')
+      setKnownFor(updated.known_for || [])
+      setKnownForInput((updated.known_for || []).join(', '))
+      onBusinessUpdated?.(updated)
+      setEditingProfile(false)
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : 'Failed to update profile details')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
+
   const tabs = [
     { id: 'info' as const, label: 'Details' },
     { id: 'reviews' as const, label: `Reviews (${reviews.length})` },
@@ -108,7 +159,7 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-2xl overflow-hidden flex flex-col animate-scale-in"
+        className="relative w-full max-w-3xl max-h-[88vh] rounded-[28px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-2xl overflow-hidden flex flex-col animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -121,8 +172,14 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
 
         {/* Hero Image */}
         <div className="relative h-56 overflow-hidden flex-shrink-0">
-          {business.image_url ? (
-            <img src={business.image_url} alt={business.name} className="w-full h-full object-cover" />
+          {modalImageCandidates.length > 0 ? (
+            <BusinessImage
+              primaryImage={modalImageCandidates[0]}
+              imageCandidates={modalImageCandidates}
+              category={business.category}
+              alt={business.name}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
               <span className="text-display font-bold text-on-primary/30">{business.name[0]}</span>
@@ -246,7 +303,107 @@ export function BusinessModal({ business, onClose }: BusinessModalProps) {
                 </button>
               )}
 
-              <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">{business.description}</p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-caption font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">
+                      Snapshot
+                    </p>
+                    <p className="text-ui text-[hsl(var(--foreground))]">{displayShortDescription}</p>
+                  </div>
+                  {isClaimedOwner && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingProfile((value) => !value)
+                        setProfileError('')
+                      }}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] px-3 py-2 text-ui text-[hsl(var(--foreground))] transition-colors hover:bg-[hsl(var(--secondary))]"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      {editingProfile ? 'Close' : 'Edit'}
+                    </button>
+                  )}
+                </div>
+
+                {displayKnownFor.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {displayKnownFor.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-3 py-1 text-caption text-[hsl(var(--foreground))]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {editingProfile && isClaimedOwner && (
+                  <div className="space-y-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/35 p-4">
+                    <div>
+                      <label className="mb-1.5 block text-ui font-medium text-[hsl(var(--foreground))]">
+                        Short description
+                      </label>
+                      <textarea
+                        value={shortDescription}
+                        onChange={(event) => setShortDescription(event.target.value.slice(0, 160))}
+                        maxLength={160}
+                        rows={3}
+                        className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-ui text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                      />
+                      <p className="mt-1 text-caption text-[hsl(var(--muted-foreground))]">
+                        {shortDescription.length}/160 characters
+                      </p>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-ui font-medium text-[hsl(var(--foreground))]">
+                        Known for
+                      </label>
+                      <input
+                        value={knownForInput}
+                        onChange={(event) => setKnownForInput(event.target.value)}
+                        placeholder="Coffee, Fresh Bakes, Neighborhood Favorite"
+                        className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-ui text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20"
+                      />
+                      <p className="mt-1 text-caption text-[hsl(var(--muted-foreground))]">
+                        Enter 3 to 6 comma-separated tags.
+                      </p>
+                    </div>
+                    {profileError && (
+                      <p className="text-ui text-error">{profileError}</p>
+                    )}
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={profileSaving}
+                        className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-ui font-medium gradient-primary text-on-primary disabled:opacity-60"
+                      >
+                        {profileSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        Save details
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
+                    {showFullDescription || !showDescriptionToggle
+                      ? detailDescription
+                      : `${detailDescription.slice(0, 180).trimEnd()}...`}
+                  </p>
+                  {showDescriptionToggle && (
+                    <button
+                      type="button"
+                      onClick={() => setShowFullDescription((value) => !value)}
+                      className="text-ui font-medium text-[hsl(var(--primary))] hover:underline"
+                    >
+                      {showFullDescription ? 'Show less' : 'More'}
+                    </button>
+                  )}
+                </div>
+              </div>
 
               <div className="space-y-3">
                 <h4 className="text-ui font-semibold text-[hsl(var(--foreground))] uppercase tracking-wide font-mono">Contact</h4>

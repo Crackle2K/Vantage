@@ -6,17 +6,27 @@ Handles business CRUD operations and location-based search
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends, Query
+from fastapi.responses import StreamingResponse
 from bson import ObjectId
 
 from models.business import (
     Business,
     BusinessCreate,
+    BusinessProfileUpdate,
     BusinessUpdate,
     CategoryEnum,
 )
 from models.user import User
 from models.auth import get_current_user
 from database.mongodb import get_businesses_collection
+from services.business_metadata import (
+    derive_known_for,
+    generate_short_description,
+    normalize_business_metadata,
+    normalize_image_urls,
+)
+from services.photo_proxy import build_stream, get_photo_payload
+from routes.discovery import discover_businesses
 
 router = APIRouter()
 
@@ -24,6 +34,12 @@ router = APIRouter()
 def business_helper(business) -> dict:
     """Convert MongoDB document to Business dict with frontend-compatible field names"""
     if business:
+        business.setdefault("image_url", business.pop("image", "") if "image" in business else "")
+        business.setdefault(
+            "primary_image_url",
+            business.get("image_url") or ((business.get("image_urls") or [""])[0] if business.get("image_urls") else ""),
+        )
+        normalize_business_metadata(business)
         business["id"] = str(business["_id"])
         del business["_id"]
         # Map MongoDB field names to frontend-expected names
@@ -39,6 +55,18 @@ def business_helper(business) -> dict:
         if "owner_id" in business:
             business["owner_id"] = str(business["owner_id"])
     return business
+
+
+@router.get("/photos")
+async def get_business_photo(
+    place_id: str = Query(..., min_length=3),
+    maxwidth: int = Query(800, ge=120, le=1600),
+):
+    """Stream a cached business photo via Google Places, website OG image, or placeholder."""
+    businesses_collection = get_businesses_collection()
+    content_type, payload = await get_photo_payload(businesses_collection, place_id.strip(), maxwidth)
+    stream, headers = build_stream(content_type, payload)
+    return StreamingResponse(stream, media_type=content_type, headers=headers)
 
 
 @router.get("/businesses", response_model=List[Business])
@@ -144,51 +172,19 @@ async def get_nearby_businesses(
     min_rating: Optional[float] = Query(None, ge=0, le=5),
     limit: int = Query(50, ge=1, le=100)
 ):
-    """
-    Get nearby businesses using geospatial query
-    - Searches businesses within specified radius from coordinates
-    - Returns results sorted by distance (nearest first)
-    - Optional category and rating filters
-    
-    Parameters:
-    - lat: Latitude coordinate
-    - lng: Longitude coordinate
-    - radius: Search radius in kilometers (default: 10km)
-    - category: Filter by business category
-    - min_rating: Minimum rating filter
-    - limit: Maximum number of results
-    """
-    businesses_collection = get_businesses_collection()
-    
-    # Convert radius from kilometers to meters (MongoDB uses meters)
-    radius_meters = radius * 1000
-    
-    # Build geospatial query
-    geo_query = {
-        "location": {
-            "$near": {
-                "$geometry": {
-                    "type": "Point",
-                    "coordinates": [lng, lat]  # [longitude, latitude]
-                },
-                "$maxDistance": radius_meters
-            }
-        }
-    }
-    
-    # Add additional filters
-    if category:
-        geo_query["category"] = category
-    
+    """Get nearby businesses using the canonical discovery ordering."""
+    businesses = await discover_businesses(
+        lat=lat,
+        lng=lng,
+        radius=radius,
+        category=category.value if category else None,
+        limit=limit,
+        sort_mode="canonical",
+        refresh=False,
+    )
     if min_rating is not None:
-        geo_query["rating_average"] = {"$gte": min_rating}
-    
-    # Execute geospatial query
-    # $near automatically sorts by distance (nearest first)
-    cursor = businesses_collection.find(geo_query).limit(limit)
-    businesses = await cursor.to_list(length=limit)
-    
-    return [business_helper(business) for business in businesses]
+        businesses = [business for business in businesses if (business.get("rating") or 0) >= min_rating]
+    return businesses[:limit]
 
 
 @router.get("/businesses/{business_id}", response_model=Business)
@@ -251,6 +247,17 @@ async def create_business(
         "email": business_data.email,
         "website": business_data.website,
         "image_url": business_data.image_url,
+        "image_urls": normalize_image_urls(business_data.image_urls, primary_image=business_data.image_url or ""),
+        "short_description": generate_short_description(
+            category=business_data.category,
+            address=business_data.address,
+            city=business_data.city,
+            existing=business_data.short_description or business_data.description,
+        ),
+        "known_for": derive_known_for(
+            category=business_data.category,
+            existing=business_data.known_for,
+        ),
         "created_at": datetime.utcnow()
     }
     
@@ -310,6 +317,26 @@ async def update_business(
     # Convert location to dict if present
     if "location" in update_data:
         update_data["location"] = update_data["location"].dict()
+    if "image_urls" in update_data or "image_url" in update_data:
+        existing_images = update_data.get("image_urls") if "image_urls" in update_data else business.get("image_urls", [])
+        primary_image = update_data.get("image_url", business.get("image_url", ""))
+        update_data["image_urls"] = normalize_image_urls(existing_images, primary_image=primary_image)
+    if "known_for" in update_data:
+        update_data["known_for"] = derive_known_for(
+            category=update_data.get("category", business.get("category", "")),
+            google_types=business.get("google_types", []),
+            existing=update_data["known_for"],
+        )
+    if "short_description" in update_data or "description" in update_data:
+        update_data["short_description"] = generate_short_description(
+            category=update_data.get("category", business.get("category", "")),
+            address=update_data.get("address", business.get("address", "")),
+            city=update_data.get("city", business.get("city", "")),
+            existing=update_data.get(
+                "short_description",
+                update_data.get("description", business.get("short_description") or business.get("description", "")),
+            ),
+        )
     
     # Update business
     await businesses_collection.update_one(
@@ -320,6 +347,72 @@ async def update_business(
     # Return updated business
     updated_business = await businesses_collection.find_one({"_id": ObjectId(business_id)})
     
+    return business_helper(updated_business)
+
+
+@router.put("/businesses/{business_id}/profile", response_model=Business)
+async def update_business_profile(
+    business_id: str,
+    profile_data: BusinessProfileUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update owner-editable card metadata for a claimed business.
+    Only the verified claimed owner can edit these fields.
+    """
+    businesses_collection = get_businesses_collection()
+
+    if not ObjectId.is_valid(business_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid business ID format"
+        )
+
+    business = await businesses_collection.find_one({"_id": ObjectId(business_id)})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
+        )
+
+    if not business.get("is_claimed") or str(business.get("owner_id") or "") != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the claimed owner can edit business profile details"
+        )
+
+    payload = profile_data.dict(exclude_unset=True)
+    update_data = {}
+
+    if "short_description" in payload:
+        update_data["short_description"] = generate_short_description(
+            category=business.get("category", ""),
+            address=business.get("address", ""),
+            city=business.get("city", ""),
+            existing=payload.get("short_description", ""),
+        )
+
+    if "known_for" in payload:
+        update_data["known_for"] = derive_known_for(
+            category=business.get("category", ""),
+            google_types=business.get("google_types", []),
+            existing=payload.get("known_for", []),
+        )
+
+    if not update_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No valid profile fields to update"
+        )
+
+    update_data["updated_at"] = datetime.utcnow()
+
+    await businesses_collection.update_one(
+        {"_id": ObjectId(business_id)},
+        {"$set": update_data}
+    )
+
+    updated_business = await businesses_collection.find_one({"_id": ObjectId(business_id)})
     return business_helper(updated_business)
 
 

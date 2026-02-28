@@ -200,6 +200,34 @@ class ActivityFeedCreate(BaseModel):
     description: Optional[str] = None
 
 
+class OwnerEventCreate(BaseModel):
+    """Claimed-business event or promo posted by an owner."""
+    business_id: str
+    title: str = Field(..., min_length=3, max_length=120)
+    description: str = Field(..., min_length=8, max_length=600)
+    start_time: datetime
+    end_time: datetime
+    image_url: Optional[str] = Field(None, max_length=500)
+
+
+class OwnerEvent(BaseModel):
+    """Event/promo shown in the dashboard and Explore."""
+    id: str
+    business_id: str
+    title: str
+    description: str
+    start_time: datetime
+    end_time: datetime
+    created_at: datetime
+    image_url: Optional[str] = None
+    business_name: Optional[str] = None
+    business_category: Optional[str] = None
+    business_image_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 # ── "Active Today" Business Signal ──────────────────────────────────
 
 class BusinessActivityStatus(BaseModel):
