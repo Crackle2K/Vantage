@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../api'
@@ -41,11 +41,7 @@ export default function PricingPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [isAuthenticated])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const tierData = await api.getSubscriptionTiers()
       setTiers(tierData)
@@ -65,7 +61,11 @@ export default function PricingPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAuthenticated, user])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleSubscribe = async (tier: string) => {
     setError('')

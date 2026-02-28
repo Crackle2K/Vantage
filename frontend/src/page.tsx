@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { 
-  MapPin, Info, DollarSign, Star, 
+  Info, DollarSign, Star, 
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
@@ -39,35 +39,13 @@ function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, p
       return () => clearTimeout(timeout)
     } else if (isDeleting && charIndex === 0) {
       // Move to next word
+      // This is part of the typewriter animation logic
       setIsDeleting(false)
       setWordIndex((wordIndex + 1) % words.length)
     }
   }, [charIndex, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseDuration])
 
   return displayText
-}
-
-// Video lazy loading hook
-function useVideoLazyLoad() {
-  const videoRef = useRef<HTMLDivElement>(null)
-  const [shouldLoad, setShouldLoad] = useState(false)
-  
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setShouldLoad(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1, rootMargin: '200px' }
-    )
-    
-    if (videoRef.current) observer.observe(videoRef.current)
-    return () => observer.disconnect()
-  }, [])
-  
-  return { videoRef, shouldLoad }
 }
 
 // Video playlist component - cycles through multiple videos with fade transitions
@@ -104,6 +82,7 @@ function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], po
   
   // Reset states when video source changes
   useEffect(() => {
+    // Reset video states when switching to a new video in the playlist
     setHasError(false)
     setIsLoaded(false)
     setIsFading(false)
@@ -157,37 +136,6 @@ function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], po
   )
 }
 
-// Lazy video component - reused across sections
-function LazyVideoComponent({ videoSrc, posterSrc }: { videoSrc: string, posterSrc: string }) {
-  const { videoRef, shouldLoad } = useVideoLazyLoad()
-  const [hasError, setHasError] = useState(false)
-  
-  return (
-    <div ref={videoRef} className="absolute inset-0">
-      {shouldLoad && !hasError ? (
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          poster={posterSrc}
-          onError={() => setHasError(true)}
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      ) : (
-        <img 
-          src={posterSrc}
-          alt="Loading"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-    </div>
-  )
-}
-
 export default function HomePage() {
   const navigate = useNavigate()
   
@@ -209,8 +157,7 @@ export default function HomePage() {
     5000  // pause duration (3 seconds)
   )
   
-  // State for carousel and testimonials
-  const [carouselIndex, setCarouselIndex] = useState(0)
+  // State for testimonials
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [email, setEmail] = useState("")
   const [activeTab, setActiveTab] = useState(0)
@@ -218,14 +165,6 @@ export default function HomePage() {
   /* ═══════════════════════════════════════════
      MOCK DATA
      ═══════════════════════════════════════════ */
-
-  // Mock data for businesses
-  const businesses = [
-    { name: "Mountain View Cafe", location: "Denver, CO", price: 12, image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop" },
-    { name: "Valley Restaurant", location: "Boulder, CO", price: 45, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop" },
-    { name: "Summit Sports", location: "Aspen, CO", price: 30, image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=400&h=300&fit=crop" },
-    { name: "Creek Side Bakery", location: "Vail, CO", price: 15, image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop" },
-  ]
 
   // Mock data for testimonials
   const testimonials = [
@@ -277,10 +216,6 @@ export default function HomePage() {
   /* ═══════════════════════════════════════════
      EVENT HANDLERS
      ═══════════════════════════════════════════ */
-
-  // Carousel navigation
-  const nextBusiness = () => setCarouselIndex((prev) => (prev + 1) % businesses.length)
-  const prevBusiness = () => setCarouselIndex((prev) => (prev - 1 + businesses.length) % businesses.length)
 
   // Testimonial navigation
   const nextTestimonial = () => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)

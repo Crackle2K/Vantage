@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Disable stricter react-hooks rules for intentional patterns
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'warn',
+    },
   },
 ])

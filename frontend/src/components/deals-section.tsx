@@ -14,6 +14,7 @@ const colorPalette = [
 export function DealsSection() {
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentTime] = useState(() => Date.now())
 
   useEffect(() => {
     api.getDeals()
@@ -55,7 +56,7 @@ export function DealsSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {deals.map((deal, index) => {
           const gradient = colorPalette[index % colorPalette.length]
-          const daysLeft = Math.max(0, Math.ceil((new Date(deal.valid_until).getTime() - Date.now()) / 86400000))
+          const daysLeft = Math.max(0, Math.ceil((new Date(deal.valid_until).getTime() - currentTime) / 86400000))
 
           return (
             <div
