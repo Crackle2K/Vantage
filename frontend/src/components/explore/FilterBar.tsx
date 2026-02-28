@@ -44,7 +44,7 @@ function ToggleChip({ label, active, onClick }: ToggleChipProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-full border px-4 py-2 text-caption font-medium transition-colors duration-200 whitespace-nowrap',
+        'rounded-full border px-4 py-2 text-caption font-medium transition-colors duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))/0.45] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--card))]',
         active
           ? 'border-[hsl(var(--primary))/0.45] bg-[hsl(var(--primary))/0.16] text-[hsl(var(--foreground))] dark:bg-[hsl(var(--primary))/0.24]'
           : 'border-[hsl(var(--primary))/0.2] bg-[hsl(var(--background))/0.45] text-[hsl(var(--muted-foreground))] hover:border-[hsl(var(--primary))/0.35] hover:text-[hsl(var(--foreground))]'
@@ -121,7 +121,6 @@ export function FilterBar({
             <CategoryChip
               key={category.label}
               label={category.label}
-              count={category.count}
               selected={selectedCategory === category.label}
               onClick={() => onCategoryChange(category.label)}
             />

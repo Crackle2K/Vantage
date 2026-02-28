@@ -40,7 +40,6 @@ export function CommunityActivityRail({ items }: CommunityActivityRailProps) {
             <div className="relative h-20 overflow-hidden bg-[hsl(var(--secondary))]">
               <BusinessImage
                 primaryImage={item.imageUrl}
-                businessName={item.name}
                 category={item.category}
                 alt={item.name}
                 className="h-full w-full object-cover"

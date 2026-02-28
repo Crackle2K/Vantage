@@ -25,6 +25,47 @@ export type CategoryType =
   | 'entertainment'
   | 'health';
 
+export type ExploreSortMode = 'canonical' | 'distance' | 'newest' | 'most_reviewed';
+export type DecideIntent =
+  | 'DINNER'
+  | 'COFFEE'
+  | 'STUDY'
+  | 'DATE_NIGHT'
+  | 'QUICK_BITE'
+  | 'DESSERT'
+  | 'WALKABLE'
+  | 'OPEN_NOW'
+  | 'CHEAP'
+  | 'TRENDING'
+  | 'HIDDEN_GEM'
+  | 'MOST_TRUSTED';
+export type UserPricePreference = '$' | '$$' | '$$$';
+export type DiscoveryMode = 'new_places' | 'trending' | 'trusted';
+
+export interface BusinessRankingComponents {
+  verified_visits: number;
+  weighted_reviews: number;
+  recency_days: number;
+  engagement_rate: number;
+  local_confidence: number;
+  freshness_boost: number;
+  final_score: number;
+}
+
+export interface BusinessPreferenceMatch {
+  score: number;
+  matched_categories: string[];
+  matched_vibes: string[];
+  reason_codes: string[];
+}
+
+export interface ExploreLane {
+  id: 'for_you' | 'active' | 'hidden_gems' | 'trusted' | string;
+  title: string;
+  subtitle: string;
+  items: Business[];
+}
+
 export interface Business {
   id: string;
   _id?: string;
@@ -36,7 +77,11 @@ export interface Business {
   email?: string;
   website?: string;
   image_url?: string;
+  image_urls?: string[];
+  primary_image_url?: string;
   image?: string;
+  short_description?: string;
+  known_for?: string[];
   rating: number;
   review_count: number;
   has_deals: boolean;
@@ -64,6 +109,13 @@ export interface Business {
   // Visibility
   live_visibility_score?: number;
   local_confidence?: number;
+  canonical_rank_score?: number;
+  ranking_components?: BusinessRankingComponents;
+  preference_match?: BusinessPreferenceMatch;
+  reason_codes?: string[];
+  open_now?: boolean | null;
+  price_level?: number | null;
+  saved_at?: string;
   created_at?: string;
   place_id?: string;
 }
@@ -109,12 +161,27 @@ export interface User {
   created_at?: string;
   profile_picture?: string;
   about_me?: string;
+  preferred_categories?: string[];
+  preferred_vibes?: string[];
+  prefer_independent?: number;
+  price_pref?: UserPricePreference | null;
+  discovery_mode?: DiscoveryMode;
+  preferences_completed?: boolean;
 }
 
 export interface UserUpdate {
   name?: string;
   profile_picture?: string;
   about_me?: string;
+}
+
+export interface UserPreferencesUpdate {
+  preferred_categories: string[];
+  preferred_vibes: string[];
+  prefer_independent: number;
+  price_pref?: UserPricePreference | null;
+  discovery_mode: DiscoveryMode;
+  preferences_completed?: boolean;
 }
 
 export interface AuthTokens {
@@ -268,4 +335,58 @@ export interface BusinessActivityStatus {
   last_checkin_at?: string;
   recent_activity_count: number;
   trending_score: number;
+}
+
+export interface ExploreLanesResponse {
+  lanes: ExploreLane[];
+}
+
+export interface DecideResponse {
+  items: Business[];
+  intent_explanation: string[];
+}
+
+export interface SavedBusinessesResponse {
+  items: Business[];
+}
+
+export interface PulseBusinessSummary {
+  business_id: string;
+  name: string;
+  category: string;
+  image_url?: string;
+  short_description?: string;
+  address?: string;
+}
+
+export interface ActivityPulseItem {
+  id: string;
+  type: 'verified_visit' | 'review' | 'owner_post' | string;
+  summary: string;
+  detail?: string;
+  timestamp: string;
+  business: PulseBusinessSummary;
+}
+
+export interface OwnerEvent {
+  id: string;
+  business_id: string;
+  title: string;
+  description: string;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  image_url?: string;
+  business_name?: string;
+  business_category?: string;
+  business_image_url?: string;
+}
+
+export interface OwnerEventCreate {
+  business_id: string;
+  title: string;
+  description: string;
+  start_time: string;
+  end_time: string;
+  image_url?: string;
 }

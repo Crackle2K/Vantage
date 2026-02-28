@@ -24,6 +24,8 @@ from models.activity import (
     CheckInStatus,
     ActivityType,
     CredibilityTier,
+    OwnerEvent,
+    OwnerEventCreate,
     calculate_credibility_score,
 )
 from models.user import User
@@ -33,10 +35,39 @@ from database.mongodb import (
     get_activity_feed_collection,
     get_businesses_collection,
     get_credibility_collection,
+    get_owner_posts_collection,
     get_reviews_collection,
 )
 
 router = APIRouter()
+
+PULSE_VERIFIED_STATUSES = {
+    CheckInStatus.GEO_VERIFIED.value,
+    CheckInStatus.RECEIPT_VERIFIED.value,
+    CheckInStatus.COMMUNITY_CONFIRMED.value,
+}
+
+
+def _parse_datetime(value) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+        except ValueError:
+            return datetime.min
+    return datetime.min
+
+
+def _pulse_business_snapshot(business: dict) -> dict:
+    return {
+        "business_id": str(business.get("_id")),
+        "name": business.get("name", "Local business"),
+        "category": business.get("category") or "Other",
+        "image_url": business.get("image_url") or business.get("image"),
+        "short_description": business.get("short_description") or business.get("description"),
+        "address": business.get("address"),
+    }
 
 
 class ActivityCommentCreate(BaseModel):
@@ -69,6 +100,17 @@ def activity_helper(doc) -> dict:
         # Don't include liked_by array in feed - it can be large
         if "liked_by" in doc:
             del doc["liked_by"]
+    return doc
+
+
+def owner_event_helper(doc, business: Optional[dict] = None) -> dict:
+    if doc:
+        doc["id"] = str(doc["_id"])
+        del doc["_id"]
+        if business:
+            doc["business_name"] = business.get("name", "Local business")
+            doc["business_category"] = business.get("category", "Other")
+            doc["business_image_url"] = business.get("image_url") or business.get("image")
     return doc
 
 
@@ -285,6 +327,246 @@ async def get_activity_feed(
         "page_size": page_size,
         "has_more": skip + page_size < total,
     }
+
+
+@router.get("/activity/pulse")
+async def get_activity_pulse(
+    lat: float = Query(..., ge=-90, le=90),
+    lng: float = Query(..., ge=-180, le=180),
+    radius: float = Query(5, ge=0.1, le=50, description="Radius in km"),
+    limit: int = Query(12, ge=3, le=24),
+):
+    """
+    Lightweight local pulse for recent verified visits, reviews, and owner activity.
+    Privacy-safe: no user identity is returned.
+    """
+    businesses = get_businesses_collection()
+    checkins = get_checkins_collection()
+    reviews = get_reviews_collection()
+    activity_feed = get_activity_feed_collection()
+
+    nearby = await businesses.find(
+        {
+            "location": {
+                "$near": {
+                    "$geometry": {"type": "Point", "coordinates": [lng, lat]},
+                    "$maxDistance": radius * 1000,
+                }
+            }
+        },
+        {
+            "name": 1,
+            "category": 1,
+            "image_url": 1,
+            "image": 1,
+            "short_description": 1,
+            "description": 1,
+            "address": 1,
+            "is_claimed": 1,
+        },
+    ).limit(120).to_list(length=120)
+
+    if not nearby:
+        return {"items": []}
+
+    business_by_id = {str(doc["_id"]): doc for doc in nearby if doc.get("_id")}
+    business_ids = list(business_by_id.keys())
+    window_start = datetime.utcnow() - timedelta(hours=48)
+
+    verified_checkins = await checkins.find(
+        {
+            "business_id": {"$in": business_ids},
+            "status": {"$in": list(PULSE_VERIFIED_STATUSES)},
+            "created_at": {"$gte": window_start},
+        },
+        {"business_id": 1, "status": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(limit * 2).to_list(length=limit * 2)
+
+    recent_reviews = await reviews.find(
+        {
+            "business_id": {"$in": business_ids},
+            "created_at": {"$gte": window_start},
+        },
+        {"business_id": 1, "created_at": 1, "rating": 1},
+    ).sort("created_at", -1).limit(limit * 2).to_list(length=limit * 2)
+
+    owner_activity = await activity_feed.find(
+        {
+            "business_id": {"$in": business_ids},
+            "activity_type": {"$in": [ActivityType.DEAL_POSTED.value, ActivityType.EVENT_CREATED.value]},
+            "created_at": {"$gte": window_start},
+        },
+        {"business_id": 1, "activity_type": 1, "created_at": 1, "title": 1, "description": 1},
+    ).sort("created_at", -1).limit(limit * 2).to_list(length=limit * 2)
+
+    items: list[dict] = []
+
+    for doc in verified_checkins:
+        business = business_by_id.get(str(doc.get("business_id")))
+        if not business:
+            continue
+        timestamp = doc.get("created_at") or datetime.utcnow()
+        items.append(
+            {
+                "id": f"visit:{doc.get('_id', ObjectId())}",
+                "type": "verified_visit",
+                "summary": f"Someone verified a visit at {business.get('name', 'a business')}",
+                "detail": "Geo or community confirmed",
+                "timestamp": timestamp.isoformat(),
+                "business": _pulse_business_snapshot(business),
+            }
+        )
+
+    for doc in recent_reviews:
+        business = business_by_id.get(str(doc.get("business_id")))
+        if not business:
+            continue
+        timestamp = doc.get("created_at") or datetime.utcnow()
+        rating = int(doc.get("rating", 0) or 0)
+        rating_label = f"{rating}/5" if rating else "New feedback"
+        items.append(
+            {
+                "id": f"review:{doc.get('_id', ObjectId())}",
+                "type": "review",
+                "summary": f"New review at {business.get('name', 'a business')}",
+                "detail": rating_label,
+                "timestamp": timestamp.isoformat(),
+                "business": _pulse_business_snapshot(business),
+            }
+        )
+
+    for doc in owner_activity:
+        business = business_by_id.get(str(doc.get("business_id")))
+        if not business or not business.get("is_claimed"):
+            continue
+        timestamp = doc.get("created_at") or datetime.utcnow()
+        activity_type = str(doc.get("activity_type") or "")
+        detail = "Event posted" if activity_type == ActivityType.EVENT_CREATED.value else "Owner update"
+        items.append(
+            {
+                "id": f"owner:{doc.get('_id', ObjectId())}",
+                "type": "owner_post",
+                "summary": f"{detail} by {business.get('name', 'a business')}",
+                "detail": (doc.get("description") or doc.get("title") or "Fresh from the owner")[:80],
+                "timestamp": timestamp.isoformat(),
+                "business": _pulse_business_snapshot(business),
+            }
+        )
+
+    items.sort(key=lambda item: _parse_datetime(item.get("timestamp")), reverse=True)
+    return {"items": items[:limit]}
+
+
+@router.post("/events", response_model=OwnerEvent, status_code=status.HTTP_201_CREATED)
+async def create_owner_event(
+    event_data: OwnerEventCreate,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Create an owner event/promo for a claimed business.
+    Only the claimed business owner may post.
+    """
+    owner_posts = get_owner_posts_collection()
+    businesses = get_businesses_collection()
+    activity_feed = get_activity_feed_collection()
+
+    if not ObjectId.is_valid(event_data.business_id):
+        raise HTTPException(status_code=400, detail="Invalid business ID")
+
+    business = await businesses.find_one({"_id": ObjectId(event_data.business_id)})
+    if not business:
+        raise HTTPException(status_code=404, detail="Business not found")
+
+    if not business.get("is_claimed") or str(business.get("owner_id")) != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the claimed business owner can post events")
+
+    if event_data.end_time <= event_data.start_time:
+        raise HTTPException(status_code=400, detail="End time must be after start time")
+
+    event_doc = {
+        "business_id": event_data.business_id,
+        "title": event_data.title.strip(),
+        "description": event_data.description.strip(),
+        "start_time": event_data.start_time,
+        "end_time": event_data.end_time,
+        "image_url": event_data.image_url,
+        "created_at": datetime.utcnow(),
+    }
+
+    result = await owner_posts.insert_one(event_doc)
+
+    await activity_feed.insert_one(
+        {
+            "activity_type": ActivityType.EVENT_CREATED,
+            "user_id": current_user.id,
+            "user_name": current_user.name,
+            "business_id": event_data.business_id,
+            "business_name": business.get("name", "Local business"),
+            "business_category": business.get("category"),
+            "title": f"New event from {business.get('name', 'a local business')}",
+            "description": event_data.title.strip(),
+            "likes": 0,
+            "comments": 0,
+            "created_at": datetime.utcnow(),
+        }
+    )
+
+    created = await owner_posts.find_one({"_id": result.inserted_id})
+    return owner_event_helper(created, business)
+
+
+@router.get("/events", response_model=List[OwnerEvent])
+async def get_owner_events(
+    business_id: Optional[str] = None,
+    lat: Optional[float] = Query(None, ge=-90, le=90),
+    lng: Optional[float] = Query(None, ge=-180, le=180),
+    radius: float = Query(5, ge=0.1, le=50, description="Radius in km"),
+    include_past: bool = Query(False, description="Include ended events"),
+    limit: int = Query(20, ge=1, le=60),
+):
+    """
+    Get owner events/promos.
+    Supports either a specific business or nearby search for Explore.
+    """
+    owner_posts = get_owner_posts_collection()
+    businesses = get_businesses_collection()
+
+    query: dict = {}
+    if business_id:
+        if not ObjectId.is_valid(business_id):
+            raise HTTPException(status_code=400, detail="Invalid business ID")
+        query["business_id"] = business_id
+        business_docs = await businesses.find(
+            {"_id": ObjectId(business_id)},
+            {"name": 1, "category": 1, "image_url": 1, "image": 1},
+        ).to_list(length=1)
+    else:
+        if lat is None or lng is None:
+            raise HTTPException(status_code=400, detail="lat and lng are required when business_id is not provided")
+        business_docs = await businesses.find(
+            {
+                "location": {
+                    "$near": {
+                        "$geometry": {"type": "Point", "coordinates": [lng, lat]},
+                        "$maxDistance": radius * 1000,
+                    }
+                },
+                "is_claimed": True,
+            },
+            {"name": 1, "category": 1, "image_url": 1, "image": 1},
+        ).limit(120).to_list(length=120)
+        business_ids = [str(doc["_id"]) for doc in business_docs if doc.get("_id")]
+        if not business_ids:
+            return []
+        query["business_id"] = {"$in": business_ids}
+
+    if not include_past:
+        query["end_time"] = {"$gte": datetime.utcnow()}
+
+    business_by_id = {str(doc["_id"]): doc for doc in business_docs if doc.get("_id")}
+    events = await owner_posts.find(query).sort("start_time", 1).limit(limit).to_list(length=limit)
+
+    return [owner_event_helper(event, business_by_id.get(str(event.get("business_id")))) for event in events]
 
 
 @router.post("/feed/{activity_id}/like")

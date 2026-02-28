@@ -1,6 +1,49 @@
-import type { Business, Review, Deal, ReviewCreate, User, AuthTokens, BusinessClaim, ClaimCreate, Subscription, SubscriptionCreate, TierInfo, CheckIn, CheckInCreate, UserCredibility, ActivityFeedItem, BusinessActivityStatus, ActivityComment, ActivityLikeResult, UserUpdate } from './types';
+import type { Business, Review, Deal, ReviewCreate, User, AuthTokens, BusinessClaim, ClaimCreate, Subscription, SubscriptionCreate, TierInfo, CheckIn, CheckInCreate, UserCredibility, ActivityFeedItem, ActivityPulseItem, OwnerEvent, OwnerEventCreate, BusinessActivityStatus, ActivityComment, ActivityLikeResult, UserUpdate, UserPreferencesUpdate, ExploreSortMode, ExploreLanesResponse, DecideIntent, DecideResponse, SavedBusinessesResponse } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:8000/api';
+function resolveApiUrl(): string {
+  const configured = (import.meta.env.VITE_API_URL || '').trim();
+
+  if (!configured) {
+    if (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+      return '/api';
+    }
+    return 'http://localhost:8000/api';
+  }
+
+  const normalized = configured.replace(/\/$/, '');
+  const apiBase = normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+
+  if (typeof window === 'undefined') {
+    return apiBase;
+  }
+
+  const frontendIsLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+  try {
+    const configuredUrl = new URL(normalized, window.location.origin);
+    const configuredIsLocal = ['localhost', '127.0.0.1'].includes(configuredUrl.hostname);
+    if (!frontendIsLocal && configuredIsLocal) {
+      return '/api';
+    }
+  } catch {
+    // Keep the configured value if it isn't a parseable absolute URL.
+  }
+
+  return apiBase;
+}
+
+const API_URL = resolveApiUrl();
+
+export function buildApiUrl(path: string): string {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (API_URL.endsWith('/api') && normalizedPath.startsWith('/api/')) {
+    return `${API_URL}${normalizedPath.slice(4)}`;
+  }
+  if (API_URL.endsWith('/api') && normalizedPath === '/api') {
+    return API_URL;
+  }
+  return `${API_URL}${normalizedPath}`;
+}
 
 async function throwApiError(response: Response, fallback: string): Promise<never> {
   let message = `${fallback} (HTTP ${response.status})`;
@@ -15,9 +58,12 @@ async function throwApiError(response: Response, fallback: string): Promise<neve
   throw new Error(message);
 }
 
-function getAuthHeaders(): HeadersInit {
+function getAuthHeaders(includeJson: boolean = false): HeadersInit {
   const token = localStorage.getItem('vantage_token');
-  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  const headers: HeadersInit = {};
+  if (includeJson) {
+    headers['Content-Type'] = 'application/json';
+  }
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -100,7 +146,7 @@ export const api = {
   async updateMyProfile(updates: UserUpdate): Promise<User> {
     const response = await fetch(`${API_URL}/users/me`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify(updates),
     });
     if (!response.ok) {
@@ -135,6 +181,35 @@ export const api = {
     return response.json();
   },
 
+  async updateMyPreferences(preferences: UserPreferencesUpdate): Promise<User> {
+    const response = await fetch(`${API_URL}/users/preferences`, {
+      method: 'PUT',
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(preferences),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || 'Failed to update preferences');
+    }
+    return response.json();
+  },
+
+  async updateBusinessProfile(
+    businessId: string,
+    updates: { short_description?: string; known_for?: string[] }
+  ): Promise<Business> {
+    const response = await fetch(`${API_URL}/businesses/${businessId}/profile`, {
+      method: 'PUT',
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || 'Failed to update business profile');
+    }
+    return response.json();
+  },
+
   // ─── Reviews ─────────────────────────────────
   async getBusinessReviews(businessId: string): Promise<Review[]> {
     const response = await fetch(`${API_URL}/reviews/business/${businessId}`);
@@ -145,7 +220,7 @@ export const api = {
   async createReview(review: ReviewCreate): Promise<Review> {
     const response = await fetch(`${API_URL}/reviews`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify(review),
     });
     if (!response.ok) {
@@ -172,7 +247,7 @@ export const api = {
   async submitClaim(claim: ClaimCreate): Promise<BusinessClaim> {
     const response = await fetch(`${API_URL}/claims`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify(claim),
     });
     if (!response.ok) {
@@ -200,7 +275,7 @@ export const api = {
   async createSubscription(sub: SubscriptionCreate): Promise<Subscription> {
     const response = await fetch(`${API_URL}/subscriptions`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify(sub),
     });
     if (!response.ok) {
@@ -230,7 +305,7 @@ export const api = {
   async checkIn(data: CheckInCreate): Promise<CheckIn> {
     const response = await fetch(`${API_URL}/checkins`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -258,6 +333,59 @@ export const api = {
     return { items: [], has_more: false };
   },
 
+  async getActivityPulse(
+    lat: number,
+    lng: number,
+    radius: number = 5,
+    limit: number = 10
+  ): Promise<ActivityPulseItem[]> {
+    const params = new URLSearchParams();
+    params.append('lat', lat.toString());
+    params.append('lng', lng.toString());
+    params.append('radius', radius.toString());
+    params.append('limit', limit.toString());
+    const response = await fetch(`${API_URL}/activity/pulse?${params}`);
+    if (!response.ok) throw new Error('Failed to fetch pulse');
+    const data = await response.json();
+    return Array.isArray(data?.items) ? data.items : [];
+  },
+
+  async getOwnerEvents(options: {
+    businessId?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    includePast?: boolean;
+    limit?: number;
+  }): Promise<OwnerEvent[]> {
+    const params = new URLSearchParams();
+    if (options.businessId) {
+      params.append('business_id', options.businessId);
+    } else {
+      if (typeof options.lat === 'number') params.append('lat', options.lat.toString());
+      if (typeof options.lng === 'number') params.append('lng', options.lng.toString());
+      params.append('radius', String(options.radius ?? 5));
+    }
+    if (options.includePast) params.append('include_past', 'true');
+    if (typeof options.limit === 'number') params.append('limit', options.limit.toString());
+    const response = await fetch(`${API_URL}/events?${params}`);
+    if (!response.ok) throw new Error('Failed to fetch events');
+    return response.json();
+  },
+
+  async createOwnerEvent(payload: OwnerEventCreate): Promise<OwnerEvent> {
+    const response = await fetch(`${API_URL}/events`, {
+      method: 'POST',
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || 'Failed to create event');
+    }
+    return response.json();
+  },
+
   async getBusinessActivity(businessId: string): Promise<BusinessActivityStatus> {
     const response = await fetch(`${API_URL}/businesses/${businessId}/activity`);
     if (!response.ok) throw new Error('Failed to fetch business activity');
@@ -275,7 +403,7 @@ export const api = {
   async toggleActivityLike(activityId: string): Promise<ActivityLikeResult> {
     const response = await fetch(`${API_URL}/feed/${activityId}/like`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -296,7 +424,7 @@ export const api = {
   async addActivityComment(activityId: string, content: string): Promise<{ comment: ActivityComment; comments: number }> {
     const response = await fetch(`${API_URL}/feed/${activityId}/comments`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(true),
       body: JSON.stringify({ content }),
     });
     if (!response.ok) {
@@ -313,7 +441,8 @@ export const api = {
     radius: number = 5,
     category?: string,
     limit: number = 200,
-    refresh: boolean = false
+    refresh: boolean = false,
+    sortMode: ExploreSortMode = 'canonical'
   ): Promise<Business[]> {
     const params = new URLSearchParams();
     params.append('lat', lat.toString());
@@ -321,10 +450,88 @@ export const api = {
     params.append('radius', radius.toString());
     params.append('limit', limit.toString());
     if (refresh) params.append('refresh', 'true');
-    params.append('sort_by', 'local_confidence'); // server pre-sorts by local independent confidence
+    params.append('sort_mode', sortMode);
     if (category) params.append('category', category);
     const response = await fetch(`${API_URL}/discover?${params}`);
     if (!response.ok) await throwApiError(response, 'Failed to discover businesses');
+    return response.json();
+  },
+
+  async getExploreLanes(
+    lat: number,
+    lng: number,
+    radius: number = 5,
+    limit: number = 120
+  ): Promise<ExploreLanesResponse> {
+    const params = new URLSearchParams();
+    params.append('lat', lat.toString());
+    params.append('lng', lng.toString());
+    params.append('radius', radius.toString());
+    params.append('limit', limit.toString());
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/explore/lanes?${params}`, {
+        headers: getAuthHeaders(),
+      });
+    } catch {
+      // Personalization is optional here. If auth headers cause a network-level
+      // failure (often a local CORS/preflight issue), retry anonymously so
+      // Explore still renders.
+      response = await fetch(`${API_URL}/explore/lanes?${params}`);
+      if (!response.ok) await throwApiError(response, 'Failed to fetch explore lanes');
+      return response.json();
+    }
+    if (!response.ok) await throwApiError(response, 'Failed to fetch explore lanes');
+    return response.json();
+  },
+
+  async decideForMe(
+    lat: number,
+    lng: number,
+    radiusKm: number,
+    intent: DecideIntent,
+    options?: {
+      category?: string;
+      limit?: number;
+      constraints?: DecideIntent[];
+    }
+  ): Promise<DecideResponse> {
+    const params = new URLSearchParams();
+    params.append('lat', lat.toString());
+    params.append('lng', lng.toString());
+    params.append('radius_km', radiusKm.toString());
+    params.append('intent', intent);
+    params.append('limit', String(options?.limit ?? 3));
+    if (options?.category) params.append('category', options.category);
+    if (options?.constraints?.length) params.append('constraints', options.constraints.join(','));
+    const response = await fetch(`${API_URL}/decide?${params}`);
+    if (!response.ok) await throwApiError(response, 'Failed to get decide picks');
+    return response.json();
+  },
+
+  async getSavedBusinesses(): Promise<SavedBusinessesResponse> {
+    const response = await fetch(`${API_URL}/saved`, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) await throwApiError(response, 'Failed to fetch saved businesses');
+    return response.json();
+  },
+
+  async saveBusiness(businessId: string): Promise<{ business_id: string; saved: boolean }> {
+    const response = await fetch(`${API_URL}/saved/${businessId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) await throwApiError(response, 'Failed to save business');
+    return response.json();
+  },
+
+  async unsaveBusiness(businessId: string): Promise<{ business_id: string; saved: boolean }> {
+    const response = await fetch(`${API_URL}/saved/${businessId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) await throwApiError(response, 'Failed to remove saved business');
     return response.json();
   },
 

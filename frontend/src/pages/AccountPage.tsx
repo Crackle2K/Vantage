@@ -3,6 +3,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { User, Mail, Shield, Calendar, LogOut, Edit3, Save, X, ArrowLeft, Store, Heart, ImageIcon, FileText } from 'lucide-react'
 import { api } from '../api'
+import { PreferenceOnboardingModal } from '@/components/preferences/PreferenceOnboardingModal'
+import type { UserUpdate } from '@/types'
 
 export default function AccountPage() {
   const { user, isAuthenticated, signOut, setUser } = useAuth()
@@ -13,6 +15,7 @@ export default function AccountPage() {
   const [aboutMe, setAboutMe] = useState(() => user?.about_me || '')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [showPreferenceEditor, setShowPreferenceEditor] = useState(false)
 
   if (!isAuthenticated || !user) {
     return (
@@ -44,7 +47,7 @@ export default function AccountPage() {
     setIsSaving(true)
     
     try {
-      const updates: any = {}
+      const updates: UserUpdate = {}
       if (name !== user?.name) updates.name = name
       if (profilePicture !== user?.profile_picture) updates.profile_picture = profilePicture
       if (aboutMe !== user?.about_me) updates.about_me = aboutMe
@@ -75,6 +78,10 @@ export default function AccountPage() {
     admin: Shield,
   }
   const RoleIcon = roleIcons[user.role] || User
+  const preferenceSummary = [
+    ...(user.preferred_categories || []).slice(0, 3),
+    ...(user.preferred_vibes || []).slice(0, 2),
+  ].slice(0, 5)
 
   return (
     <div className="min-h-[60vh] py-10 px-4">
@@ -226,6 +233,34 @@ export default function AccountPage() {
 
           {/* Quick Links */}
           <div className="glass-card rounded-2xl p-6 mb-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="font-semibold text-[hsl(var(--foreground))]">Discovery Preferences</h3>
+                <p className="text-ui text-[hsl(var(--muted-foreground))] mt-1">
+                  Tune your For You lane. Trust-first ranking still decides the final order.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {preferenceSummary.length > 0 ? (
+                    preferenceSummary.map((item) => (
+                      <span key={item} className="px-3 py-1 rounded-full text-caption border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]">
+                        {item}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-caption text-[hsl(var(--muted-foreground))]">No preferences saved yet</span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPreferenceEditor(true)}
+                className="px-5 py-2.5 rounded-xl text-ui font-medium gradient-primary text-on-primary shadow-lg shadow-brand/20"
+              >
+                Edit preferences
+              </button>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 mb-6">
             <h3 className="font-semibold text-[hsl(var(--foreground))] mb-4">Quick Links</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link to="/businesses" className="flex items-center gap-3 p-4 rounded-xl border border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-colors">
@@ -262,6 +297,19 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      <PreferenceOnboardingModal
+        open={showPreferenceEditor}
+        user={user}
+        title="Edit your discovery preferences"
+        subtitle="Adjust category, vibe, and discovery style preferences whenever your taste changes."
+        allowSkip={false}
+        onClose={() => setShowPreferenceEditor(false)}
+        onSaved={(updatedUser) => {
+          setUser(updatedUser)
+          setShowPreferenceEditor(false)
+        }}
+      />
     </div>
   )
 }

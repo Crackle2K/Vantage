@@ -508,23 +508,25 @@ body {
   }
 }
 
-/* Explore page accent override: replace cool cyan/blue cast with green-forward tones */
+/* Explore page accent override: neutral Pinterest-like palette */
 .explore-page {
-  --background: 96 28% 97%;
-  --card: 96 20% 99%;
-  --secondary: 100 19% 93%;
-  --accent: 134 48% 89%;
-  --border: 132 25% 82%;
-  --primary: 141 67% 38%;
-  --muted-foreground: 145 12% 35%;
+  --background: 30 13% 97%;
+  --card: 0 0% 100%;
+  --secondary: 30 8% 94%;
+  --accent: 25 7% 92%;
+  --border: 210 9% 84%;
+  --primary: 355 78% 56%;
+  --muted-foreground: 220 6% 40%;
+  --shadow-soft: 220 18% 12%;
 }
 
 .dark .explore-page {
-  --background: 145 14% 10%;
-  --card: 145 12% 13%;
-  --secondary: 145 11% 17%;
-  --accent: 145 22% 22%;
-  --border: 145 14% 25%;
-  --primary: 141 70% 46%;
-  --muted-foreground: 142 10% 72%;
+  --background: 220 10% 8%;
+  --card: 220 9% 11%;
+  --secondary: 220 8% 15%;
+  --accent: 220 7% 18%;
+  --border: 220 8% 23%;
+  --primary: 355 82% 58%;
+  --muted-foreground: 220 7% 72%;
+  --shadow-soft: 220 38% 2%;
 }

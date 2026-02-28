@@ -14,6 +14,29 @@ class UserRole(str, Enum):
     BUSINESS_OWNER = "business_owner"
 
 
+class PricePreference(str, Enum):
+    BUDGET = "$"
+    MODERATE = "$$"
+    PREMIUM = "$$$"
+
+
+class DiscoveryMode(str, Enum):
+    NEW_PLACES = "new_places"
+    TRENDING = "trending"
+    TRUSTED = "trusted"
+
+
+def default_user_preferences() -> dict:
+    return {
+        "preferred_categories": [],
+        "preferred_vibes": [],
+        "prefer_independent": 0.5,
+        "price_pref": None,
+        "discovery_mode": DiscoveryMode.TRUSTED,
+        "preferences_completed": False,
+    }
+
+
 class UserBase(BaseModel):
     """Base user fields"""
     name: str = Field(..., min_length=2, max_length=100)
@@ -38,6 +61,12 @@ class User(UserBase):
     profile_picture: Optional[str] = None
     about_me: Optional[str] = None
     created_at: Optional[str] = None
+    preferred_categories: List[str] = Field(default_factory=list)
+    preferred_vibes: List[str] = Field(default_factory=list)
+    prefer_independent: float = Field(default=0.5, ge=0.0, le=1.0)
+    price_pref: Optional[PricePreference] = None
+    discovery_mode: DiscoveryMode = DiscoveryMode.TRUSTED
+    preferences_completed: bool = False
     
     class Config:
         from_attributes = True
@@ -53,6 +82,15 @@ class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=100)
     profile_picture: Optional[str] = Field(None, max_length=500)
     about_me: Optional[str] = Field(None, max_length=500)
+
+
+class UserPreferencesUpdate(BaseModel):
+    preferred_categories: List[str] = Field(default_factory=list)
+    preferred_vibes: List[str] = Field(default_factory=list)
+    prefer_independent: float = Field(default=0.5, ge=0.0, le=1.0)
+    price_pref: Optional[PricePreference] = None
+    discovery_mode: DiscoveryMode = DiscoveryMode.TRUSTED
+    preferences_completed: bool = True
 
 
 class UserLogin(BaseModel):

@@ -17,6 +17,11 @@ import httpx
 
 from config import GOOGLE_API_KEY
 from database.mongodb import get_api_usage_log_collection
+from services.business_metadata import (
+    derive_known_for,
+    generate_short_description,
+    normalize_image_urls,
+)
 from services.local_business_classifier import classify_local_business
 
 
@@ -143,6 +148,8 @@ GOOGLE_PHOTO_URL = "https://maps.googleapis.com/maps/api/place/photo"
 MAX_RETURN_RESULTS = 250
 PHOTO_MAX_WIDTH = 1200
 PHOTO_ENRICHMENT_CONCURRENCY = 6
+SUMMARY_ENRICHMENT_CONCURRENCY = 4
+SUMMARY_ENRICHMENT_LIMIT = 16
 
 
 def _build_photo_url(photo_reference: str, max_width: int = PHOTO_MAX_WIDTH) -> str:
@@ -182,6 +189,65 @@ def _choose_photo_reference(photos: list[dict]) -> str:
     return photos[0].get("photo_reference", "") if photos else ""
 
 
+def _build_photo_urls(photos: list[dict], max_photos: int = 4) -> list[str]:
+    """Build a small ordered image array from available Google photo refs."""
+    urls: list[str] = []
+    seen_refs: set[str] = set()
+
+    sorted_photos = sorted(
+        photos,
+        key=lambda photo: int(photo.get("width") or 0) * max(int(photo.get("height") or 1), 1),
+        reverse=True,
+    )
+
+    for photo in sorted_photos:
+        ref = (photo.get("photo_reference") or "").strip()
+        if not ref or ref in seen_refs:
+            continue
+        seen_refs.add(ref)
+        url = _build_photo_url(ref)
+        if not url:
+            continue
+        urls.append(url)
+        if len(urls) >= max_photos:
+            break
+
+    return urls
+
+
+def _extract_photo_references(photos: list[dict], max_photos: int = 4) -> list[str]:
+    """Extract a small ordered list of photo references."""
+    refs: list[str] = []
+    seen: set[str] = set()
+
+    sorted_photos = sorted(
+        photos,
+        key=lambda photo: int(photo.get("width") or 0) * max(int(photo.get("height") or 1), 1),
+        reverse=True,
+    )
+
+    for photo in sorted_photos:
+        ref = (photo.get("photo_reference") or "").strip()
+        if not ref or ref in seen:
+            continue
+        seen.add(ref)
+        refs.append(ref)
+        if len(refs) >= max_photos:
+            break
+
+    return refs
+
+
+def _extract_editorial_summary(place: dict) -> str:
+    """Read an editorial summary string from any supported Places payload shape."""
+    summary = place.get("editorial_summary")
+    if isinstance(summary, dict):
+        return str(summary.get("overview") or "").strip()
+    if isinstance(summary, str):
+        return summary.strip()
+    return str(place.get("description") or "").strip()
+
+
 async def _fetch_place_photo_reference(client: httpx.AsyncClient, place_id: str) -> str:
     """Fetch best photo_reference for a place via Place Details API."""
     try:
@@ -202,6 +268,58 @@ async def _fetch_place_photo_reference(client: httpx.AsyncClient, place_id: str)
         return _choose_photo_reference(photos)
     except Exception as e:
         print(f"Google Details photo lookup failed for {place_id}: {e}")
+        return ""
+
+
+async def _fetch_place_photo_references(client: httpx.AsyncClient, place_id: str) -> list[str]:
+    """Fetch ordered photo references for a place via Place Details API."""
+    try:
+        params = {
+            "place_id": place_id,
+            "fields": "photos",
+            "key": GOOGLE_API_KEY,
+        }
+        resp = await client.get(GOOGLE_DETAILS_URL, params=params)
+        data = resp.json()
+        status = data.get("status")
+        result = data.get("result", {})
+        photos = result.get("photos", []) if isinstance(result, dict) else []
+        await _log_api_call("place_details:photos:list", {"place_id": place_id}, status, len(photos))
+
+        if status != "OK":
+            return []
+        return _extract_photo_references(photos)
+    except Exception as e:
+        print(f"Google Details photo list lookup failed for {place_id}: {e}")
+        return []
+
+
+async def _fetch_place_editorial_summary(client: httpx.AsyncClient, place_id: str) -> str:
+    """Fetch editorial summary text for a place when available."""
+    try:
+        params = {
+            "place_id": place_id,
+            "fields": "editorial_summary",
+            "key": GOOGLE_API_KEY,
+        }
+        resp = await client.get(GOOGLE_DETAILS_URL, params=params)
+        data = resp.json()
+        status = data.get("status")
+        result = data.get("result", {})
+        summary = ""
+        if isinstance(result, dict):
+            summary = _extract_editorial_summary(result)
+        await _log_api_call(
+            "place_details:editorial_summary",
+            {"place_id": place_id},
+            status,
+            1 if summary else 0,
+        )
+        if status != "OK":
+            return ""
+        return summary
+    except Exception as e:
+        print(f"Google Details summary lookup failed for {place_id}: {e}")
         return ""
 
 
@@ -260,6 +378,44 @@ async def enrich_business_photo_urls(
                 photo_ref = await _fetch_place_photo_reference(client, place_id)
                 if photo_ref:
                     updates[place_id] = _build_photo_url(photo_ref)
+
+        await asyncio.gather(*(enrich_one(pid) for pid in place_ids))
+
+    return updates
+
+
+async def enrich_business_editorial_summaries(
+    business_docs: List[Dict],
+    max_to_enrich: int = SUMMARY_ENRICHMENT_LIMIT,
+) -> Dict[str, str]:
+    """Attempt to fetch Google editorial summaries for businesses lacking one."""
+    if not GOOGLE_API_KEY:
+        return {}
+
+    place_ids: list[str] = []
+    seen: set[str] = set()
+    for doc in business_docs:
+        place_id = (doc.get("place_id") or "").strip()
+        if not place_id or place_id in seen:
+            continue
+        if (doc.get("short_description") or doc.get("editorial_summary") or "").strip():
+            continue
+        seen.add(place_id)
+        place_ids.append(place_id)
+
+    if not place_ids:
+        return {}
+
+    place_ids = place_ids[:max_to_enrich]
+    updates: Dict[str, str] = {}
+    semaphore = asyncio.Semaphore(SUMMARY_ENRICHMENT_CONCURRENCY)
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        async def enrich_one(place_id: str):
+            async with semaphore:
+                summary = await _fetch_place_editorial_summary(client, place_id)
+                if summary:
+                    updates[place_id] = summary
 
         await asyncio.gather(*(enrich_one(pid) for pid in place_ids))
 
@@ -376,16 +532,31 @@ async def search_google_places(
             continue
 
         photos = place.get("photos", [])
-        photo_ref = _choose_photo_reference(photos)
-        image_url = _build_photo_url(photo_ref) if photo_ref else ""
+        photo_references = _extract_photo_references(photos)
+        photo_urls = _build_photo_urls(photos)
+        image_url = photo_urls[0] if photo_urls else ""
+        category = _map_category(place.get("types", []))
+        editorial_summary = _extract_editorial_summary(place)
+        short_description = generate_short_description(
+            category=category,
+            address=place.get("vicinity", ""),
+            existing=editorial_summary,
+        )
+        known_for = derive_known_for(
+            category=category,
+            google_types=place.get("types", []),
+        )
 
         doc = {
             "name": place.get("name", "Unknown"),
             "place_id": place_id,
-            "category": _map_category(place.get("types", [])),
+            "category": category,
             "google_types": place.get("types", []),
             "description": place.get("vicinity", ""),
             "address": place.get("vicinity", ""),
+            "editorial_summary": editorial_summary,
+            "short_description": short_description,
+            "known_for": known_for,
             "local_confidence": confidence,
             "location": {
                 "type": "Point",
@@ -395,6 +566,9 @@ async def search_google_places(
             "rating_average": 0.0,
             "total_reviews": 0,
             "image_url": image_url,
+            "image_urls": normalize_image_urls(photo_urls, primary_image=image_url),
+            "photo_reference": photo_references[0] if photo_references else "",
+            "photo_references": photo_references,
             "phone": "",
             "email": "",
             "website": "",
@@ -415,6 +589,18 @@ async def search_google_places(
         documents.append(doc)
         if len(documents) >= max_results:
             break
+
+    summary_updates = await enrich_business_editorial_summaries(documents)
+    for doc in documents:
+        place_id = doc.get("place_id")
+        if not place_id or place_id not in summary_updates:
+            continue
+        doc["editorial_summary"] = summary_updates[place_id]
+        doc["short_description"] = generate_short_description(
+            category=doc.get("category", ""),
+            address=doc.get("address", ""),
+            existing=summary_updates[place_id],
+        )
 
     if skipped_non_local:
         print(f"Local classifier: kept {len(documents)}, skipped {skipped_non_local} non-local/chain results")

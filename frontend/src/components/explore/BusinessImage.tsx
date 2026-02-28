@@ -1,25 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface BusinessImageProps {
   primaryImage?: string;
-  businessName: string;
+  imageCandidates?: string[];
   category?: string;
   alt: string;
   className?: string;
 }
 
-const categoryFallbacks: Record<string, string> = {
-  restaurants: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=80',
-  cafes: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1600&q=80',
-  bars: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1600&q=80',
-  shopping: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80',
-  beauty: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1600&q=80',
-  fitness: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80',
-  health: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80',
-  hotels: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80',
-  grocery: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80',
-  default: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1600&q=80',
+const categoryGradients: Record<string, string> = {
+  restaurants: 'from-[#b6633a] via-[#d18d52] to-[#e2bc6d]',
+  cafes: 'from-[#6f4e37] via-[#9a7157] to-[#d0a38a]',
+  bars: 'from-[#31456b] via-[#5d63a4] to-[#8b6fcb]',
+  shopping: 'from-[#355c7d] via-[#4d7ea8] to-[#88b6d7]',
+  beauty: 'from-[#a64d79] via-[#c66e99] to-[#e2a4c3]',
+  fitness: 'from-[#2d6a4f] via-[#40916c] to-[#74c69d]',
+  health: 'from-[#347a9a] via-[#5ba6c6] to-[#9fd3ea]',
+  hotels: 'from-[#425466] via-[#64788c] to-[#a6b6c7]',
+  grocery: 'from-[#4f772d] via-[#6a994e] to-[#a7c957]',
+  default: 'from-[#566573] via-[#768391] to-[#b3bdc7]',
 };
 
 function normalizeCategory(category?: string): string {
@@ -39,82 +39,94 @@ function normalizeCategory(category?: string): string {
   return 'default';
 }
 
-function upscaleImageUrl(rawUrl?: string): string | null {
-  if (!rawUrl) return null;
-  const url = rawUrl.trim();
-  if (!url) return null;
-
-  let upgraded = url;
-
-  // Yelp thumbnails -> original size when possible
-  upgraded = upgraded.replace('/ms.jpg', '/o.jpg').replace('/ls.jpg', '/o.jpg').replace('/ss.jpg', '/o.jpg');
-
-  try {
-    const parsed = new URL(upgraded);
-
-    if (parsed.searchParams.has('w')) parsed.searchParams.set('w', '1600');
-    if (parsed.searchParams.has('h')) parsed.searchParams.set('h', '1000');
-    if (parsed.searchParams.has('width')) parsed.searchParams.set('width', '1600');
-    if (parsed.searchParams.has('height')) parsed.searchParams.set('height', '1000');
-
-    upgraded = parsed.toString();
-  } catch {
-    // Non-standard URL, keep upgraded value as-is.
-  }
-
-  return upgraded;
-}
-
-function unique<T>(items: T[]): T[] {
-  return Array.from(new Set(items));
-}
-
-export function BusinessImage({ primaryImage, businessName, category, alt, className }: BusinessImageProps) {
-  const fallbackCategory = normalizeCategory(category);
-
+export function BusinessImage({ primaryImage, imageCandidates, category, alt, className }: BusinessImageProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [shouldLoad, setShouldLoad] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return !('IntersectionObserver' in window);
+  });
   const candidates = useMemo(() => {
-    const baseImage = upscaleImageUrl(primaryImage);
-    const query = `${businessName} ${category || 'storefront'}`.trim();
-    const categoryImage = categoryFallbacks[fallbackCategory] || categoryFallbacks.default;
-    const fallbackSeed = encodeURIComponent(`${businessName}-${category || 'local'}`.toLowerCase().replace(/\s+/g, '-'));
+    const seen = new Set<string>();
+    return [primaryImage, ...(imageCandidates ?? [])]
+      .filter((value): value is string => !!value && value.trim().length > 0)
+      .filter((value) => {
+        if (seen.has(value)) {
+          return false;
+        }
+        seen.add(value);
+        return true;
+      });
+  }, [imageCandidates, primaryImage]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-    return unique(
-      [
-        baseImage,
-        `https://source.unsplash.com/1600x900/?${encodeURIComponent(query)}`,
-        categoryImage,
-        `https://picsum.photos/seed/${fallbackSeed}/1600/900`,
-      ].filter((value): value is string => !!value)
-    );
-  }, [primaryImage, businessName, category, fallbackCategory]);
-
-  const [candidateIndex, setCandidateIndex] = useState(0);
+  const activeImage = candidates[activeIndex];
 
   useEffect(() => {
-    setCandidateIndex(0);
-  }, [candidates]);
+    if (shouldLoad || !activeImage) {
+      return;
+    }
 
-  const src = candidates[candidateIndex];
+    const node = containerRef.current;
+    if (!node || typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      return;
+    }
 
-  if (!src) {
-    return (
-      <div className={cn('flex h-full w-full items-center justify-center bg-[hsl(var(--secondary))] text-subheading font-semibold text-[hsl(var(--muted-foreground))]', className)}>
-        {businessName.charAt(0).toUpperCase()}
-      </div>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '240px' }
     );
-  }
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [activeImage, shouldLoad]);
+
+  const normalizedCategory = normalizeCategory(category);
+  const gradientClass = categoryGradients[normalizedCategory] || categoryGradients.default;
+  const canRenderImage = shouldLoad && !!activeImage && !hasError;
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      onError={() => {
-        if (candidateIndex < candidates.length - 1) {
-          setCandidateIndex((prev) => prev + 1);
-        }
-      }}
-    />
+    <div ref={containerRef} className={cn('relative h-full w-full overflow-hidden', className)}>
+      <div
+        aria-hidden="true"
+        className={cn(
+          'absolute inset-0 overflow-hidden transition-all duration-500',
+          isLoaded ? 'scale-105 opacity-0' : 'scale-100 opacity-100'
+        )}
+      >
+        <div className={cn('absolute inset-0 bg-gradient-to-br', gradientClass)} />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.16),transparent_42%),linear-gradient(180deg,rgba(12,12,14,0.08),rgba(12,12,14,0.36))]" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+      </div>
+
+      {canRenderImage && (
+        <img
+          src={activeImage}
+          alt={alt}
+          className={cn(
+            'relative h-full w-full object-cover object-center saturate-[1.04] contrast-[1.02] transition-all duration-500 will-change-transform',
+            isLoaded ? 'scale-100 opacity-100 blur-0 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100' : 'scale-[1.03] opacity-0 blur-xl'
+          )}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => {
+            if (activeIndex < candidates.length - 1) {
+              setActiveIndex((current) => current + 1);
+              setIsLoaded(false);
+              return;
+            }
+            setHasError(true);
+          }}
+        />
+      )}
+    </div>
   );
 }
