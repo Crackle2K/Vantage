@@ -528,67 +528,33 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          BUSINESS CAROUSEL - Horizontal scroll
+          INSTAGRAM SECTION - 4-column grid
           ═══════════════════════════════════════════ */}
       <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-heading md:text-display font-bold mb-4 font-heading text-[hsl(var(--foreground))]">
-                Fresh journeys<br />for your tour
-              </h2>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={prevBusiness}
-                className="w-12 h-12 rounded-full bg-brand-light text-on-primary flex items-center justify-center hover:bg-brand transition-colors"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={nextBusiness}
-                className="w-12 h-12 rounded-full bg-brand-light text-on-primary flex items-center justify-center hover:bg-brand transition-colors"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+          <h2 className="text-heading md:text-display font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
+            Connect with us on<br />Instagram
+          </h2>
+          <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-12">
+            Follow us to see the latest from our community
+          </p>
 
-          <div className="overflow-hidden">
-            <div 
-              className="flex gap-6 transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${carouselIndex * (100 / businesses.length)}%)` }}
-            >
-              {businesses.map((business, i) => (
-                <div 
-                  key={i} 
-                  className="min-w-[calc(100%-1.5rem)] sm:min-w-[calc(50%-0.75rem)] lg:min-w-[calc(25%-1.125rem)] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
-                  onClick={() => navigate("/businesses")}
-                >
-                  <div className="relative h-64">
-                    <img 
-                      src={business.image} 
-                      alt={business.name} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-surface px-3 py-1 rounded-full text-ui font-bold text-brand-dark">
-                      ${business.price}
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface dark:bg-surface-elevated">
-                    <h3 className="text-subheading font-bold mb-2 font-sub text-[hsl(var(--foreground))]">
-                      {business.name}
-                    </h3>
-                    <p className="text-[hsl(var(--muted-foreground))] flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {business.location}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {instagramImages.map((img, i) => (
+              <a
+                key={i}
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-2xl overflow-hidden aspect-square hover:scale-105 transition-transform duration-300 shadow-md hover:shadow-xl"
+              >
+                <img 
+                  src={img} 
+                  alt={`Instagram ${i + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+              </a>
+            ))}
           </div>
         </div>
       </section>
@@ -634,71 +600,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          CTA SECTION - Full-width background video
-          ═══════════════════════════════════════════ */}
-      <section className="relative h-[500px] overflow-hidden">
-        {!isMobile ? (
-          <LazyVideoComponent 
-            videoSrc="/videos/cta.mp4"
-            posterSrc="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&h=500&fit=crop"
-          />
-        ) : (
-          <img 
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&h=500&fit=crop"
-            alt="CTA background"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-scrim-dark/50" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-on-primary px-4">
-            <h2 className="text-heading md:text-display font-bold mb-6 font-heading">
-              Ready to explore?<br />Start your adventure today!
-            </h2>
-            <Button 
-              size="lg"
-              className="gradient-primary text-on-primary px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
-              onClick={() => navigate("/businesses")}
-            >
-              Get Started
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════
-          INSTAGRAM SECTION - 4-column grid
-          ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-surface dark:bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-heading md:text-display font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
-            Connect with us on<br />Instagram
-          </h2>
-          <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-12">
-            Follow us to see the latest from our community
-          </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {instagramImages.map((img, i) => (
-              <a
-                key={i}
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block rounded-2xl overflow-hidden aspect-square hover:scale-105 transition-transform duration-300 shadow-md hover:shadow-xl"
-              >
-                <img 
-                  src={img} 
-                  alt={`Instagram ${i + 1}`} 
-                  className="w-full h-full object-cover"
-                />
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* ═══════════════════════════════════════════
           NEWSLETTER SECTION - Email signup
