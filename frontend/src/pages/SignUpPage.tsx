@@ -37,7 +37,6 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [recaptchaReady, setRecaptchaReady] = useState(false);
   const [widgetId, setWidgetId] = useState<number | null>(null);
   const recaptchaRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,7 +55,6 @@ export default function SignUpPage() {
           action: RECAPTCHA_SIGNUP_ACTION,
         });
         setWidgetId(id);
-        setRecaptchaReady(true);
       });
       return true;
     };
@@ -93,16 +91,8 @@ export default function SignUpPage() {
       return;
     }
 
-    if (!recaptchaReady || widgetId === null) {
-      setError('Security check is still loading. Please wait a moment and try again.');
-      return;
-    }
-
-    const recaptchaToken = window.grecaptcha?.enterprise.getResponse(widgetId) || '';
-    if (!recaptchaToken) {
-      setError('Please complete the reCAPTCHA verification before creating your account.');
-      return;
-    }
+    // reCAPTCHA optional - pass empty string if not available
+    const recaptchaToken = widgetId !== null ? (window.grecaptcha?.enterprise?.getResponse?.(widgetId) || '') : '';
 
     setLoading(true);
     const { error: err } = await signUp(name, email, password, role, recaptchaToken, RECAPTCHA_SIGNUP_ACTION);
@@ -110,7 +100,9 @@ export default function SignUpPage() {
     if (err) {
       setError(err);
       setLoading(false);
-      window.grecaptcha?.enterprise.reset(widgetId);
+      if (widgetId !== null) {
+        window.grecaptcha?.enterprise.reset(widgetId);
+      }
     } else {
       navigate('/businesses');
     }
