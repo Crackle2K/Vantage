@@ -6,8 +6,6 @@ import {
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
-
-// Typewriter animation hook - cycles through words with typing effect
 function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, pauseDuration = 3000) {
   const [displayText, setDisplayText] = useState('')
   const [wordIndex, setWordIndex] = useState(0)
@@ -18,28 +16,27 @@ function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, p
     const currentWord = words[wordIndex]
     
     if (!isDeleting && charIndex < currentWord.length) {
-      // Typing characters
+      
       const timeout = setTimeout(() => {
         setDisplayText(currentWord.substring(0, charIndex + 1))
         setCharIndex(charIndex + 1)
       }, typingSpeed)
       return () => clearTimeout(timeout)
     } else if (!isDeleting && charIndex === currentWord.length) {
-      // Pause at end of word
+      
       const timeout = setTimeout(() => {
         setIsDeleting(true)
       }, pauseDuration)
       return () => clearTimeout(timeout)
     } else if (isDeleting && charIndex > 0) {
-      // Deleting characters
+      
       const timeout = setTimeout(() => {
         setDisplayText(currentWord.substring(0, charIndex - 1))
         setCharIndex(charIndex - 1)
       }, deletingSpeed)
       return () => clearTimeout(timeout)
     } else if (isDeleting && charIndex === 0) {
-      // Move to next word
-      // This is part of the typewriter animation logic
+
       setIsDeleting(false)
       setWordIndex((wordIndex + 1) % words.length)
     }
@@ -48,57 +45,49 @@ function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, p
   return displayText
 }
 
-// Video playlist component - cycles through multiple videos with fade transitions
 function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], posterSrc: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [hasError, setHasError] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isFading, setIsFading] = useState(false)
-  
-  // Handle video time update - start fade transition before video ends
+
   const handleTimeUpdate = () => {
     const video = videoRef.current
     if (video && video.duration && video.currentTime) {
-      // Start fading out 0.5 seconds before video ends
+      
       const timeRemaining = video.duration - video.currentTime
       if (timeRemaining <= 0.5 && timeRemaining > 0 && !isFading) {
         setIsFading(true)
       }
     }
   }
-  
-  // Handle video end - move to next video in playlist
+
   const handleVideoEnd = () => {
     setCurrentIndex((prev) => (prev + 1) % videoSources.length)
-    // Fade back in after switching
+    
     setTimeout(() => setIsFading(false), 50)
   }
-  
-  // Handle video error - show poster as fallback
+
   const handleVideoError = () => {
     setHasError(true)
   }
-  
-  // Reset states when video source changes
+
   useEffect(() => {
-    // Reset video states when switching to a new video in the playlist
+    
     setHasError(false)
     setIsLoaded(false)
     setIsFading(false)
-    
-    // Force video to load the new source
+
     if (videoRef.current) {
       videoRef.current.load()
     }
   }, [currentIndex])
-  
-  // Handle successful video load
+
   const handleVideoLoad = () => {
     setIsLoaded(true)
   }
-  
-  // Show poster only if video permanently failed
+
   if (hasError) {
     return (
       <img 
@@ -108,14 +97,13 @@ function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], po
       />
     )
   }
-  
-  // Black background behind video for seamless transitions
+
   return (
     <>
-      {/* Pure black background - always visible behind video */}
+      {}
       <div className="absolute inset-0 bg-scrim-dark" />
       
-      {/* Video with fade transitions */}
+      {}
       <video
         ref={videoRef}
         autoPlay
@@ -136,42 +124,9 @@ function VideoPlaylist({ videoSources, posterSrc }: { videoSources: string[], po
   )
 }
 
-// Lazy video component - reused across sections
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function LazyVideoComponent({ videoSrc, posterSrc }: { videoSrc: string, posterSrc: string }) {
-  const { videoRef, shouldLoad } = useVideoLazyLoad()
-  const [hasError, setHasError] = useState(false)
-  
-  return (
-    <div ref={videoRef} className="absolute inset-0">
-      {shouldLoad && !hasError ? (
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          poster={posterSrc}
-          onError={() => setHasError(true)}
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      ) : (
-        <img 
-          src={posterSrc}
-          alt="Loading"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-    </div>
-  )
-}
-
 export default function HomePage() {
   const navigate = useNavigate()
-  
-  // Mobile detection for video optimization
+
   const [isMobile, setIsMobile] = useState(false)
   
   useEffect(() => {
@@ -180,34 +135,24 @@ export default function HomePage() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-  
-  // Typewriter animation for hero text
+
   const animatedWord = useTypewriter(
     ['adventure', 'local gem', 'favorite spot', 'hidden treasure', 'experience'],
-    100,  // typing speed
-    50,   // deleting speed  
-    5000  // pause duration (3 seconds)
+    100,  
+    50,   
+    5000  
   )
-  
-  // State for carousel and testimonials
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [carouselIndex, setCarouselIndex] = useState(0)
+
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [email, setEmail] = useState("")
   const [activeTab, setActiveTab] = useState(0)
 
-  /* ═══════════════════════════════════════════
-     MOCK DATA
-     ═══════════════════════════════════════════ */
-
-  // Mock data for testimonials
   const testimonials = [
     { quote: "Vantage has transformed how I discover local businesses. The deals are incredible and the reviews are trustworthy!", name: "Sarah Mitchell", title: "Local Explorer" },
     { quote: "As a business owner, Vantage gave us the visibility we needed. Our customer engagement has tripled!", name: "James Rodriguez", title: "Business Owner" },
     { quote: "I love supporting local businesses through Vantage. It's so easy to find exactly what I'm looking for nearby.", name: "Emily Chen", title: "Community Advocate" },
   ]
 
-  // Tab features data
   const tabFeatures = [
     {
       id: 0,
@@ -235,33 +180,20 @@ export default function HomePage() {
     }
   ]
 
-  // Instagram images
   const instagramImages = [
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
+    "https://images.unsplash.com/photo-1551218808-94e220e084d2",
+    "https://images.unsplash.com/photo-1493770348161-369560ae357d",
+    "https://images.unsplash.com/photo-1559339352-11d035aa65de",
+    "https://images.unsplash.com/photo-1529417305485-480f579e1c7c",
+    "https://images.unsplash.com/photo-1526367790999-0150786686a2",
   ]
 
-  /* ═══════════════════════════════════════════
-     EVENT HANDLERS
-     ═══════════════════════════════════════════ */
-
-  // Carousel navigation
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const nextBusiness = () => setCarouselIndex((prev) => (prev + 1) % businesses.length)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const prevBusiness = () => setCarouselIndex((prev) => (prev - 1 + businesses.length) % businesses.length)
-
-  // Testimonial navigation
   const nextTestimonial = () => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
   const prevTestimonial = () => setTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
 
-  // Newsletter submission - navigates to homepage
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     navigate("/")
@@ -271,11 +203,9 @@ export default function HomePage() {
   return (
     <div className="overflow-hidden">
       
-      {/* ═══════════════════════════════════════════
-          HERO SECTION - Full viewport with cycling video playlist
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="relative h-screen overflow-hidden bg-surface">
-        {/* Video Playlist - Cycles through 3 videos */}
+        {}
         {!isMobile ? (
           <VideoPlaylist 
             videoSources={[
@@ -283,20 +213,20 @@ export default function HomePage() {
               "/videos/hero2.mp4",
               "/videos/hero3.mp4"
             ]}
-            posterSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"
+            posterSrc="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4"
           />
         ) : (
           <img 
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"
+            src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4"
             alt="Hero background"
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
         
-        {/* Dark overlay for text readability */}
+        {}
         <div className="absolute inset-0 bg-black/60 z-1" />
 
-        {/* Content - Left-aligned */}
+        {}
         <div className="absolute inset-0 flex items-center z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full">
             <div className="max-w-5xl">
@@ -309,7 +239,7 @@ export default function HomePage() {
                 Building real trust for local discovery
               </p>
 
-              {/* CTA Buttons */}
+              {}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
@@ -333,9 +263,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          PURPOSE SECTION - Alternating layout
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-left mb-20">
@@ -355,14 +283,14 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Section Title */}
+          {}
           <h3 className="text-heading md:text-display font-bold text-left mb-8 font-heading text-[hsl(var(--foreground))]">
             Our Top Picks
           </h3>
 
-          {/* 3-Column Image Card Grid */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6">
-            {/* Card 1: Thick */}
+            {}
             <div 
               className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate("/businesses")}
@@ -382,7 +310,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 2: Thin */}
+            {}
             <div 
               className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate("/businesses")}
@@ -402,7 +330,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 3: Thick */}
+            {}
             <div 
               className="group relative h-96 rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate("/businesses")}
@@ -425,9 +353,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          TABBED FEATURES SECTION - Interactive tabs with content switching
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="py-32 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-heading md:text-display font-bold text-center mb-8 font-heading text-[hsl(var(--foreground))]">
@@ -437,7 +363,7 @@ export default function HomePage() {
             Our mission statement
           </p>
 
-          {/* Tab Buttons */}
+          {}
           <div className="flex flex-wrap justify-center gap-4 mb-16">
             {tabFeatures.map((tab) => {
               const Icon = tab.icon
@@ -467,12 +393,12 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Content Area */}
+          {}
           <div 
             key={activeTab}
             className="grid md:grid-cols-2 gap-16 items-center animate-fade-in-up"
           >
-            {/* Left Column - Text Content */}
+            {}
             <div>
               <h3 className="text-heading md:text-display font-bold mb-8 font-heading text-[hsl(var(--foreground))]">
                 {tabFeatures[activeTab].title}
@@ -490,7 +416,7 @@ export default function HomePage() {
               </Button>
             </div>
 
-            {/* Right Column - Image */}
+            {}
             <div className="rounded-2xl overflow-hidden shadow-2xl min-h-[500px]">
               <img
                 src={tabFeatures[activeTab].image}
@@ -502,9 +428,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          INSTAGRAM SECTION - 4-column grid
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-heading md:text-display font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
@@ -534,9 +458,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          TESTIMONIAL SECTION - Large quote card
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="py-24 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <h2 className="text-heading md:text-display font-bold text-center mb-16 font-heading text-[hsl(var(--foreground))]">
@@ -575,11 +497,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      
-
-      {/* ═══════════════════════════════════════════
-          NEWSLETTER SECTION - Email signup
-          ═══════════════════════════════════════════ */}
+      {}
       <section className="py-20 bg-[hsl(var(--card))] border-t border-[hsl(var(--border))]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-heading md:text-heading font-bold text-[hsl(var(--foreground))] mb-4 font-heading">

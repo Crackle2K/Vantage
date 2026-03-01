@@ -161,7 +161,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-[60vh] py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 animate-fade-in-up">
           <div>
             <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
@@ -183,10 +183,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* No businesses yet */}
+        {}
         {myBusinesses.length === 0 ? (
           <div className="space-y-6">
-            {/* Pending Claims */}
+            {}
             {myClaims.length > 0 && (
               <div className="glass-card rounded-2xl p-6 animate-fade-in-up">
                 <h3 className="text-body font-semibold text-[hsl(var(--foreground))] mb-4 font-heading flex items-center gap-2">
@@ -220,7 +220,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* CTA to claim */}
+            {}
             <div className="glass-card rounded-2xl p-10 text-center animate-fade-in-up">
               <div className="w-20 h-20 rounded-2xl bg-[hsl(var(--secondary))] flex items-center justify-center mx-auto mb-6">
                 <Store className="w-10 h-10 text-[hsl(var(--muted-foreground))]" />
@@ -242,7 +242,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Business Selector */}
+            {}
             {myBusinesses.length > 1 && (
               <div className="mb-6">
                 <div className="flex gap-3 overflow-x-auto pb-2">
@@ -264,7 +264,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Stats Grid */}
+            {}
             {selectedBiz && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-fade-in-up">
                 <StatCard
@@ -298,11 +298,11 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Main Content Grid */}
+            {}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left: Business Overview + Recent Reviews */}
+              {}
               <div className="lg:col-span-2 space-y-6">
-                {/* Business Overview */}
+                {}
                 {selectedBiz && (
                   <div className="glass-card rounded-2xl p-6 animate-fade-in-up">
                     <div className="flex items-start justify-between mb-4">
@@ -336,7 +336,7 @@ export default function DashboardPage() {
                       )}
                     </div>
 
-                    {/* Quick Actions */}
+                    {}
                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[hsl(var(--border))]">
                       <Link
                         to="/pricing"
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {/* Recent Reviews */}
+                {}
                 <div className="glass-card rounded-2xl p-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-body font-semibold text-[hsl(var(--foreground))] font-heading flex items-center gap-2">
@@ -395,9 +395,9 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Right Sidebar */}
+              {}
               <div className="space-y-6">
-                {/* Subscription Status */}
+                {}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
                   <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                     <Shield className="w-4 h-4 text-brand" />
@@ -440,7 +440,7 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Active Deals */}
+                {}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '175ms' }}>
                   <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                     <Plus className="w-4 h-4 text-brand" />
@@ -516,7 +516,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Active Deals */}
+                {}
                 <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                   <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">
                     <Tag className="w-4 h-4 text-brand" />
@@ -541,7 +541,7 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Activity Signal */}
+                {}
                 {activityStatus && (
                   <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '250ms' }}>
                     <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub flex items-center gap-2">

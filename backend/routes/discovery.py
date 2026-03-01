@@ -1,24 +1,3 @@
-"""
-Discovery Routes for Vantage
-Smart business search + verified visits + live visibility scoring
-
-Key endpoint: GET /discover
-  1. Query MongoDB (2dsphere) for businesses near lat/lng
-  2. If >= threshold results → return sorted by requested sort mode
-  3. If below threshold and area wasn't fetched recently (geo_cache TTL)
-     → call Google Places → bulk-insert new businesses → re-query
-  4. Return results sorted by requested sort mode
-
-COST-SAVING RULES:
-  • geo_cache stores which lat/lng cells have been fetched and when.
-  • If a cell was fetched within the last 24 hours we NEVER call Google again.
-  • All businesses from Google are persisted with a unique place_id index
-    so they're available forever without re-fetching.
-  • Every Google API call is logged in api_usage_log.
-
-POST /visits — verified visit submission (Haversine ≤ 100 m)
-"""
-
 import asyncio
 import math
 import time
@@ -53,8 +32,8 @@ from services.business_metadata import normalize_business_metadata
 
 router = APIRouter()
 
-MIN_RESULTS = 80         # Threshold before considering a Google backfill
-CACHE_TTL_HOURS = 24     # Don't re-fetch the same area within this window
+MIN_RESULTS = 80
+CACHE_TTL_HOURS = 24
 ALLOWED_SORT_MODES = {"canonical", "distance", "newest", "most_reviewed"}
 DECIDE_INTENTS = {
     "DINNER",
@@ -74,7 +53,6 @@ LANE_ITEM_LIMIT = 12
 LANE_CACHE_TTL_SECONDS = 60
 LANE_CACHE_MAX_ENTRIES = 48
 _lanes_cache: dict[str, tuple[float, dict]] = {}
-
 
 def _lanes_cache_key(
     lat: float,
@@ -106,7 +84,6 @@ def _lanes_cache_key(
         *user_bits,
     ])
 
-
 def _get_lanes_cache(cache_key: str) -> Optional[dict]:
     cached = _lanes_cache.get(cache_key)
     if not cached:
@@ -119,21 +96,13 @@ def _get_lanes_cache(cache_key: str) -> Optional[dict]:
 
     return deepcopy(payload)
 
-
 def _set_lanes_cache(cache_key: str, payload: dict) -> None:
     _lanes_cache[cache_key] = (time.time() + LANE_CACHE_TTL_SECONDS, deepcopy(payload))
     if len(_lanes_cache) > LANE_CACHE_MAX_ENTRIES:
         oldest_key = min(_lanes_cache.items(), key=lambda item: item[1][0])[0]
         _lanes_cache.pop(oldest_key, None)
 
-
 def _legacy_strategic_rank_score(business: dict) -> float:
-    """
-    Blend trust and discovery so the feed feels credible but still welcoming.
-    - Credibility-weighted LVS is the core signal.
-    - Local confidence remains strong.
-    - A small freshness boost gives newer/under-reviewed businesses visibility.
-    """
     lvs = float(business.get("live_visibility_score", 0.0))
     local_conf = max(0.0, min(float(business.get("local_confidence", 0.0)), 1.0))
     review_count = int(business.get("review_count", business.get("total_reviews", 0)) or 0)
@@ -145,9 +114,7 @@ def _legacy_strategic_rank_score(business: dict) -> float:
         + 0.15 * (freshness * 100.0)
     )
 
-
 def _legacy_sort_businesses(results: list, sort_by: Optional[str]) -> None:
-    """Sort a list of business dicts in-place based on sort_by value."""
     if sort_by == "local_confidence":
         results.sort(
             key=lambda b: (_legacy_strategic_rank_score(b), b.get("local_confidence", 0)),
@@ -157,15 +124,13 @@ def _legacy_sort_businesses(results: list, sort_by: Optional[str]) -> None:
         results.sort(key=lambda b: b.get("rating_average", 0), reverse=True)
     elif sort_by == "newest":
         results.sort(key=lambda b: b.get("created_at", datetime.min), reverse=True)
-    else:  # "score" or default — live_visibility_score, with local_confidence as tiebreaker
+    else:
         results.sort(
             key=lambda b: (_legacy_strategic_rank_score(b), b.get("live_visibility_score", 0)),
             reverse=True,
         )
 
-
 def _safe_float(*values, default: float = 0.0) -> float:
-    """Return the first value that can be safely coerced to float."""
     for value in values:
         if value is None:
             continue
@@ -175,9 +140,7 @@ def _safe_float(*values, default: float = 0.0) -> float:
             continue
     return default
 
-
 def _safe_int(*values, default: int = 0) -> int:
-    """Return the first value that can be safely coerced to int."""
     for value in values:
         if value is None:
             continue
@@ -187,9 +150,7 @@ def _safe_int(*values, default: int = 0) -> int:
             continue
     return default
 
-
 def _coerce_datetime(value) -> Optional[datetime]:
-    """Convert supported datetime values to a naive UTC datetime."""
     if isinstance(value, datetime):
         dt = value
     elif isinstance(value, str):
@@ -204,9 +165,7 @@ def _coerce_datetime(value) -> Optional[datetime]:
         dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
     return dt
 
-
 def _recency_days(business: dict) -> float:
-    """Return days since the most recent business activity."""
     activity_at = _coerce_datetime(
         business.get("last_activity_at") or business.get("last_verified_at") or business.get("created_at")
     )
@@ -215,13 +174,7 @@ def _recency_days(business: dict) -> float:
     delta_days = (datetime.utcnow() - activity_at).total_seconds() / 86400
     return round(max(0.0, delta_days), 2)
 
-
 def _strategic_rank_score(business: dict) -> float:
-    """
-    Canonical trust-first ordering.
-    Live Visibility remains the primary signal. Local confidence and a modest
-    freshness boost shape discovery, but do not replace trust.
-    """
     lvs = _safe_float(business.get("live_visibility_score"))
     local_conf = max(0.0, min(_safe_float(business.get("local_confidence")), 1.0))
     review_count = _safe_int(
@@ -238,9 +191,7 @@ def _strategic_rank_score(business: dict) -> float:
         2,
     )
 
-
 def _build_ranking_components(business: dict) -> dict:
-    """Project ranking internals into a stable API shape for the Explore feed."""
     stored_components = business.get("ranking_components") or {}
     verified_visits = max(
         0,
@@ -285,13 +236,11 @@ def _build_ranking_components(business: dict) -> dict:
         "final_score": final_score,
     }
 
-
 def _build_reason_codes(
     business: dict,
     ranking_components: dict,
     preference_match: Optional[dict] = None,
 ) -> list[str]:
-    """Attach machine-readable reason codes that align with ranking and match signals."""
     reason_codes: list[str] = []
     verified_visits = _safe_int(ranking_components.get("verified_visits"))
     weighted_reviews = _safe_float(ranking_components.get("weighted_reviews"))
@@ -334,9 +283,7 @@ def _build_reason_codes(
 
     return reason_codes
 
-
 def _apply_ranking_metadata(results: list[dict], lat: float, lng: float) -> None:
-    """Ensure every business includes ranking metadata before sorting."""
     for business in results:
         business["live_visibility_score"] = round(
             max(0.0, min(_safe_float(business.get("live_visibility_score")), 100.0)),
@@ -358,18 +305,14 @@ def _apply_ranking_metadata(results: list[dict], lat: float, lng: float) -> None
             business.get("preference_match"),
         )
 
-
 def _canonical_score(business: dict) -> float:
-    """Read the computed canonical score from a response document."""
     return _safe_float(
         (business.get("ranking_components") or {}).get("final_score"),
         business.get("canonical_rank_score"),
         business.get("live_visibility_score"),
     )
 
-
 def _sort_businesses(results: list[dict], sort_mode: str) -> None:
-    """Sort a list of business dicts in-place based on explicit sort mode."""
     if sort_mode == "distance":
         results.sort(
             key=lambda b: (
@@ -402,12 +345,10 @@ def _sort_businesses(results: list[dict], sort_mode: str) -> None:
             reverse=True,
         )
 
-
 async def _derive_user_preferences(
     current_user: Optional[User],
     businesses_collection,
 ) -> dict:
-    """Use saved preferences first, then fall back to lightweight favorite inference."""
     preferences = {
         "categories": set(),
         "tags": set(),
@@ -482,9 +423,7 @@ async def _derive_user_preferences(
     preferences["prefer_independent"] = 0.8 if bool(docs) and independent_hits >= max(1, len(docs) // 2) else 0.5
     return preferences
 
-
 def _preference_match_score(business: dict, preferences: dict) -> float:
-    """Return a normalized relevance score used only for For You candidate selection."""
     related_categories = {
         "Restaurants": {"Cafes & Coffee", "Bars & Nightlife"},
         "Cafes & Coffee": {"Restaurants", "Bars & Nightlife"},
@@ -570,7 +509,6 @@ def _preference_match_score(business: dict, preferences: dict) -> float:
     }
     return business["preference_match"]["score"]
 
-
 def _build_lane_payload(
     lane_id: str,
     title: str,
@@ -583,7 +521,6 @@ def _build_lane_payload(
         "subtitle": subtitle,
         "items": items[:LANE_ITEM_LIMIT],
     }
-
 
 def _normalize_decide_intents(raw_values: list[str]) -> list[str]:
     normalized: list[str] = []
@@ -600,7 +537,6 @@ def _normalize_decide_intents(raw_values: list[str]) -> list[str]:
         seen.add(normalized_value)
         normalized.append(normalized_value)
     return normalized
-
 
 def _category_affinity_score(business: dict, intent: str) -> float:
     category = str(business.get("category") or "").strip().lower()
@@ -640,7 +576,6 @@ def _category_affinity_score(business: dict, intent: str) -> float:
 
     return 0.0
 
-
 def _walkable_score(distance_km: float, radius_km: float) -> float:
     target = min(max(radius_km * 0.25, 0.8), min(1.2, max(radius_km, 0.8)))
     if distance_km <= target:
@@ -649,7 +584,6 @@ def _walkable_score(distance_km: float, radius_km: float) -> float:
         overshoot = distance_km - target
         return round(max(0.0, 0.4 - (overshoot / max(target, 0.1)) * 0.4), 4)
     return 0.0
-
 
 def _intent_fit_score(
     business: dict,
@@ -708,7 +642,6 @@ def _intent_fit_score(
 
     return round(score, 4)
 
-
 def _apply_decide_constraints(
     items: list[dict],
     ranking_intent: str,
@@ -751,13 +684,7 @@ def _apply_decide_constraints(
     explanations.append("Final order still follows Live Visibility.")
     return constrained_items, explanations[:4]
 
-
 def _dedupe_discovery_results(results: list[dict], limit: int) -> list[dict]:
-    """
-    Remove repeated businesses in API output.
-    Primary key: place_id
-    Fallback key: normalized name+address for legacy docs without place_id.
-    """
     deduped: list[dict] = []
     seen_place_ids: set[str] = set()
     seen_fallback_keys: set[tuple[str, str]] = set()
@@ -786,16 +713,11 @@ def _dedupe_discovery_results(results: list[dict], limit: int) -> list[dict]:
 
     return deduped
 
-
 async def _enrich_missing_result_images(
     businesses_collection,
     results: list[dict],
     max_updates: int = 24,
 ) -> None:
-    """
-    Opportunistically enrich missing/low-quality images for Google Places docs.
-    Updates MongoDB and in-memory result docs so response reflects improvements immediately.
-    """
     updates = await enrich_business_photo_urls(results, max_to_enrich=max_updates)
     if not updates:
         return
@@ -826,7 +748,6 @@ async def _enrich_missing_result_images(
     if ops:
         await businesses_collection.bulk_write(ops, ordered=False)
 
-
 def _finalize_discovery_results(
     results: list[dict],
     sort_mode: str,
@@ -834,20 +755,16 @@ def _finalize_discovery_results(
     lat: float,
     lng: float,
 ) -> list[dict]:
-    """Sort, de-duplicate, and shape discovery response payload."""
     _apply_ranking_metadata(results, lat, lng)
     _sort_businesses(results, sort_mode)
     unique_results = _dedupe_discovery_results(results, limit)
     return [business_helper(b) for b in unique_results]
 
-
 def business_helper(doc: dict) -> dict:
-    """Convert a MongoDB business document for the API response."""
     if doc is None:
         return doc
     doc["id"] = str(doc["_id"])
     del doc["_id"]
-    # Handle both old (rating_average/total_reviews) and new (rating/review_count) field names
     if "rating_average" in doc:
         doc.setdefault("rating", doc.pop("rating_average", 0.0))
     doc.setdefault("rating", 0.0)
@@ -864,9 +781,6 @@ def business_helper(doc: dict) -> dict:
     if "owner_id" in doc and doc["owner_id"]:
         doc["owner_id"] = str(doc["owner_id"])
     return doc
-
-
-# ── Smart Search ────────────────────────────────────────────────────
 
 @router.get("/decide")
 async def decide_for_me(
@@ -962,7 +876,6 @@ async def decide_for_me(
         "intent_explanation": intent_explanation,
     }
 
-
 @router.get("/discover")
 async def discover_businesses(
     lat: float = Query(..., ge=-90, le=90),
@@ -976,19 +889,6 @@ async def discover_businesses(
     ),
     refresh: bool = Query(False, description="Force bypass geo cache and refetch Places data"),
 ):
-    """
-    Smart business discovery with aggressive caching.
-
-      1. Search MongoDB via 2dsphere index.
-      2. If >= threshold results, return immediately (no API call).
-      3. If below threshold, check geo_cache:
-         a. If this area was fetched within the last 24 hours → skip Google,
-            return whatever we have from MongoDB.
-         b. If NOT cached → call Google Places, bulk-insert new businesses,
-            mark the cell as cached, then re-query MongoDB.
-      4. Default ordering is canonical trust-first ranking unless a
-         non-canonical sort_mode is explicitly requested.
-    """
     businesses = get_businesses_collection()
     geo_cache = get_geo_cache_collection()
     radius_meters = radius * 1000
@@ -1001,7 +901,6 @@ async def discover_businesses(
             detail=f"Invalid sort_mode. Expected one of: {', '.join(sorted(ALLOWED_SORT_MODES))}",
         )
 
-    # ── Step 1: MongoDB geo query ───────────────────────────────────
     geo_filter = {
         "location": {
             "$near": {
@@ -1016,12 +915,10 @@ async def discover_businesses(
     cursor = businesses.find(geo_filter).limit(candidate_limit)
     results = await cursor.to_list(length=candidate_limit)
 
-    # ── Step 2: Enough results? Return immediately ──────────────────
     if len(results) >= MIN_RESULTS:
         await _enrich_missing_result_images(businesses, results)
         return _finalize_discovery_results(results, normalized_sort_mode, limit, lat, lng)
 
-    # ── Step 3: Check geo cache before calling Google ───────────────
     cell = geo_cell_key(lat, lng, int(radius_meters))
     cache_cutoff = datetime.utcnow() - timedelta(hours=CACHE_TTL_HOURS)
 
@@ -1031,11 +928,9 @@ async def discover_businesses(
     })
 
     if cached and not refresh:
-        # Already fetched this area recently — return what MongoDB has
         await _enrich_missing_result_images(businesses, results)
         return _finalize_discovery_results(results, normalized_sort_mode, limit, lat, lng)
 
-    # ── Step 4: Call Google Places (cache miss) ─────────────────────
     new_places = await search_google_places(
         lat,
         lng,
@@ -1044,7 +939,6 @@ async def discover_businesses(
     )
 
     if new_places:
-        # Bulk dedup: collect all incoming place_ids, query MongoDB once
         incoming_place_ids = [p["place_id"] for p in new_places]
         existing_cursor = businesses.find(
             {"place_id": {"$in": incoming_place_ids}},
@@ -1057,19 +951,16 @@ async def discover_businesses(
             await businesses.insert_many(to_insert, ordered=False)
             print(f"Backfilled {len(to_insert)} businesses from Google Places")
 
-    # Mark this cell as cached so we don't call Google again for 24 h
     await geo_cache.update_one(
         cell,
         {"$set": {**cell, "fetched_at": datetime.utcnow(), "result_count": len(new_places)}},
         upsert=True,
     )
 
-    # ── Step 5: Re-query and return ─────────────────────────────────
     cursor = businesses.find(geo_filter).limit(candidate_limit)
     results = await cursor.to_list(length=candidate_limit)
     await _enrich_missing_result_images(businesses, results)
     return _finalize_discovery_results(results, normalized_sort_mode, limit, lat, lng)
-
 
 @router.get("/explore/lanes")
 async def get_explore_lanes(
@@ -1079,11 +970,6 @@ async def get_explore_lanes(
     limit: int = Query(120, ge=24, le=240),
     current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """
-    Return curated Explore lanes.
-    Personalization only affects lane selection; canonical trust-first ranking
-    is preserved within each lane's final ordering.
-    """
     lane_cache_key = _lanes_cache_key(lat, lng, radius, limit, current_user)
     cached_payload = _get_lanes_cache(lane_cache_key)
     if cached_payload:
@@ -1182,19 +1068,11 @@ async def get_explore_lanes(
     _set_lanes_cache(lane_cache_key, payload)
     return payload
 
-
-# ── Verified Visits ─────────────────────────────────────────────────
-
-
 @router.post("/discover/enrich-photos")
 async def enrich_google_place_photos(
     limit: int = Query(1200, ge=1, le=5000, description="Max businesses to scan"),
     batch_size: int = Query(120, ge=10, le=300, description="Batch size per enrichment pass"),
 ):
-    """
-    Bulk-enrich existing Google Places business images.
-    Useful when many cards still have missing/legacy low-res images.
-    """
     businesses = get_businesses_collection()
     candidate_query = {
         "source": "google_places",
@@ -1258,18 +1136,15 @@ async def enrich_google_place_photos(
         "message": "Bulk photo enrichment completed.",
     }
 
-VISIT_MAX_DISTANCE_METERS = 100  # Must be within 100 m
-
+VISIT_MAX_DISTANCE_METERS = 100
 
 def _haversine_meters(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    """Great-circle distance in meters between two lat/lng pairs."""
-    R = 6_371_000  # Earth radius in meters
+    R = 6_371_000
     p1, p2 = math.radians(lat1), math.radians(lat2)
     dp = math.radians(lat2 - lat1)
     dl = math.radians(lng2 - lng1)
     a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
 
 @router.post("/visits", status_code=status.HTTP_201_CREATED)
 async def submit_visit(
@@ -1278,11 +1153,6 @@ async def submit_visit(
     lng: float = Query(..., ge=-180, le=180),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Submit a verified visit.
-    - User location must be within 100 m of the business.
-    - On success the business's live_visibility_score is recalculated.
-    """
     businesses = get_businesses_collection()
     visits = get_visits_collection()
 
@@ -1293,7 +1163,6 @@ async def submit_visit(
     if not business:
         raise HTTPException(status_code=404, detail="Business not found")
 
-    # Check distance
     biz_loc = business.get("location", {})
     coords = biz_loc.get("coordinates")
     if not coords or len(coords) < 2:
@@ -1308,7 +1177,6 @@ async def submit_visit(
             detail=f"You are {round(distance)}m away. Must be within {VISIT_MAX_DISTANCE_METERS}m.",
         )
 
-    # Rate-limit: 1 verified visit per business per user per 4 hours
     cutoff = datetime.utcnow() - timedelta(hours=4)
     recent = await visits.find_one({
         "user_id": current_user.id,
@@ -1329,16 +1197,11 @@ async def submit_visit(
     }
     await visits.insert_one(visit_doc)
 
-    # Recalculate live visibility score
     await _recalculate_visibility(business_id)
 
     return {"status": "verified", "distance_meters": round(distance, 1)}
 
-
-# ── Score Recalculation ─────────────────────────────────────────────
-
 async def _recalculate_visibility(business_id: str):
-    """Recompute and persist the live_visibility_score for a business."""
     businesses = get_businesses_collection()
     visits = get_visits_collection()
     reviews = get_reviews_collection()
@@ -1367,7 +1230,6 @@ async def _recalculate_visibility(business_id: str):
         reviewer_score = credibility_by_user.get(review.get("user_id"))
         weighted_review_count += reviewer_credibility_weight(reviewer_score)
 
-    # Last activity timestamp (most recent of visit or review)
     last_visit = await visits.find_one({"business_id": business_id}, sort=[("created_at", -1)])
     last_review = await reviews.find_one({"business_id": business_id}, sort=[("created_at", -1)])
 
@@ -1378,7 +1240,6 @@ async def _recalculate_visibility(business_id: str):
         timestamps.append(last_review["created_at"])
     last_activity_at = max(timestamps) if timestamps else None
 
-    # Engagement: confirmations on checkins for this business
     pipeline = [
         {"$match": {"business_id": business_id}},
         {"$group": {"_id": None, "total": {"$sum": "$confirmations"}}},
@@ -1411,18 +1272,8 @@ async def _recalculate_visibility(business_id: str):
         },
     )
 
-
-# ── Chain Purge ─────────────────────────────────────────────────────────────
-
 @router.delete("/purge-chains")
 async def purge_chain_businesses():
-    """
-    Re-classify all Google Places-seeded, unclaimed businesses and remove
-    those that fail the local-independent test (confidence < 0.75).
-    Also back-fills local_confidence on survivors that don't have it yet.
-
-    Call this once after deploying the classifier to clean up existing data.
-    """
     businesses = get_businesses_collection()
 
     cursor = businesses.find({"source": "google_places", "is_claimed": {"$ne": True}})
@@ -1432,10 +1283,6 @@ async def purge_chain_businesses():
     confidence_updates = 0
 
     for doc in docs:
-        # Build a synthetic place dict for re-classification.
-        # Use stored google_types if available (set on docs inserted after the classifier was added).
-        # For legacy docs without google_types, rely only on name/address/status detection; only
-        # delete on hard failures (confidence==0.0 means a name or disqualifying-type match).
         has_stored_types = bool(doc.get("google_types"))
         test_place = {
             "business_status": "OPERATIONAL",
@@ -1447,8 +1294,6 @@ async def purge_chain_businesses():
         is_local, confidence = classify_local_business(test_place)
 
         if not is_local:
-            # With stored types: full re-classification — delete anything that fails
-            # Without stored types: only delete hard chain-name / disqualifying-type hits
             if has_stored_types or confidence == 0.0:
                 to_delete_ids.append(doc["_id"])
         elif doc.get("local_confidence") != confidence:
@@ -1469,4 +1314,3 @@ async def purge_chain_businesses():
         "confidence_updated": confidence_updates,
         "total_scanned": len(docs),
     }
-

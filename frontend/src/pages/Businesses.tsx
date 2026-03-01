@@ -62,7 +62,7 @@ function setCache(key: string, businesses: Business[], lanes: ExploreLane[]) {
   try {
     sessionStorage.setItem(key, JSON.stringify({ businesses, lanes, ts: Date.now() }));
   } catch {
-    // ignore storage issues
+    
   }
 }
 
@@ -80,76 +80,6 @@ function hasVerifiedSignal(business: Business) {
 
 function isActiveToday(business: Business) {
   return !!business.is_active_today || (business.checkins_today ?? 0) > 0;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function formatRelativeTimestamp(timestamp?: string) {
-  if (!timestamp) return 'Updated today';
-  const time = new Date(timestamp).getTime();
-  if (!time) return 'Updated today';
-  const diffMin = Math.max(1, Math.floor((Date.now() - time) / 60000));
-  if (diffMin < 60) return `${diffMin} min ago`;
-  const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `${diffHours} h ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  return diffDays === 1 ? 'Yesterday' : `${diffDays} days ago`;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function canonicalScore(business: Business) {
-  return business.ranking_components?.final_score ?? business.canonical_rank_score ?? business.live_visibility_score ?? 0;
-}
-
-function reasonChipLabel(reasonCode: string): string | null {
-  switch (reasonCode) {
-    case 'VERIFIED_TODAY': return 'Verified today';
-    case 'HIGH_TRUST': return 'High trust';
-    case 'RECENT_MOMENTUM': return 'Recent momentum';
-    case 'HIGH_ENGAGEMENT': return 'High engagement';
-    case 'CLAIMED': return 'Claimed';
-    case 'INDEPENDENT': return 'Independent';
-    case 'HIDDEN_GEM': return 'Hidden gem';
-    case 'MATCHED_CATEGORIES': return 'Matched categories';
-    case 'MATCHED_VIBES': return 'Matched vibes';
-    case 'INDEPENDENT_MATCH': return 'Independent match';
-    case 'PRICE_MATCH': return 'Price match';
-    default: return null;
-  }
-}
-
-function trustReasons(business: Business): string[] {
-  const trustPriority = ['VERIFIED_TODAY', 'HIGH_TRUST', 'RECENT_MOMENTUM', 'HIGH_ENGAGEMENT', 'CLAIMED', 'INDEPENDENT', 'HIDDEN_GEM', 'MATCHED_CATEGORIES', 'MATCHED_VIBES', 'INDEPENDENT_MATCH', 'PRICE_MATCH'];
-  const available = new Set(business.reason_codes ?? []);
-  const mapped = trustPriority
-    .filter((reasonCode) => available.has(reasonCode))
-    .map((reasonCode) => reasonChipLabel(reasonCode))
-    .filter((reason): reason is string => !!reason);
-  return mapped.slice(0, 3);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function matchSummary(business: Business): string | null {
-  const matches = [
-    ...(business.preference_match?.matched_categories ?? []),
-    ...(business.preference_match?.matched_vibes ?? []),
-  ].filter(Boolean);
-  if (matches.length === 0) {
-    return null;
-  }
-  return matches.slice(0, 2).join(', ');
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function flattenBusinessesFromLanes(lanes: ExploreLane[]) {
-  const seen = new Set<string>();
-  const flattened: Business[] = [];
-  lanes.forEach((lane) => lane.items.forEach((business) => {
-    const id = getBusinessId(business);
-    if (seen.has(id)) return;
-    seen.add(id);
-    flattened.push(business);
-  }));
-  return flattened;
 }
 
 function laneTitleForSort(sortMode: ExploreSortMode) {
@@ -331,7 +261,7 @@ export default function Businesses() {
           const personalizedLanes = (laneResponse.lanes ?? []).filter((lane) => lane.items.length > 0);
           nextLanes = [canonicalLane, ...personalizedLanes];
         } catch {
-          // Keep the canonical browse lane even if personalization fails.
+          
         }
       } else {
         nextBusinesses = await api.discoverBusinesses(lat, lng, radiusValue, undefined, DISCOVERY_LIMIT, forceRefresh, requestedSortMode);
@@ -492,13 +422,11 @@ export default function Businesses() {
   const topActiveBusinesses = useMemo(() => {
     const allBusinesses = filteredLanes.flatMap(lane => lane.items);
     const activeBusinesses = allBusinesses.filter(business => isActiveToday(business));
-    
-    // Remove duplicates by ID
+
     const uniqueActive = Array.from(
       new Map(activeBusinesses.map(b => [getBusinessId(b), b])).values()
     );
-    
-    // Sort by activity (checkins_today desc or last_activity_at)
+
     const sorted = uniqueActive.sort((a, b) => {
       const aCheckins = a.checkins_today ?? 0;
       const bCheckins = b.checkins_today ?? 0;
@@ -520,11 +448,6 @@ export default function Businesses() {
       items: lane.items.filter(b => !topActiveIds.has(getBusinessId(b)))
     })).filter(lane => lane.items.length > 0);
   }, [filteredLanes, topActiveBusinesses]);
-
-  const openLane = (laneId: string) => {
-    laneOverlayScrollRef.current = window.scrollY;
-    setSelectedLaneId(laneId);
-  };
 
   const closeLane = () => {
     setSelectedLaneId(null);
@@ -558,7 +481,7 @@ export default function Businesses() {
       const fetched = await api.getBusiness(event.business_id);
       openBusiness(fetched);
     } catch {
-      // leave inert if fetch fails
+      
     }
   };
 
@@ -568,8 +491,7 @@ export default function Businesses() {
     fetchExploreData(location?.latitude ?? DEFAULT_LAT, location?.longitude ?? DEFAULT_LNG, radius, true, sortMode);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const renderBusinessList = (items: Business[], laneId?: string) => {
+  const renderBusinessList = (items: Business[]) => {
     const laneBusinessIds = new Set(items.map((business) => getBusinessId(business)));
     const laneEvents = ownerEvents
       .filter((event) => laneBusinessIds.has(event.business_id))
@@ -774,7 +696,7 @@ export default function Businesses() {
           <div className="space-y-6">
             {loading && renderLoadingState()}
 
-            {/* Active Now Section */}
+            {}
             {!loading && topActiveBusinesses.length > 0 && (
               <section className="mb-8 animate-fade-in-up">
                 {renderBusinessList(topActiveBusinesses)}
@@ -792,7 +714,7 @@ export default function Businesses() {
                     const visibleItems = lane.items.slice(0, laneLimit);
                     return (
                       <section key={lane.id} className="space-y-5 animate-fade-in-up">
-                        {renderBusinessList(visibleItems, lane.id)}
+                        {renderBusinessList(visibleItems)}
                       </section>
                     );
                   })}
@@ -847,7 +769,7 @@ export default function Businesses() {
                 </Button>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-8 sm:py-6">
-                {renderBusinessList(selectedLane.items.slice(0, Math.min(visibleCount, selectedLane.items.length)), selectedLane.id)}
+                {renderBusinessList(selectedLane.items.slice(0, Math.min(visibleCount, selectedLane.items.length)))}
                 {hasMoreInSelectedLane && (
                   <div className="mt-6 flex justify-center">
                     <Button type="button" variant="outline" onClick={() => setVisibleCount((current) => current + LOAD_MORE_COUNT)} className="rounded-full px-5">

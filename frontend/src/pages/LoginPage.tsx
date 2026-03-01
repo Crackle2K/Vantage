@@ -16,7 +16,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
   if (isAuthenticated) {
     navigate('/businesses');
     return null;
@@ -64,7 +63,7 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 gradient-mesh">
       <div className="w-full max-w-md relative animate-fade-in-up">
         <div className="glass-card rounded-2xl p-8 shadow-xl">
-          {/* Header */}
+          {}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand/25">
               <Store className="w-7 h-7 text-brand-on-primary" />
@@ -73,7 +72,7 @@ export default function LoginPage() {
             <p className="text-[hsl(var(--muted-foreground))] text-ui font-sub">Sign in to your Vantage account</p>
           </div>
 
-          {/* Error */}
+          {}
           {error && (
             <div className="mb-6 p-3.5 rounded-xl bg-error dark:bg-error/30 border border-error dark:border-error/50 flex items-start gap-3 animate-scale-in">
               <AlertCircle className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />
@@ -81,7 +80,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Form */}
+          {}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-ui font-medium text-[hsl(var(--foreground))]">Email</Label>
@@ -135,14 +134,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Divider */}
+          {}
           <div className="flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-[hsl(var(--border))]"></div>
             <span className="text-ui text-[hsl(var(--muted-foreground))]">or</span>
             <div className="flex-1 h-px bg-[hsl(var(--border))]"></div>
           </div>
 
-          {/* Google Sign In */}
+          {}
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
@@ -156,7 +155,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Sign Up Link */}
+          {}
           <div className="mt-6 text-center">
             <p className="text-ui text-[hsl(var(--muted-foreground))]">
               Don't have an account?{' '}

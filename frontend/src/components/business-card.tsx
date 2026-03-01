@@ -7,11 +7,9 @@ import type { Business } from '@/types';
 
 interface BusinessCardProps {
   business: Business;
-  trustReasons: string[];
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onViewDetails?: () => void;
-  matchSummary?: string | null;
 }
 
 const IMAGE_ASPECTS = ['aspect-[4/5]', 'aspect-[1/1]', 'aspect-[6/5]', 'aspect-[5/6]', 'aspect-[4/4.5]'] as const;
@@ -64,7 +62,6 @@ export function BusinessCard({
   isFavorite,
   onToggleFavorite,
   onViewDetails,
-  matchSummary,
 }: BusinessCardProps) {
   const distance = distanceLabel(business.distance);
   const imageAspect = imageAspectClass(business);

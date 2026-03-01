@@ -1,30 +1,20 @@
-"""
-User Model Schema
-Defines user data structures for Vantage
-"""
-
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 from enum import Enum
 
-
 class UserRole(str, Enum):
-    """User role enumeration"""
     CUSTOMER = "customer"
     BUSINESS_OWNER = "business_owner"
-
 
 class PricePreference(str, Enum):
     BUDGET = "$"
     MODERATE = "$$"
     PREMIUM = "$$$"
 
-
 class DiscoveryMode(str, Enum):
     NEW_PLACES = "new_places"
     TRENDING = "trending"
     TRUSTED = "trusted"
-
 
 def default_user_preferences() -> dict:
     return {
@@ -36,24 +26,18 @@ def default_user_preferences() -> dict:
         "preferences_completed": False,
     }
 
-
 class UserBase(BaseModel):
-    """Base user fields"""
     name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     role: UserRole = UserRole.CUSTOMER
 
-
 class UserCreate(BaseModel):
-    """Schema for creating a new user"""
     name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     password: str = Field(..., min_length=6)
     role: UserRole = UserRole.CUSTOMER
 
-
 class User(UserBase):
-    """User schema returned to client (without sensitive data)"""
     id: str
     favorites: List[str] = Field(default_factory=list)
     google_id: Optional[str] = None
@@ -67,22 +51,16 @@ class User(UserBase):
     price_pref: Optional[PricePreference] = None
     discovery_mode: DiscoveryMode = DiscoveryMode.TRUSTED
     preferences_completed: bool = False
-    
     class Config:
         from_attributes = True
 
-
 class UserInDB(User):
-    """User schema as stored in database (includes password hash)"""
-    hashed_password: Optional[str] = None  # Optional for OAuth users
-
+    hashed_password: Optional[str] = None
 
 class UserUpdate(BaseModel):
-    """Schema for updating user profile"""
     name: Optional[str] = Field(None, min_length=2, max_length=100)
     profile_picture: Optional[str] = Field(None, max_length=500)
     about_me: Optional[str] = Field(None, max_length=500)
-
 
 class UserPreferencesUpdate(BaseModel):
     preferred_categories: List[str] = Field(default_factory=list)
@@ -92,20 +70,14 @@ class UserPreferencesUpdate(BaseModel):
     discovery_mode: DiscoveryMode = DiscoveryMode.TRUSTED
     preferences_completed: bool = True
 
-
 class UserLogin(BaseModel):
-    """Schema for user login"""
     email: EmailStr
     password: str
 
-
 class Token(BaseModel):
-    """JWT token response"""
     access_token: str
     token_type: str = "bearer"
 
-
 class TokenData(BaseModel):
-    """Data extracted from JWT token"""
     email: Optional[str] = None
     user_id: Optional[str] = None

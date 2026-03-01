@@ -1,13 +1,3 @@
-"""
-Google Places Nearby Search integration for Vantage.
-
-- Maps Google place types to rich Vantage categories.
-- Returns MongoDB-ready dicts with place_id, GeoJSON location, etc.
-- Uses multi-query nearby fetches with pagination for broader local coverage.
-- Every API call is logged to the api_usage_log collection.
-- Contains geo_cell_key() helper for geo-cache cell computation.
-"""
-
 import math
 import asyncio
 from datetime import datetime
@@ -24,10 +14,7 @@ from services.business_metadata import (
 )
 from services.local_business_classifier import classify_local_business
 
-
-# ── Google type → Vantage category mapping ──────────────────────────
 _TYPE_MAP: Dict[str, str] = {
-    # Food & Drink
     "restaurant": "Restaurants",
     "food": "Restaurants",
     "meal_delivery": "Restaurants",
@@ -36,7 +23,6 @@ _TYPE_MAP: Dict[str, str] = {
     "bakery": "Cafes & Coffee",
     "bar": "Bars & Nightlife",
     "night_club": "Bars & Nightlife",
-    # Shopping
     "clothing_store": "Shopping",
     "shoe_store": "Shopping",
     "shopping_mall": "Shopping",
@@ -48,28 +34,23 @@ _TYPE_MAP: Dict[str, str] = {
     "book_store": "Shopping",
     "jewelry_store": "Shopping",
     "hardware_store": "Shopping",
-    # Fitness & Wellness
     "gym": "Fitness & Wellness",
     "spa": "Beauty & Spas",
     "beauty_salon": "Beauty & Spas",
     "hair_care": "Beauty & Spas",
-    # Health
     "doctor": "Health & Medical",
     "dentist": "Health & Medical",
     "hospital": "Health & Medical",
     "pharmacy": "Health & Medical",
     "veterinary_care": "Health & Medical",
     "physiotherapist": "Health & Medical",
-    # Financial
     "bank": "Financial Services",
     "accounting": "Financial Services",
     "insurance_agency": "Financial Services",
-    # Automotive
     "car_dealer": "Automotive",
     "car_repair": "Automotive",
     "car_wash": "Automotive",
     "gas_station": "Automotive",
-    # Entertainment
     "movie_theater": "Entertainment",
     "amusement_park": "Entertainment",
     "bowling_alley": "Entertainment",
@@ -77,70 +58,48 @@ _TYPE_MAP: Dict[str, str] = {
     "art_gallery": "Entertainment",
     "tourist_attraction": "Entertainment",
     "stadium": "Entertainment",
-    # Travel
     "lodging": "Hotels & Travel",
     "travel_agency": "Hotels & Travel",
     "airport": "Hotels & Travel",
-    # Professional
     "real_estate_agency": "Professional Services",
     "lawyer": "Professional Services",
-    # Home
     "plumber": "Home Services",
     "electrician": "Home Services",
     "locksmith": "Home Services",
     "painter": "Home Services",
     "roofing_contractor": "Home Services",
     "moving_company": "Home Services",
-    # Pets
     "pet_store": "Pets",
-    # Education
     "school": "Education",
     "university": "Education",
     "library": "Education",
-    # Grocery
     "supermarket": "Grocery",
     "grocery_or_supermarket": "Grocery",
     "convenience_store": "Grocery",
-    # Local Services
     "laundry": "Local Services",
     "post_office": "Local Services",
     "parking": "Local Services",
-    # Active Life
     "park": "Active Life",
 }
 
-
 def _map_category(types: list[str]) -> str:
-    """Return the first matching Vantage category or 'Other'."""
     for t in types:
         if t in _TYPE_MAP:
             return _TYPE_MAP[t]
     return "Other"
 
-
-# ── Geo-cell helpers ────────────────────────────────────────────────
-
 def _radius_bucket(radius_m: int) -> int:
-    """Round a radius (meters) to standard buckets for cache keys."""
     for bucket in (1000, 3000, 5000, 10000, 25000, 50000):
         if radius_m <= bucket:
             return bucket
     return 50000
 
-
 def geo_cell_key(lat: float, lng: float, radius_m: int) -> dict:
-    """
-    Return a dict that uniquely identifies a ~1 km grid cell + radius tier.
-    Used as a filter when querying / upserting the geo_cache collection.
-    """
     return {
-        "cell_lat": round(lat, 2),   # ~1.1 km resolution
+        "cell_lat": round(lat, 2),
         "cell_lng": round(lng, 2),
         "radius_bucket": _radius_bucket(radius_m),
     }
-
-
-# ── Main search function ───────────────────────────────────────────
 
 GOOGLE_NEARBY_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
 GOOGLE_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json"
@@ -151,9 +110,7 @@ PHOTO_ENRICHMENT_CONCURRENCY = 6
 SUMMARY_ENRICHMENT_CONCURRENCY = 4
 SUMMARY_ENRICHMENT_LIMIT = 16
 
-
 def _build_photo_url(photo_reference: str, max_width: int = PHOTO_MAX_WIDTH) -> str:
-    """Build a Google Places Photo URL for a place photo_reference."""
     if not photo_reference or not GOOGLE_API_KEY:
         return ""
     return (
@@ -161,12 +118,7 @@ def _build_photo_url(photo_reference: str, max_width: int = PHOTO_MAX_WIDTH) -> 
         f"?maxwidth={max_width}&photo_reference={photo_reference}&key={GOOGLE_API_KEY}"
     )
 
-
 def _choose_photo_reference(photos: list[dict]) -> str:
-    """
-    Pick the best available photo reference.
-    Prefer larger resolution photos when width/height metadata exists.
-    """
     if not photos:
         return ""
 
@@ -188,9 +140,7 @@ def _choose_photo_reference(photos: list[dict]) -> str:
 
     return photos[0].get("photo_reference", "") if photos else ""
 
-
 def _build_photo_urls(photos: list[dict], max_photos: int = 4) -> list[str]:
-    """Build a small ordered image array from available Google photo refs."""
     urls: list[str] = []
     seen_refs: set[str] = set()
 
@@ -214,9 +164,7 @@ def _build_photo_urls(photos: list[dict], max_photos: int = 4) -> list[str]:
 
     return urls
 
-
 def _extract_photo_references(photos: list[dict], max_photos: int = 4) -> list[str]:
-    """Extract a small ordered list of photo references."""
     refs: list[str] = []
     seen: set[str] = set()
 
@@ -237,9 +185,7 @@ def _extract_photo_references(photos: list[dict], max_photos: int = 4) -> list[s
 
     return refs
 
-
 def _extract_editorial_summary(place: dict) -> str:
-    """Read an editorial summary string from any supported Places payload shape."""
     summary = place.get("editorial_summary")
     if isinstance(summary, dict):
         return str(summary.get("overview") or "").strip()
@@ -247,9 +193,7 @@ def _extract_editorial_summary(place: dict) -> str:
         return summary.strip()
     return str(place.get("description") or "").strip()
 
-
 async def _fetch_place_photo_reference(client: httpx.AsyncClient, place_id: str) -> str:
-    """Fetch best photo_reference for a place via Place Details API."""
     try:
         params = {
             "place_id": place_id,
@@ -270,9 +214,7 @@ async def _fetch_place_photo_reference(client: httpx.AsyncClient, place_id: str)
         print(f"Google Details photo lookup failed for {place_id}: {e}")
         return ""
 
-
 async def _fetch_place_photo_references(client: httpx.AsyncClient, place_id: str) -> list[str]:
-    """Fetch ordered photo references for a place via Place Details API."""
     try:
         params = {
             "place_id": place_id,
@@ -293,9 +235,7 @@ async def _fetch_place_photo_references(client: httpx.AsyncClient, place_id: str
         print(f"Google Details photo list lookup failed for {place_id}: {e}")
         return []
 
-
 async def _fetch_place_editorial_summary(client: httpx.AsyncClient, place_id: str) -> str:
-    """Fetch editorial summary text for a place when available."""
     try:
         params = {
             "place_id": place_id,
@@ -322,14 +262,7 @@ async def _fetch_place_editorial_summary(client: httpx.AsyncClient, place_id: st
         print(f"Google Details summary lookup failed for {place_id}: {e}")
         return ""
 
-
 def _needs_photo_enrichment(doc: dict) -> bool:
-    """
-    Identify Google-seeded docs that should get a better image.
-    - Missing image
-    - Non-Google fallback image
-    - Legacy low-res Google photo URL (maxwidth=400)
-    """
     if not doc.get("place_id"):
         return False
     if doc.get("source") not in (None, "google_places"):
@@ -342,15 +275,10 @@ def _needs_photo_enrichment(doc: dict) -> bool:
         return True
     return "maxwidth=400" in image_url
 
-
 async def enrich_business_photo_urls(
     business_docs: List[Dict],
     max_to_enrich: int = 24,
 ) -> Dict[str, str]:
-    """
-    Resolve better Google photo URLs for businesses that have missing/low-quality images.
-    Returns a mapping of place_id -> image_url for successful enrichments.
-    """
     if not GOOGLE_API_KEY:
         return {}
 
@@ -383,12 +311,10 @@ async def enrich_business_photo_urls(
 
     return updates
 
-
 async def enrich_business_editorial_summaries(
     business_docs: List[Dict],
     max_to_enrich: int = SUMMARY_ENRICHMENT_LIMIT,
 ) -> Dict[str, str]:
-    """Attempt to fetch Google editorial summaries for businesses lacking one."""
     if not GOOGLE_API_KEY:
         return {}
 
@@ -421,9 +347,7 @@ async def enrich_business_editorial_summaries(
 
     return updates
 
-
 async def _fetch_nearby_pages(client: httpx.AsyncClient, base_params: dict, label: str) -> list[dict]:
-    """Fetch first page + up to 2 token pages for one Nearby Search query."""
     resp = await client.get(GOOGLE_NEARBY_URL, params=base_params)
     data = resp.json()
     status = data.get("status")
@@ -470,7 +394,6 @@ async def _fetch_nearby_pages(client: httpx.AsyncClient, base_params: dict, labe
 
     return all_results
 
-
 async def search_google_places(
     lat: float,
     lng: float,
@@ -478,11 +401,6 @@ async def search_google_places(
     keyword: Optional[str] = None,
     max_results: int = MAX_RETURN_RESULTS,
 ) -> List[Dict]:
-    """
-    Call Google Places Nearby Search and return MongoDB-ready dicts.
-    Uses one broad query plus several type-specific queries and de-dupes by place_id.
-    Every call is logged to api_usage_log.
-    """
     if not GOOGLE_API_KEY:
         print("GOOGLE_API_KEY not set - skipping Places lookup")
         return []
@@ -509,7 +427,6 @@ async def search_google_places(
             if len(all_results) >= max_results * 2:
                 break
 
-    # Convert to MongoDB-ready documents
     documents = []
     skipped_non_local = 0
     seen_place_ids: set[str] = set()
@@ -562,7 +479,6 @@ async def search_google_places(
                 "type": "Point",
                 "coordinates": [p_lng, p_lat],
             },
-            # Platform-native reviews only: never ingest Google stars/counts.
             "rating_average": 0.0,
             "total_reviews": 0,
             "image_url": image_url,
@@ -608,7 +524,6 @@ async def search_google_places(
     return documents
 
 async def _log_api_call(endpoint: str, params: dict, status: str, result_count: int):
-    """Log every Google API call for auditing and cost tracking."""
     try:
         log_coll = get_api_usage_log_collection()
         await log_coll.insert_one({
@@ -621,4 +536,3 @@ async def _log_api_call(endpoint: str, params: dict, status: str, result_count: 
         })
     except Exception as e:
         print(f"Failed to log API call: {e}")
-

@@ -7,7 +7,7 @@ function resolveApiUrl(): string {
     if (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
       return '/api';
     }
-    return 'http://localhost:8000/api';
+    return 'http://localhost:8000';
   }
 
   const normalized = configured.replace(/\/$/, '');
@@ -26,7 +26,7 @@ function resolveApiUrl(): string {
       return '/api';
     }
   } catch {
-    // Keep the configured value if it isn't a parseable absolute URL.
+    
   }
 
   return apiBase;
@@ -53,7 +53,7 @@ async function throwApiError(response: Response, fallback: string): Promise<neve
       message = data.detail;
     }
   } catch {
-    // Keep fallback message when body is not JSON.
+    
   }
   throw new Error(message);
 }
@@ -71,7 +71,7 @@ function getAuthHeaders(includeJson: boolean = false): HeadersInit {
 }
 
 export const api = {
-  // ─── Auth ────────────────────────────────────
+  
   async login(email: string, password: string): Promise<AuthTokens> {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
@@ -133,7 +133,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Users ───────────────────────────────────
   async getUserProfile(userId: string): Promise<User> {
     const response = await fetch(`${API_URL}/users/${userId}`);
     if (!response.ok) {
@@ -156,7 +155,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Businesses ──────────────────────────────
   async getBusinesses(category?: string, sortBy?: string, search?: string): Promise<Business[]> {
     const params = new URLSearchParams();
     if (category) params.append('category', category);
@@ -210,7 +208,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Reviews ─────────────────────────────────
   async getBusinessReviews(businessId: string): Promise<Review[]> {
     const response = await fetch(`${API_URL}/reviews/business/${businessId}`);
     if (!response.ok) throw new Error('Failed to fetch reviews');
@@ -230,7 +227,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Deals ───────────────────────────────────
   async getDeals(): Promise<Deal[]> {
     const response = await fetch(`${API_URL}/deals`);
     if (!response.ok) throw new Error('Failed to fetch deals');
@@ -243,7 +239,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Claims ──────────────────────────────────
   async submitClaim(claim: ClaimCreate): Promise<BusinessClaim> {
     const response = await fetch(`${API_URL}/claims`, {
       method: 'POST',
@@ -265,7 +260,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Subscriptions ──────────────────────────────
   async getSubscriptionTiers(): Promise<TierInfo[]> {
     const response = await fetch(`${API_URL}/subscriptions/tiers`);
     if (!response.ok) throw new Error('Failed to fetch tiers');
@@ -301,7 +295,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Activity / Trust Layer ──────────────────────
   async checkIn(data: CheckInCreate): Promise<CheckIn> {
     const response = await fetch(`${API_URL}/checkins`, {
       method: 'POST',
@@ -322,11 +315,11 @@ export const api = {
     const response = await fetch(`${API_URL}/feed?${params}`);
     if (!response.ok) throw new Error('Failed to fetch activity feed');
     const data = await response.json();
-    // Backend returns paginated object { items, total, page, page_size, has_more }
+    
     if (data && Array.isArray(data.items)) {
       return { items: data.items, has_more: !!data.has_more };
     }
-    // Fallback: if response is already an array (backwards compat)
+    
     if (Array.isArray(data)) {
       return { items: data, has_more: data.length >= pageSize };
     }
@@ -434,7 +427,6 @@ export const api = {
     return response.json();
   },
 
-  // ─── Discovery (Google Places backfill) ──────
   async discoverBusinesses(
     lat: number,
     lng: number,
@@ -474,9 +466,7 @@ export const api = {
         headers: getAuthHeaders(),
       });
     } catch {
-      // Personalization is optional here. If auth headers cause a network-level
-      // failure (often a local CORS/preflight issue), retry anonymously so
-      // Explore still renders.
+
       response = await fetch(`${API_URL}/explore/lanes?${params}`);
       if (!response.ok) await throwApiError(response, 'Failed to fetch explore lanes');
       return response.json();

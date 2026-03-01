@@ -63,7 +63,7 @@ export function DealsSection() {
               key={deal.id || deal._id}
               className="group relative overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
             >
-              {/* Gradient accent bar */}
+              {}
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
 
               <div className="flex items-start gap-3">

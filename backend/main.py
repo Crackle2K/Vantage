@@ -1,8 +1,3 @@
-"""
-Vantage - FastAPI Backend
-A location-based platform connecting users with local businesses
-"""
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -23,14 +18,11 @@ from routes.discovery import router as discovery_router
 from routes.saved import router as saved_router
 from routes.users import router as users_router
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Manage application lifecycle"""
     await connect_to_mongo()
     yield
     await close_mongo_connection()
-
 
 app = FastAPI(
     title="Vantage API",
@@ -39,7 +31,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS for both development and production
 import os
 allowed_origins = [
     "http://localhost:5173",
@@ -47,7 +38,6 @@ allowed_origins = [
     "http://localhost:5174",
 ]
 
-# Add production origins from environment variable
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
     allowed_origins.append(frontend_url)
@@ -72,7 +62,6 @@ app.include_router(discovery_router, prefix="/api", tags=["Discovery"])
 app.include_router(saved_router, prefix="/api", tags=["Saved"])
 app.include_router(users_router, prefix="/api/users", tags=["Users"])
 
-
 @app.exception_handler(DatabaseUnavailableError)
 async def handle_db_unavailable(_: Request, exc: DatabaseUnavailableError):
     return JSONResponse(
@@ -82,7 +71,6 @@ async def handle_db_unavailable(_: Request, exc: DatabaseUnavailableError):
             "error": "database_unavailable",
         },
     )
-
 
 @app.exception_handler(PyMongoError)
 async def handle_pymongo_error(_: Request, exc: PyMongoError):
@@ -94,10 +82,8 @@ async def handle_pymongo_error(_: Request, exc: PyMongoError):
         },
     )
 
-
 @app.get("/")
 async def root():
-    """Root endpoint - API health check"""
     return {
         "message": "Vantage API running",
         "status": "active",
@@ -107,6 +93,4 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for monitoring"""
     return {"status": "healthy", "demo_mode": DEMO_MODE}
-

@@ -123,7 +123,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-[60vh] py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {}
         <div className="text-center mb-12 animate-fade-in-up">
           <h1 className="text-heading md:text-display font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
             Grow Your <span className="gradient-text font-serif">Business</span>
@@ -132,7 +132,7 @@ export default function PricingPage() {
             Free for community members. Business owners pay only for the tools they need to grow locally.
           </p>
 
-          {/* Billing Toggle */}
+          {}
           <div className="mt-8 flex justify-center">
             <div className="relative inline-flex items-center">
               <div className="flex items-center gap-3">
@@ -165,7 +165,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Business selector for owners */}
+        {}
         {isAuthenticated && user?.role === 'business_owner' && myBusinesses.length > 0 && (
           <div className="max-w-md mx-auto mb-8">
             <label className="block text-ui font-medium text-[hsl(var(--foreground))] mb-2">
@@ -196,7 +196,7 @@ export default function PricingPage() {
           </div>
         )}
 
-        {/* Pricing Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiers.map((tier, index) => {
             const Icon = tierIcons[tier.tier] || Star
@@ -230,16 +230,16 @@ export default function PricingPage() {
                   </div>
                 )}
 
-                {/* Tier Icon */}
+                {}
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-lg`}>
                   <Icon className="w-6 h-6 text-brand-on-primary" />
                 </div>
 
-                {/* Tier Info */}
+                {}
                 <h3 className="text-subheading font-bold text-[hsl(var(--foreground))] font-heading">{tier.name}</h3>
                 <p className="text-ui text-[hsl(var(--muted-foreground))] mt-1 mb-4">{tier.description}</p>
 
-                {/* Price */}
+                {}
                 <div className="mb-6">
                   <span className="text-heading font-bold text-[hsl(var(--foreground))]">
                     ${formatPrice(monthlyEquivalent)}
@@ -254,7 +254,7 @@ export default function PricingPage() {
                   )}
                 </div>
 
-                {/* Features */}
+                {}
                 <ul className="space-y-3 mb-8 flex-1">
                   {tier.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2.5">
@@ -264,7 +264,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                {/* CTA */}
+                {}
                 <button
                   onClick={() => handleSubscribe(tier.tier)}
                   disabled={subscribing || isCurrent}
@@ -286,7 +286,7 @@ export default function PricingPage() {
           })}
         </div>
 
-        {/* Bottom CTA */}
+        {}
         <div className="mt-16 text-center">
           <p className="text-[hsl(var(--muted-foreground))] text-ui mb-2">
             Community members always browse for free. Subscriptions are for business owners only.

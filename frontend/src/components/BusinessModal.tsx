@@ -84,14 +84,12 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
     loadData()
   }, [loadData])
 
-  // Close on escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -154,15 +152,15 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
-      {/* Backdrop */}
+      {}
       <div className="absolute inset-0 bg-scrim-dark/60 backdrop-blur-sm" />
 
-      {/* Modal */}
+      {}
       <div
         className="relative w-full max-w-3xl max-h-[88vh] rounded-[28px] bg-[hsl(var(--card))] border border-[hsl(var(--border))] shadow-2xl overflow-hidden flex flex-col animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
+        {}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-scrim-dark/40 backdrop-blur-sm text-on-primary flex items-center justify-center hover:bg-scrim-dark/60 transition-colors"
@@ -170,7 +168,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
           <X className="w-5 h-5" />
         </button>
 
-        {/* Hero Image */}
+        {}
         <div className="relative h-56 overflow-hidden flex-shrink-0">
           {modalImageCandidates.length > 0 ? (
             <BusinessImage
@@ -187,7 +185,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-          {/* Title overlay */}
+          {}
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <h2 className="text-subheading font-bold text-on-primary mb-1 font-heading tracking-tight">{business.name}</h2>
             <div className="flex items-center gap-3 text-on-primary/80 text-ui">
@@ -210,7 +208,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
           </div>
         </div>
 
-        {/* Tabs */}
+        {}
         <div className="flex border-b border-[hsl(var(--border))] flex-shrink-0">
           {tabs.map(tab => (
             <button
@@ -231,12 +229,12 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
           ))}
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* INFO TAB */}
+          {}
           {activeTab === 'info' && (
             <div className="space-y-5 animate-fade-in">
-              {/* Activity Signal */}
+              {}
               {activityStatus && activityStatus.is_active_today && (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-success dark:bg-success/20 border border-success dark:border-success">
                   <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
@@ -247,7 +245,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
                 </div>
               )}
 
-              {/* Claimed badge or Claim button */}
+              {}
               {business.is_claimed ? (
                 <div className="flex items-center gap-2 text-ui text-success dark:text-success">
                   <CheckCircle2 className="w-4 h-4" />
@@ -263,7 +261,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
                 </button>
               ) : null}
 
-              {/* Check-in button */}
+              {}
               {isAuthenticated && (
                 <button
                   onClick={async () => {
@@ -437,10 +435,10 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
             </div>
           )}
 
-          {/* REVIEWS TAB */}
+          {}
           {activeTab === 'reviews' && (
             <div className="space-y-5 animate-fade-in">
-              {/* Write review button / form */}
+              {}
               {isAuthenticated && !showReviewForm && (
                 <button
                   onClick={() => setShowReviewForm(true)}
@@ -506,7 +504,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
                 </form>
               )}
 
-              {/* Reviews list */}
+              {}
               {loading ? (
                 <div className="space-y-4">
                   {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl skeleton" />)}
@@ -549,7 +547,7 @@ export function BusinessModal({ business, onClose, onBusinessUpdated }: Business
             </div>
           )}
 
-          {/* DEALS TAB */}
+          {}
           {activeTab === 'deals' && (
             <div className="space-y-4 animate-fade-in">
               {loading ? (

@@ -18,7 +18,7 @@ export type CategoryType =
   | 'Local Services'
   | 'Active Life'
   | 'Other'
-  // Legacy lowercase values (backwards compat)
+  
   | 'food'
   | 'retail'
   | 'services'
@@ -90,7 +90,7 @@ export interface Business {
     type: string;
     coordinates: [number, number];
   };
-  // Hybrid model fields
+  
   is_seed?: boolean;
   is_claimed?: boolean;
   owner_id?: string;
@@ -101,12 +101,12 @@ export interface Business {
   verified_visits_today?: number;
   last_verified_at?: string | null;
   badges?: string[];
-  // Activity signals
+  
   is_active_today?: boolean;
   checkins_today?: number;
   trending_score?: number;
   last_activity_at?: string;
-  // Visibility
+  
   live_visibility_score?: number;
   local_confidence?: number;
   canonical_rank_score?: number;
@@ -189,8 +189,6 @@ export interface AuthTokens {
   token_type: string;
 }
 
-// ── Claims ─────────────────────────────────────────────────────────
-
 export interface BusinessClaim {
   id: string;
   business_id: string;
@@ -215,8 +213,6 @@ export interface ClaimCreate {
   owner_email?: string;
   proof_description?: string;
 }
-
-// ── Subscriptions ──────────────────────────────────────────────────
 
 export type SubscriptionTier = 'free' | 'starter' | 'pro' | 'premium';
 export type BillingCycle = 'monthly' | 'yearly';
@@ -249,8 +245,6 @@ export interface TierInfo {
   features: string[];
   highlighted: boolean;
 }
-
-// ── Activity / Trust Layer ─────────────────────────────────────────
 
 export type CheckInStatus = 'self_reported' | 'geo_verified' | 'receipt_verified' | 'community_confirmed';
 export type CredibilityTier = 'new' | 'regular' | 'trusted' | 'local_guide' | 'ambassador';

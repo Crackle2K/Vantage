@@ -1,14 +1,3 @@
-"""
-Subscription Routes for Vantage
-Business owners pay for premium features — users are always free.
-
-Tiers:
-  FREE     — Claim listing, basic profile, respond to reviews, 1 deal
-  STARTER  — $9/mo — analytics, 5 deals, "Active Business" badge
-  PRO      — $29/mo — events, visibility boosts, 20 deals, priority support
-  PREMIUM  — $59/mo — featured placement, unlimited deals, advanced insights
-"""
-
 from typing import List
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, status, Depends
@@ -32,54 +21,34 @@ from database.mongodb import (
 
 router = APIRouter()
 
-
 def sub_helper(doc) -> dict:
     if doc:
         doc["id"] = str(doc["_id"])
         del doc["_id"]
     return doc
 
-
-# ── Public: Pricing Info ────────────────────────────────────────────
-
 @router.get("/subscriptions/tiers")
 async def get_tier_info():
-    """
-    Public endpoint — returns pricing tiers for the pricing page.
-    No auth required.
-    """
     return [tier.dict() for tier in TIER_DISPLAY]
-
 
 @router.get("/subscriptions/features/{tier}")
 async def get_tier_features(tier: SubscriptionTier):
-    """Get feature flags for a specific tier"""
     features = TIER_FEATURES.get(tier)
     if not features:
         raise HTTPException(status_code=404, detail="Tier not found")
     return {"tier": tier, "features": features}
-
-
-# ── Subscription Management ────────────────────────────────────────
 
 @router.post("/subscriptions", status_code=status.HTTP_201_CREATED)
 async def create_subscription(
     data: SubscriptionCreate,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Create or upgrade a subscription for a claimed business.
-    - Business must be claimed by the current user
-    - Replaces any existing subscription for that business
-    """
     subs = get_subscriptions_collection()
     businesses = get_businesses_collection()
 
-    # Must be business_owner
     if current_user.role != "business_owner":
         raise HTTPException(status_code=403, detail="Only business owners can subscribe")
 
-    # Validate business
     if not ObjectId.is_valid(data.business_id):
         raise HTTPException(status_code=400, detail="Invalid business ID")
 
@@ -87,28 +56,24 @@ async def create_subscription(
     if not business:
         raise HTTPException(status_code=404, detail="Business not found")
 
-    # Must own the business
     if str(business.get("owner_id")) != current_user.id:
         raise HTTPException(
             status_code=403,
             detail="You can only subscribe for businesses you own",
         )
 
-    # Check if business is claimed
     if not business.get("is_claimed"):
         raise HTTPException(
             status_code=400,
             detail="Business must be claimed before subscribing. Submit a claim first.",
         )
 
-    # Calculate billing period
     now = datetime.utcnow()
     if data.billing_cycle == BillingCycle.YEARLY:
         period_end = now + timedelta(days=365)
     else:
         period_end = now + timedelta(days=30)
 
-    # Upsert subscription (replace if exists)
     sub_doc = {
         "user_id": current_user.id,
         "business_id": data.business_id,
@@ -122,29 +87,24 @@ async def create_subscription(
         "updated_at": now,
     }
 
-    # Remove old subscription for this business if any
     await subs.delete_many({"business_id": data.business_id, "user_id": current_user.id})
 
     result = await subs.insert_one(sub_doc)
     created = await subs.find_one({"_id": result.inserted_id})
     return sub_helper(created)
 
-
 @router.get("/subscriptions/my")
 async def get_my_subscriptions(current_user: User = Depends(get_current_user)):
-    """Get all subscriptions for the current user's businesses"""
     subs = get_subscriptions_collection()
     cursor = subs.find({"user_id": current_user.id}).sort("created_at", -1)
     results = await cursor.to_list(length=50)
     return [sub_helper(s) for s in results]
-
 
 @router.get("/subscriptions/business/{business_id}")
 async def get_business_subscription(
     business_id: str,
     current_user: User = Depends(get_current_user),
 ):
-    """Get active subscription for a specific business"""
     subs = get_subscriptions_collection()
 
     sub = await subs.find_one(
@@ -156,7 +116,6 @@ async def get_business_subscription(
     )
 
     if not sub:
-        # Return free tier defaults
         return {
             "tier": SubscriptionTier.FREE,
             "features": TIER_FEATURES[SubscriptionTier.FREE],
@@ -168,14 +127,12 @@ async def get_business_subscription(
     result["features"] = features
     return result
 
-
 @router.patch("/subscriptions/{sub_id}")
 async def update_subscription(
     sub_id: str,
     data: SubscriptionUpdate,
     current_user: User = Depends(get_current_user),
 ):
-    """Update subscription (change tier, billing cycle, or cancel)"""
     subs = get_subscriptions_collection()
 
     if not ObjectId.is_valid(sub_id):
@@ -199,13 +156,11 @@ async def update_subscription(
     updated = await subs.find_one({"_id": ObjectId(sub_id)})
     return sub_helper(updated)
 
-
 @router.post("/subscriptions/{sub_id}/cancel")
 async def cancel_subscription(
     sub_id: str,
     current_user: User = Depends(get_current_user),
 ):
-    """Cancel subscription at end of current billing period"""
     subs = get_subscriptions_collection()
 
     if not ObjectId.is_valid(sub_id):

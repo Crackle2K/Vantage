@@ -1,35 +1,18 @@
-"""
-Subscription Model Schema
-Defines subscription tiers for business owners on Vantage
-
-Revenue Model:
-- Users (community members) are FREE — always
-- Business owners pay for premium features via subscription tiers
-- Seed/public businesses are free listings from our database
-- Claimed businesses unlock interaction, analytics, events, boosts
-"""
-
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
-
 class SubscriptionTier(str, Enum):
-    """Subscription tiers for business owners"""
-    FREE = "free"           # Claimed listing, basic profile
-    STARTER = "starter"     # Basic: $9.99/mo — analytics, deal posting
-    PRO = "pro"             # Standard: $19.99/mo — events, visibility boosts, priority support
-    PREMIUM = "premium"     # Premium: $49.99/mo — everything + featured placement, ad-free
-
+    FREE = "free"
+    STARTER = "starter"
+    PRO = "pro"
+    PREMIUM = "premium"
 
 class BillingCycle(str, Enum):
-    """Billing cycle options"""
     MONTHLY = "monthly"
-    YEARLY = "yearly"       # 20% discount
+    YEARLY = "yearly"
 
-
-# Feature flags per tier
 TIER_FEATURES = {
     SubscriptionTier.FREE: {
         "can_claim_business": True,
@@ -52,52 +35,50 @@ TIER_FEATURES = {
         "max_deals": 5,
         "can_post_events": False,
         "can_boost_visibility": False,
-        "analytics_access": True,         # Basic analytics
+        "analytics_access": True,
         "featured_placement": False,
         "priority_support": False,
-        "activity_feed_badge": True,       # "Active Business" badge
+        "activity_feed_badge": True,
         "monthly_price": 9.99,
-        "yearly_price": 95.90,            # ~$7.99/mo
+        "yearly_price": 95.90,
     },
     SubscriptionTier.PRO: {
         "can_claim_business": True,
         "can_edit_profile": True,
         "can_respond_reviews": True,
         "max_deals": 20,
-        "can_post_events": True,           # Create events
-        "can_boost_visibility": True,      # Visibility boosts
-        "analytics_access": True,          # Full analytics
+        "can_post_events": True,
+        "can_boost_visibility": True,
+        "analytics_access": True,
         "featured_placement": False,
         "priority_support": True,
         "activity_feed_badge": True,
         "monthly_price": 19.99,
-        "yearly_price": 191.90,           # ~$15.99/mo
+        "yearly_price": 191.90,
     },
     SubscriptionTier.PREMIUM: {
         "can_claim_business": True,
         "can_edit_profile": True,
         "can_respond_reviews": True,
-        "max_deals": -1,                   # Unlimited
+        "max_deals": -1,
         "can_post_events": True,
         "can_boost_visibility": True,
-        "analytics_access": True,          # Full analytics + insights
-        "featured_placement": True,        # Top of search results
+        "analytics_access": True,
+        "featured_placement": True,
         "priority_support": True,
         "activity_feed_badge": True,
         "monthly_price": 49.99,
-        "yearly_price": 479.90,           # ~$39.99/mo
+        "yearly_price": 479.90,
     },
 }
 
-
 class Subscription(BaseModel):
-    """Active subscription for a business owner"""
     id: str
     user_id: str
     business_id: str
     tier: SubscriptionTier = SubscriptionTier.FREE
     billing_cycle: BillingCycle = BillingCycle.MONTHLY
-    status: str = "active"  # active, cancelled, past_due, trialing
+    status: str = "active"
     current_period_start: datetime
     current_period_end: datetime
     cancel_at_period_end: bool = False
@@ -107,23 +88,17 @@ class Subscription(BaseModel):
     class Config:
         from_attributes = True
 
-
 class SubscriptionCreate(BaseModel):
-    """Schema for creating/upgrading a subscription"""
     business_id: str
     tier: SubscriptionTier
     billing_cycle: BillingCycle = BillingCycle.MONTHLY
 
-
 class SubscriptionUpdate(BaseModel):
-    """Schema for updating subscription"""
     tier: Optional[SubscriptionTier] = None
     billing_cycle: Optional[BillingCycle] = None
     cancel_at_period_end: Optional[bool] = None
 
-
 class TierInfo(BaseModel):
-    """Public-facing tier information for pricing page"""
     tier: SubscriptionTier
     name: str
     description: str
@@ -132,8 +107,6 @@ class TierInfo(BaseModel):
     features: List[str]
     highlighted: bool = False
 
-
-# Pricing page data
 TIER_DISPLAY = [
     TierInfo(
         tier=SubscriptionTier.FREE,

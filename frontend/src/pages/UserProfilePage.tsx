@@ -77,17 +77,17 @@ export default function UserProfilePage() {
   return (
     <div className="min-h-[60vh] py-10 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Back */}
+        {}
         <Link to="/businesses" className="inline-flex items-center gap-1 text-ui text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to Explore
         </Link>
 
         <div className="animate-fade-in-up">
-          {/* Profile Header */}
+          {}
           <div className="glass-card rounded-2xl p-8 mb-6">
             <div className="flex items-start gap-5">
-              {/* Avatar */}
+              {}
               <div className="w-24 h-24 rounded-2xl flex-shrink-0 overflow-hidden shadow-lg shadow-brand/20">
                 {user.profile_picture ? (
                   <img 
@@ -120,7 +120,7 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          {/* About Section */}
+          {}
           {user.about_me && (
             <div className="glass-card rounded-2xl p-6 mb-6">
               <h3 className="font-semibold text-[hsl(var(--foreground))] mb-3">About</h3>
@@ -130,7 +130,7 @@ export default function UserProfilePage() {
             </div>
           )}
 
-          {/* Additional Info */}
+          {}
           <div className="glass-card rounded-2xl p-6">
             <h3 className="font-semibold text-[hsl(var(--foreground))] mb-4">Member Information</h3>
             <div className="space-y-3">

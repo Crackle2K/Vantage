@@ -170,7 +170,7 @@ export default function ActivityFeedPage() {
     }
 
     setExpandedComments(prev => new Set(prev).add(activityId))
-    // Always refresh comments to ensure we have latest data with profile pictures
+    
     await loadComments(activityId)
   }, [expandedComments, loadComments])
 
@@ -215,7 +215,6 @@ export default function ActivityFeedPage() {
     }
   }, [isAuthenticated])
 
-  // Infinite scroll
   useEffect(() => {
     if (!sentinelRef.current || !hasMore) return
     const observer = new IntersectionObserver(
@@ -233,7 +232,7 @@ export default function ActivityFeedPage() {
   return (
     <div className="min-h-[60vh] py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+        {}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 animate-fade-in-up">
           <div>
             <h1 className="text-heading font-bold text-[hsl(var(--foreground))] font-heading">
@@ -244,7 +243,7 @@ export default function ActivityFeedPage() {
             </p>
           </div>
 
-          {/* Live indicator */}
+          {}
           <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card">
             <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             <span className="text-ui font-medium text-[hsl(var(--foreground))]">Live Feed</span>
@@ -252,7 +251,7 @@ export default function ActivityFeedPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Feed */}
+          {}
           <div className="lg:col-span-2 space-y-4">
             {actionError && (
               <div className="glass-card rounded-2xl p-3 border border-red-300/40 bg-red-500/5">
@@ -314,13 +313,13 @@ export default function ActivityFeedPage() {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Activity Icon */}
+                      {}
                       <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center flex-shrink-0`}>
                         <Icon className="w-5 h-5 text-brand-on-primary" />
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        {/* Title & Badge */}
+                        {}
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <p className="text-ui font-medium text-[hsl(var(--foreground))] leading-snug">
@@ -338,14 +337,14 @@ export default function ActivityFeedPage() {
                           </span>
                         </div>
 
-                        {/* Description */}
+                        {}
                         {item.description && (
                           <p className="text-ui text-[hsl(var(--muted-foreground))] mt-2 line-clamp-2">
                             {item.description}
                           </p>
                         )}
 
-                        {/* Business tag */}
+                        {}
                         <div className="flex items-center gap-2 mt-3">
                           <span className="text-caption font-medium px-2.5 py-1 rounded-lg bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
                             {item.business_name}
@@ -357,7 +356,7 @@ export default function ActivityFeedPage() {
                           )}
                         </div>
 
-                        {/* Engagement */}
+                        {}
                         <div className="flex items-center gap-4 mt-3">
                           <button
                             onClick={() => toggleLike(item.id)}
@@ -385,7 +384,7 @@ export default function ActivityFeedPage() {
                                 {itemComments.map((comment) => (
                                   <div key={comment.id} className="rounded-lg bg-[hsl(var(--secondary))]/50 px-2.5 py-2">
                                     <div className="flex items-start gap-2">
-                                      {/* User Avatar */}
+                                      {}
                                       <div className="w-6 h-6 rounded-full flex-shrink-0 overflow-hidden">
                                         {comment.profile_picture ? (
                                           <img 
@@ -443,7 +442,7 @@ export default function ActivityFeedPage() {
               })
             )}
 
-            {/* Infinite scroll sentinel */}
+            {}
             {hasMore && <div ref={sentinelRef} className="h-4" />}
             {loadingMore && (
               <div className="flex justify-center py-4">
@@ -452,9 +451,9 @@ export default function ActivityFeedPage() {
             )}
           </div>
 
-          {/* Sidebar */}
+          {}
           <div className="space-y-6">
-            {/* My Credibility Card */}
+            {}
             {isAuthenticated && myCredibility && (
               <div className="glass-card rounded-2xl p-5 animate-fade-in-up">
                 <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-4 font-sub flex items-center gap-2">
@@ -462,7 +461,7 @@ export default function ActivityFeedPage() {
                   Your Credibility
                 </h3>
 
-                {/* Score Ring */}
+                {}
                 <div className="flex items-center gap-4 mb-4">
                   <div className="relative w-16 h-16">
                     <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -489,7 +488,7 @@ export default function ActivityFeedPage() {
                   </div>
                 </div>
 
-                {/* Stats */}
+                {}
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     { label: 'Check-ins', value: myCredibility.total_checkins, icon: MapPin },
@@ -509,7 +508,7 @@ export default function ActivityFeedPage() {
               </div>
             )}
 
-            {/* How Credibility Works */}
+            {}
             <div className="glass-card rounded-2xl p-5 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
               <h3 className="text-ui font-semibold text-[hsl(var(--foreground))] mb-3 font-sub">
                 Community Trust Tiers
@@ -534,4 +533,3 @@ export default function ActivityFeedPage() {
     </div>
   )
 }
-

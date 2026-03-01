@@ -1,15 +1,8 @@
-"""
-Business metadata helpers for Vantage.
-Normalizes short descriptions, "known for" tags, and image URL arrays so
-Explore cards always have consistent metadata.
-"""
-
 from __future__ import annotations
 
 from typing import Iterable, Optional
 
 from services.photo_proxy import build_photo_proxy_url
-
 
 _CATEGORY_TO_SINGULAR: dict[str, str] = {
     "Restaurants": "restaurant",
@@ -132,18 +125,15 @@ _CATEGORY_FALLBACK_TAGS: dict[str, list[str]] = {
 
 _DEFAULT_TAGS = ["Neighborhood Favorite", "Community Pick", "Local Spot"]
 
-
 def _normalize_tag(tag: str) -> str:
     normalized = " ".join((tag or "").strip().split())
     return normalized[:24]
-
 
 def _titleize_category(category: str) -> str:
     if not category:
         return "business"
     singular = _CATEGORY_TO_SINGULAR.get(category, category)
     return singular.lower()
-
 
 def _extract_area(address: str = "", city: str = "") -> str:
     if city:
@@ -156,14 +146,12 @@ def _extract_area(address: str = "", city: str = "") -> str:
         return parts[0]
     return "your area"
 
-
 def generate_short_description(
     category: str = "",
     address: str = "",
     city: str = "",
     existing: str = "",
 ) -> str:
-    """Return a 160-char-safe summary, preserving an existing summary when possible."""
     candidate = " ".join((existing or "").split()).strip()
     if candidate:
         return candidate[:160]
@@ -172,7 +160,6 @@ def generate_short_description(
     area_label = _extract_area(address=address, city=city)
     generated = f"Popular local {category_label} near {area_label}."
     return generated[:160]
-
 
 def _join_tags(tags: Iterable[str]) -> str:
     cleaned = [str(tag).strip() for tag in tags if str(tag).strip()]
@@ -183,7 +170,6 @@ def _join_tags(tags: Iterable[str]) -> str:
     if len(cleaned) == 2:
         return f"{cleaned[0]} and {cleaned[1]}"
     return f"{', '.join(cleaned[:-1])}, and {cleaned[-1]}"
-
 
 def generate_long_description(
     category: str = "",
@@ -196,7 +182,6 @@ def generate_long_description(
     is_claimed: bool = False,
     has_deals: bool = False,
 ) -> str:
-    """Return a richer 2-3 sentence description for cards and detail views."""
     normalized_existing = " ".join((existing or "").split()).strip()
     normalized_address = " ".join((address or "").split()).strip()
     if normalized_existing and normalized_existing != normalized_address and len(normalized_existing) >= 90:
@@ -224,13 +209,11 @@ def generate_long_description(
 
     return " ".join([summary, detail_line, status_line])[:360]
 
-
 def derive_known_for(
     category: str = "",
     google_types: Optional[Iterable[str]] = None,
     existing: Optional[Iterable[str]] = None,
 ) -> list[str]:
-    """Normalize to 3-6 user-friendly tags."""
     tags: list[str] = []
     seen: set[str] = set()
 
@@ -274,9 +257,7 @@ def derive_known_for(
 
     return tags[:6]
 
-
 def normalize_image_urls(image_urls: Optional[Iterable[str]], primary_image: str = "") -> list[str]:
-    """Return a de-duplicated image array, preserving the primary image first."""
     normalized: list[str] = []
     seen: set[str] = set()
 
@@ -289,9 +270,7 @@ def normalize_image_urls(image_urls: Optional[Iterable[str]], primary_image: str
 
     return normalized
 
-
 def normalize_business_metadata(doc: dict) -> dict:
-    """Mutate and return a business doc with guaranteed card metadata."""
     if doc is None:
         return doc
 

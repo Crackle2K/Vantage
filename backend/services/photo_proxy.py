@@ -1,9 +1,3 @@
-"""
-Photo proxy helpers for Vantage.
-Provides a cached server-side image pipeline for Google Places photos,
-website OG images, and category-based SVG placeholders.
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -22,7 +16,6 @@ from fastapi import HTTPException
 
 from config import GOOGLE_API_KEY
 
-
 PHOTO_PROXY_TTL_SECONDS = 7 * 24 * 60 * 60
 PHOTO_PROXY_MEMORY_ITEMS = 192
 PHOTO_PROXY_DISK_DIR = Path("/tmp/vantage_photos")
@@ -34,44 +27,38 @@ _META_TAG_RE = re.compile(
 )
 
 _CATEGORY_COLORS: dict[str, tuple[str, str]] = {
-    "restaurants": ("#B6633A", "#D5A45B"),
-    "cafes": ("#7B5435", "#C89B74"),
-    "bars": ("#3D4E81", "#7E6BC4"),
-    "shopping": ("#355C7D", "#6C9BCF"),
-    "beauty": ("#A64D79", "#E2A4C3"),
-    "fitness": ("#2D6A4F", "#74C69D"),
-    "health": ("#3A86A8", "#8ECAE6"),
-    "hotels": ("#425466", "#8FA3BF"),
-    "grocery": ("#4F772D", "#90A955"),
-    "default": ("#566573", "#AEB6BF"),
+    "restaurants": ("
+    "cafes": ("
+    "bars": ("
+    "shopping": ("
+    "beauty": ("
+    "fitness": ("
+    "health": ("
+    "hotels": ("
+    "grocery": ("
+    "default": ("
 }
 
 _memory_cache: "OrderedDict[str, tuple[float, str, bytes]]" = OrderedDict()
 _memory_lock = Lock()
 
-
 def build_photo_proxy_url(place_id: str, maxwidth: int = 1200) -> str:
-    """Return the server-side proxy URL for a business photo."""
     if not place_id:
         return ""
     return f"/api/photos?place_id={quote_plus(place_id)}&maxwidth={maxwidth}"
 
-
 def _cache_key(place_id: str, maxwidth: int) -> str:
     return f"{place_id}:{maxwidth}"
-
 
 def _cache_file_base(cache_key: str) -> Path:
     digest = hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
     return PHOTO_PROXY_DISK_DIR / digest
-
 
 def _ensure_disk_cache_dir() -> None:
     try:
         PHOTO_PROXY_DISK_DIR.mkdir(parents=True, exist_ok=True)
     except Exception:
         pass
-
 
 def _memory_get(cache_key: str) -> Optional[tuple[str, bytes]]:
     now = time.time()
@@ -86,7 +73,6 @@ def _memory_get(cache_key: str) -> Optional[tuple[str, bytes]]:
         _memory_cache.move_to_end(cache_key)
         return content_type, payload
 
-
 def _memory_set(cache_key: str, content_type: str, payload: bytes) -> None:
     expires_at = time.time() + PHOTO_PROXY_TTL_SECONDS
     with _memory_lock:
@@ -94,7 +80,6 @@ def _memory_set(cache_key: str, content_type: str, payload: bytes) -> None:
         _memory_cache.move_to_end(cache_key)
         while len(_memory_cache) > PHOTO_PROXY_MEMORY_ITEMS:
             _memory_cache.popitem(last=False)
-
 
 def _disk_get(cache_key: str) -> Optional[tuple[str, bytes]]:
     _ensure_disk_cache_dir()
@@ -118,7 +103,6 @@ def _disk_get(cache_key: str) -> Optional[tuple[str, bytes]]:
     except Exception:
         return None
 
-
 def _disk_set(cache_key: str, content_type: str, payload: bytes) -> None:
     _ensure_disk_cache_dir()
     base = _cache_file_base(cache_key)
@@ -134,7 +118,6 @@ def _disk_set(cache_key: str, content_type: str, payload: bytes) -> None:
         )
     except Exception:
         return
-
 
 def _normalize_category(category: str = "") -> str:
     lower = (category or "").strip().lower()
@@ -158,7 +141,6 @@ def _normalize_category(category: str = "") -> str:
         return "grocery"
     return "default"
 
-
 def _escape_svg_text(value: str) -> str:
     return (
         (value or "")
@@ -168,9 +150,7 @@ def _escape_svg_text(value: str) -> str:
         .replace('"', "&quot;")
     )
 
-
 def build_category_placeholder_bytes(category: str = "", label: str = "V") -> tuple[str, bytes]:
-    """Generate a lightweight SVG placeholder for a business category."""
     normalized = _normalize_category(category)
     start, end = _CATEGORY_COLORS.get(normalized, _CATEGORY_COLORS["default"])
     monogram = _escape_svg_text((label or "V").strip()[:1].upper())
@@ -183,14 +163,13 @@ def build_category_placeholder_bytes(category: str = "", label: str = "V") -> tu
   </linearGradient>
   <filter id="blur"><feGaussianBlur stdDeviation="32" /></filter>
 </defs>
-<rect width="1200" height="900" fill="url(#g)" />
-<circle cx="220" cy="170" r="140" fill="rgba(255,255,255,0.16)" filter="url(#blur)" />
-<circle cx="980" cy="760" r="180" fill="rgba(255,255,255,0.12)" filter="url(#blur)" />
+<rect width="1200" height="900" fill="url(
+<circle cx="220" cy="170" r="140" fill="rgba(255,255,255,0.16)" filter="url(
+<circle cx="980" cy="760" r="180" fill="rgba(255,255,255,0.12)" filter="url(
 <text x="80" y="760" fill="rgba(255,255,255,0.92)" font-family="Arial, sans-serif" font-size="300" font-weight="700">{monogram}</text>
 <text x="86" y="840" fill="rgba(255,255,255,0.88)" font-family="Arial, sans-serif" font-size="54">{safe_category}</text>
 </svg>"""
     return "image/svg+xml", svg.encode("utf-8")
-
 
 async def _fetch_bytes(url: str, timeout_seconds: float = 6.0) -> tuple[str, bytes]:
     async with httpx.AsyncClient(timeout=timeout_seconds, follow_redirects=True) as client:
@@ -198,7 +177,6 @@ async def _fetch_bytes(url: str, timeout_seconds: float = 6.0) -> tuple[str, byt
         response.raise_for_status()
         content_type = response.headers.get("content-type", "image/jpeg").split(";")[0]
         return content_type, response.content
-
 
 async def _fetch_google_photo_bytes(photo_reference: str, maxwidth: int) -> tuple[str, bytes]:
     if not GOOGLE_API_KEY:
@@ -212,9 +190,7 @@ async def _fetch_google_photo_bytes(photo_reference: str, maxwidth: int) -> tupl
     )
     return await _fetch_bytes(url, timeout_seconds=8.0)
 
-
 async def _resolve_google_photo_references(place_id: str) -> list[str]:
-    """Fetch photo refs from Place Details for legacy docs missing stored refs."""
     if not GOOGLE_API_KEY:
         return []
 
@@ -248,7 +224,6 @@ async def _resolve_google_photo_references(place_id: str) -> list[str]:
         refs.append(ref)
     return refs
 
-
 async def _resolve_og_image_url(website_url: str) -> str:
     if not website_url:
         return ""
@@ -265,20 +240,17 @@ async def _resolve_og_image_url(website_url: str) -> str:
     except Exception:
         return ""
 
-
 async def _fetch_cached_url(url: str) -> tuple[str, bytes]:
     content_type, payload = await _fetch_bytes(url, timeout_seconds=5.0)
     if not content_type.startswith("image/"):
         raise ValueError("Resolved OG image URL did not return an image payload")
     return content_type, payload
 
-
 async def resolve_business_photo_payload(
     business: dict,
     place_id: str,
     maxwidth: int,
 ) -> tuple[str, bytes]:
-    """Resolve an image payload for a business using the fallback chain."""
     photo_references = [
         str(ref).strip()
         for ref in (business.get("photo_references") or [])
@@ -310,13 +282,11 @@ async def resolve_business_photo_payload(
         label=str(business.get("name") or "V"),
     )
 
-
 async def get_photo_payload(
     businesses_collection,
     place_id: str,
     maxwidth: int,
 ) -> tuple[str, bytes]:
-    """Return cached or freshly fetched image bytes for a business place_id."""
     cache_key = _cache_key(place_id, maxwidth)
     cached = _memory_get(cache_key)
     if cached:
@@ -366,9 +336,7 @@ async def get_photo_payload(
     _disk_set(cache_key, content_type, payload)
     return content_type, payload
 
-
 def build_stream(content_type: str, payload: bytes):
-    """Build a streamable file-like object for FastAPI responses."""
     return io.BytesIO(payload), {
         "Cache-Control": f"public, max-age={PHOTO_PROXY_TTL_SECONDS}, immutable",
         "Content-Length": str(len(payload)),

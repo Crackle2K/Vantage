@@ -1,11 +1,3 @@
-"""
-Business Claim Routes for Vantage
-Handles the hybrid model: seed businesses vs claimed businesses
-
-Seed businesses = public listings from our database (free, no owner)
-Claimed businesses = owner signs up, verifies, unlocks full features
-"""
-
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends, Query
@@ -22,37 +14,26 @@ from database.mongodb import (
 
 router = APIRouter()
 
-
 def claim_helper(claim) -> dict:
-    """Convert MongoDB document to claim dict"""
     if claim:
         claim["id"] = str(claim["_id"])
         del claim["_id"]
     return claim
-
 
 @router.post("/claims", response_model=BusinessClaim, status_code=status.HTTP_201_CREATED)
 async def submit_claim(
     claim_data: ClaimCreate,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Submit a claim on a seed business.
-    - User must be a business_owner role
-    - Business must exist and not already be claimed/pending
-    - Creates a pending claim for review
-    """
     claims_collection = get_claims_collection()
     businesses_collection = get_businesses_collection()
 
-    # Must be business_owner role
     if current_user.role != "business_owner":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only business owner accounts can claim businesses",
         )
 
-    # Validate business exists
     if not ObjectId.is_valid(claim_data.business_id):
         raise HTTPException(status_code=400, detail="Invalid business ID format")
 
@@ -62,7 +43,6 @@ async def submit_claim(
     if not business:
         raise HTTPException(status_code=404, detail="Business not found")
 
-    # Check if already claimed or has a pending claim
     existing = await claims_collection.find_one(
         {
             "business_id": claim_data.business_id,
@@ -75,7 +55,6 @@ async def submit_claim(
             detail="This business already has an active or pending claim",
         )
 
-    # Create claim document
     claim_dict = {
         "business_id": claim_data.business_id,
         "user_id": current_user.id,
@@ -94,7 +73,6 @@ async def submit_claim(
 
     result = await claims_collection.insert_one(claim_dict)
 
-    # Mark business as having a pending claim
     await businesses_collection.update_one(
         {"_id": ObjectId(claim_data.business_id)},
         {"$set": {"claim_status": "pending"}},
@@ -103,19 +81,15 @@ async def submit_claim(
     created = await claims_collection.find_one({"_id": result.inserted_id})
     return claim_helper(created)
 
-
 @router.get("/claims/my", response_model=List[BusinessClaim])
 async def get_my_claims(current_user: User = Depends(get_current_user)):
-    """Get all claims submitted by the current user"""
     claims_collection = get_claims_collection()
     cursor = claims_collection.find({"user_id": current_user.id}).sort("created_at", -1)
     claims = await cursor.to_list(length=50)
     return [claim_helper(c) for c in claims]
 
-
 @router.get("/claims/business/{business_id}")
 async def get_business_claim_status(business_id: str):
-    """Check the claim status of a business (public)"""
     claims_collection = get_claims_collection()
 
     if not ObjectId.is_valid(business_id):
@@ -134,17 +108,12 @@ async def get_business_claim_status(business_id: str):
         "status": claim["status"],
     }
 
-
 @router.post("/claims/{claim_id}/review")
 async def review_claim(
     claim_id: str,
     review_data: ClaimReview,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Admin reviews a claim — approve or reject.
-    On approval: sets business.owner_id, is_claimed=True, is_seed=False
-    """
     claims_collection = get_claims_collection()
     businesses_collection = get_businesses_collection()
     activity_collection = get_activity_feed_collection()
@@ -159,7 +128,6 @@ async def review_claim(
     if claim["status"] != "pending":
         raise HTTPException(status_code=400, detail="Claim already reviewed")
 
-    # Update claim
     update = {
         "status": review_data.status,
         "verification_method": review_data.verification_method,
@@ -169,7 +137,6 @@ async def review_claim(
     }
     await claims_collection.update_one({"_id": ObjectId(claim_id)}, {"$set": update})
 
-    # If verified, transfer ownership
     if review_data.status == ClaimStatus.VERIFIED:
         business = await businesses_collection.find_one(
             {"_id": ObjectId(claim["business_id"])}
@@ -187,7 +154,6 @@ async def review_claim(
             },
         )
 
-        # Post to activity feed
         if business:
             await activity_collection.insert_one(
                 {

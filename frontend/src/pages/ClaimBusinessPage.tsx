@@ -19,7 +19,6 @@ export default function ClaimBusinessPage() {
   const [searching, setSearching] = useState(false)
   const [selectedBiz, setSelectedBiz] = useState<Business | null>(null)
 
-  // Claim form
   const [ownerName, setOwnerName] = useState(() => user?.name || '')
   const [ownerRole, setOwnerRole] = useState('owner')
   const [ownerPhone, setOwnerPhone] = useState('')
@@ -28,7 +27,6 @@ export default function ClaimBusinessPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Load preselected business
   useEffect(() => {
     if (preselectedId) {
       api.getBusiness(preselectedId).then(biz => {
@@ -43,7 +41,7 @@ export default function ClaimBusinessPage() {
     setSearching(true)
     try {
       const results = await api.getBusinesses(undefined, undefined, searchQuery)
-      // Show seed (unclaimed) businesses first
+      
       const sorted = results.sort((a, b) => {
         if (a.is_claimed && !b.is_claimed) return 1
         if (!a.is_claimed && b.is_claimed) return -1
@@ -142,7 +140,7 @@ export default function ClaimBusinessPage() {
   return (
     <div className="min-h-[60vh] py-10 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Progress Steps */}
+        {}
         <div className="flex items-center justify-center gap-4 mb-10 animate-fade-in-up">
           {['Find', 'Verify', 'Done'].map((label, i) => {
             const stepIndex = step === 'search' ? 0 : step === 'claim' ? 1 : 2
@@ -170,7 +168,7 @@ export default function ClaimBusinessPage() {
           })}
         </div>
 
-        {/* Step 1: Search */}
+        {}
         {step === 'search' && (
           <div className="animate-fade-in-up">
             <div className="text-center mb-8">
@@ -182,7 +180,7 @@ export default function ClaimBusinessPage() {
               </p>
             </div>
 
-            {/* Search Bar */}
+            {}
             <div className="flex gap-2 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
@@ -204,7 +202,7 @@ export default function ClaimBusinessPage() {
               </button>
             </div>
 
-            {/* Results */}
+            {}
             <div className="space-y-3">
               {businesses.map(biz => (
                 <div
@@ -258,7 +256,7 @@ export default function ClaimBusinessPage() {
           </div>
         )}
 
-        {/* Step 2: Claim Form */}
+        {}
         {step === 'claim' && selectedBiz && (
           <div className="animate-fade-in-up">
             <div className="text-center mb-8">
@@ -270,7 +268,7 @@ export default function ClaimBusinessPage() {
               </p>
             </div>
 
-            {/* Selected Business Card */}
+            {}
             <div className="glass-card rounded-xl p-4 mb-6 flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
                 <Store className="w-6 h-6 text-brand-on-primary" />
@@ -294,7 +292,7 @@ export default function ClaimBusinessPage() {
               </div>
             )}
 
-            {/* Form */}
+            {}
             <div className="glass-card rounded-2xl p-6 space-y-5">
               <div>
                 <label className="flex items-center gap-2 text-ui font-medium text-[hsl(var(--foreground))] mb-2">
@@ -387,7 +385,7 @@ export default function ClaimBusinessPage() {
           </div>
         )}
 
-        {/* Step 3: Success */}
+        {}
         {step === 'success' && (
           <div className="text-center animate-fade-in-up">
             <div className="w-20 h-20 rounded-2xl bg-success dark:bg-success/20 flex items-center justify-center mx-auto mb-6">

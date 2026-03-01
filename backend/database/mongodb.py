@@ -1,28 +1,17 @@
-"""
-MongoDB Connection Module
-Provides async database connection using Motor driver.
-"""
-
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import UpdateOne
 from bson import ObjectId
 
 from config import MONGODB_URI, DATABASE_NAME, DEMO_MODE, DEMO_LAT, DEMO_LNG
 
-# Global database client
 client: AsyncIOMotorClient = None
 database = None
 
-
 class DatabaseUnavailableError(RuntimeError):
-    """Raised when MongoDB is not connected for request handling."""
-
 
 async def connect_to_mongo():
-    """Establish connection to MongoDB Atlas. Called on app startup."""
     global client, database
     try:
-        # Configure client for serverless/cloud deployment with connection pooling
         temp_client = AsyncIOMotorClient(
             MONGODB_URI,
             serverSelectionTimeoutMS=5000,
@@ -51,9 +40,7 @@ async def connect_to_mongo():
         print(f"MongoDB connection warning: {e}")
         print("Server will start without database. Some features may not work.")
 
-
 async def _ensure_indexes():
-    """Create required indexes if they don't already exist."""
     try:
         businesses = get_businesses_collection()
         await businesses.create_index([("location", "2dsphere")])
@@ -89,22 +76,16 @@ async def _ensure_indexes():
     except Exception as e:
         print(f"Index creation warning: {e}")
 
-
 async def _normalize_platform_review_metrics():
-    """
-    Ensure stars/review counts are derived only from Vantage reviews.
-    """
     try:
         businesses = get_businesses_collection()
         reviews = get_reviews_collection()
 
-        # Clear Google-seeded rating defaults on imported businesses.
         await businesses.update_many(
             {"source": "google_places"},
             {"$set": {"rating_average": 0.0, "total_reviews": 0}},
         )
 
-        # Rebuild rating metrics from platform review documents.
         grouped = await reviews.aggregate(
             [
                 {
@@ -141,17 +122,13 @@ async def _normalize_platform_review_metrics():
     except Exception as e:
         print(f"Review metric normalization warning: {e}")
 
-
 async def close_mongo_connection():
-    """Close MongoDB connection. Called on app shutdown."""
     global client
     if client:
         client.close()
         print("MongoDB connection closed")
 
-
 def get_database():
-    """Get the database instance."""
     if database is None:
         raise DatabaseUnavailableError(
             "MongoDB is not connected. Please ensure MongoDB is running and accessible at the configured URI. "
@@ -159,64 +136,44 @@ def get_database():
         )
     return database
 
-
-# Collection getters
-
 def get_users_collection():
-    """Get users collection with connection check."""
     return get_database()["users"]
-
 
 def get_businesses_collection():
     return get_database()["businesses"]
 
-
 def get_reviews_collection():
     return get_database()["reviews"]
-
 
 def get_deals_collection():
     return get_database()["deals"]
 
-
 def get_claims_collection():
     return get_database()["claims"]
-
 
 def get_checkins_collection():
     return get_database()["checkins"]
 
-
 def get_activity_feed_collection():
     return get_database()["activity_feed"]
-
 
 def get_owner_posts_collection():
     return get_database()["owner_posts"]
 
-
 def get_credibility_collection():
     return get_database()["credibility"]
-
 
 def get_subscriptions_collection():
     return get_database()["subscriptions"]
 
-
 def get_visits_collection():
     return get_database()["visits"]
 
-
 def get_geo_cache_collection():
-    """Tracks which lat/lng cells we already fetched from Google."""
     return get_database()["geo_cache"]
 
-
 def get_api_usage_log_collection():
-    """Every outbound Google Places call is recorded here."""
     return get_database()["api_usage_log"]
 
-
 def get_saved_collection():
-    """Stores user saved businesses."""
     return get_database()["saved"]

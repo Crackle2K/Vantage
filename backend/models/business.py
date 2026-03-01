@@ -1,16 +1,9 @@
-"""
-Business Model Schema
-Defines business data structures with geospatial support for Vantage
-"""
-
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
 
 class CategoryEnum(str, Enum):
-    """Business category enumeration — covers both legacy lowercase and rich Google Places values."""
-    # Legacy lowercase values (user-created businesses)
     FOOD = "food"
     RETAIL = "retail"
     SERVICES = "services"
@@ -21,7 +14,6 @@ class CategoryEnum(str, Enum):
     HOME = "home"
     BEAUTY_LOWER = "beauty"
     OTHER_LOWER = "other"
-    # Rich category names (Google Places seeded businesses)
     RESTAURANTS = "Restaurants"
     CAFES = "Cafes & Coffee"
     BARS = "Bars & Nightlife"
@@ -44,33 +36,25 @@ class CategoryEnum(str, Enum):
     RELIGIOUS = "Religious Organizations"
     OTHER = "Other"
 
-
 class GeoLocation(BaseModel):
-    """GeoJSON Point for MongoDB geospatial queries"""
     type: str = "Point"
     coordinates: List[float] = Field(..., min_length=2, max_length=2)
-    # coordinates format: [longitude, latitude]
-    
     class Config:
         json_schema_extra = {
             "example": {
                 "type": "Point",
-                "coordinates": [-79.3832, 43.6532]  # Toronto example
+                "coordinates": [-79.3832, 43.6532]
             }
         }
 
-
 class BusinessBase(BaseModel):
-    """Base business fields"""
     name: str = Field(..., min_length=2, max_length=200)
     category: CategoryEnum
     description: str = Field(..., max_length=1000)
     address: str = Field(..., max_length=300)
     city: str = Field(..., max_length=100)
 
-
 class BusinessCreate(BaseModel):
-    """Schema for creating a new business"""
     name: str = Field(..., min_length=2, max_length=200)
     category: CategoryEnum
     description: str = Field(..., max_length=1000)
@@ -85,9 +69,7 @@ class BusinessCreate(BaseModel):
     short_description: Optional[str] = Field(None, max_length=160)
     known_for: List[str] = Field(default_factory=list, min_length=0, max_length=6)
 
-
 class BusinessUpdate(BaseModel):
-    """Schema for updating business information"""
     name: Optional[str] = Field(None, min_length=2, max_length=200)
     category: Optional[CategoryEnum] = None
     description: Optional[str] = Field(None, max_length=1000)
@@ -102,18 +84,14 @@ class BusinessUpdate(BaseModel):
     short_description: Optional[str] = Field(None, max_length=160)
     known_for: Optional[List[str]] = Field(None, min_length=0, max_length=6)
 
-
 class BusinessProfileUpdate(BaseModel):
-    """Schema for owner-editable summary metadata."""
     short_description: Optional[str] = Field(None, max_length=160)
     known_for: Optional[List[str]] = Field(None, min_length=0, max_length=6)
 
-
 class Business(BusinessBase):
-    """Business schema returned to client"""
     id: str
     owner_id: Optional[str] = None
-    place_id: Optional[str] = None             # Google Places unique ID
+    place_id: Optional[str] = None
     location: Optional[GeoLocation] = None
     rating: float = Field(default=0.0, ge=0, le=5)
     review_count: int = Field(default=0, ge=0)
@@ -127,22 +105,18 @@ class Business(BusinessBase):
     short_description: Optional[str] = Field(default=None, max_length=160)
     known_for: List[str] = Field(default_factory=list, min_length=0, max_length=6)
 
-    # ── Hybrid Model: Seed vs Claimed ───────────────────────────────
-    is_claimed: bool = False                  # Has an owner claimed this?
-    claim_status: Optional[str] = None        # pending, verified, rejected
-    is_seed: bool = True                      # From our seed database?
+    is_claimed: bool = False
+    claim_status: Optional[str] = None
+    is_seed: bool = True
 
-    # ── Scoring ─────────────────────────────────────────────────────
-    credibility_score: float = 0.0            # Aggregate trust score
-    live_visibility_score: float = 0.0        # Real-time ranking score
-    local_confidence: float = 0.0             # Local independent business confidence (0–1)
+    credibility_score: float = 0.0
+    live_visibility_score: float = 0.0
+    local_confidence: float = 0.0
 
-    # ── Community Trust Layer ───────────────────────────────────────
-    is_active_today: bool = False             # Had check-ins today?
+    is_active_today: bool = False
     checkins_today: int = 0
-    trending_score: float = 0.0              # Activity-based ranking boost
+    trending_score: float = 0.0
     last_activity_at: Optional[datetime] = None
-    
     class Config:
         from_attributes = True
         json_schema_extra = {
@@ -163,39 +137,3 @@ class Business(BusinessBase):
                 "created_at": "2026-01-15T10:30:00Z"
             }
         }
-
-
-# MongoDB Geo Index Creation
-"""
-To enable geospatial queries, create a 2dsphere index on the location field:
-
-In MongoDB shell or startup script:
-```python
-db.businesses.create_index([("location", "2dsphere")])
-```
-
-Or in your database initialization:
-```python
-async def create_indexes():
-    businesses_collection = get_businesses_collection()
-    await businesses_collection.create_index([("location", "2dsphere")])
-    await businesses_collection.create_index("owner_id")
-    await businesses_collection.create_index("category")
-    await businesses_collection.create_index("city")
-```
-
-Example geospatial query:
-```python
-businesses = await businesses_collection.find({
-    "location": {
-        "$near": {
-            "$geometry": {
-                "type": "Point",
-                "coordinates": [longitude, latitude]
-            },
-            "$maxDistance": radius_meters
-        }
-    }
-})
-```
-"""

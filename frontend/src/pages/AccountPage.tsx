@@ -58,7 +58,7 @@ export default function AccountPage() {
       }
       
       const updatedUser = await api.updateMyProfile(updates)
-      setUser(updatedUser) // Update context with new user data
+      setUser(updatedUser) 
       setIsEditing(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile')
@@ -86,17 +86,17 @@ export default function AccountPage() {
   return (
     <div className="min-h-[60vh] py-10 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Back */}
+        {}
         <Link to="/businesses" className="inline-flex items-center gap-1 text-ui text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to Explore
         </Link>
 
         <div className="animate-fade-in-up">
-          {/* Profile Header */}
+          {}
           <div className="glass-card rounded-2xl p-8 mb-6">
             <div className="flex items-start gap-5">
-              {/* Avatar */}
+              {}
               <div className="w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden shadow-lg shadow-brand/20">
                 {user.profile_picture ? (
                   <img 
@@ -140,7 +140,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Edit Form */}
+          {}
           {isEditing && (
             <div className="glass-card rounded-2xl p-6 mb-6 animate-fade-in">
               <h3 className="font-semibold text-[hsl(var(--foreground))] mb-4">Edit Profile</h3>
@@ -183,7 +183,7 @@ export default function AccountPage() {
                       type="url"
                       value={profilePicture}
                       onChange={(e) => setProfilePicture(e.target.value)}
-                      placeholder="https://example.com/photo.jpg"
+                      placeholder="https://example.com/image.jpg"
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-ui focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))]"
                     />
                   </div>
@@ -231,7 +231,7 @@ export default function AccountPage() {
             </div>
           )}
 
-          {/* Quick Links */}
+          {}
           <div className="glass-card rounded-2xl p-6 mb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -284,7 +284,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Danger Zone */}
+          {}
           <div className="glass-card rounded-2xl p-6">
             <h3 className="font-semibold text-[hsl(var(--foreground))] mb-4">Session</h3>
             <button

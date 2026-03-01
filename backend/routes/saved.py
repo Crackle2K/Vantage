@@ -1,7 +1,3 @@
-"""
-Saved business routes for lightweight user saves.
-"""
-
 from datetime import datetime
 
 from bson import ObjectId
@@ -15,7 +11,6 @@ from database.mongodb import get_businesses_collection, get_saved_collection
 from routes.discovery import _build_ranking_components, _build_reason_codes, business_helper
 
 router = APIRouter()
-
 
 def _prepare_saved_business(doc: dict) -> dict:
     business = business_helper(doc)
@@ -35,7 +30,6 @@ def _prepare_saved_business(doc: dict) -> dict:
         or ""
     )
     return business
-
 
 @router.post("/saved/{business_id}", response_model=SavedMutationResult)
 async def save_business(
@@ -64,7 +58,6 @@ async def save_business(
 
     return SavedMutationResult(business_id=business_id, saved=True)
 
-
 @router.delete("/saved/{business_id}", response_model=SavedMutationResult)
 async def remove_saved_business(
     business_id: str,
@@ -81,7 +74,6 @@ async def remove_saved_business(
         }
     )
     return SavedMutationResult(business_id=business_id, saved=False)
-
 
 @router.get("/saved")
 async def get_saved_businesses(

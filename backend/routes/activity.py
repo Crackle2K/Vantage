@@ -1,17 +1,3 @@
-"""
-Activity & Check-In Routes for Vantage
-Community-Powered Trust Layer
-
-This is the core differentiator from Google/TikTok/Instagram:
-- Check-ins with optional geo-verification
-- Community confirmations (others vouch you were there)
-- Live activity feed (what's happening around you NOW)
-- "Active Today" business signals
-- User credibility scoring
-
-We optimize for LOCAL TRUST, not attention or ad revenue.
-"""
-
 import math
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -47,7 +33,6 @@ PULSE_VERIFIED_STATUSES = {
     CheckInStatus.COMMUNITY_CONFIRMED.value,
 }
 
-
 def _parse_datetime(value) -> datetime:
     if isinstance(value, datetime):
         return value
@@ -57,7 +42,6 @@ def _parse_datetime(value) -> datetime:
         except ValueError:
             return datetime.min
     return datetime.min
-
 
 def _pulse_business_snapshot(business: dict) -> dict:
     return {
@@ -69,10 +53,8 @@ def _pulse_business_snapshot(business: dict) -> dict:
         "address": business.get("address"),
     }
 
-
 class ActivityCommentCreate(BaseModel):
     content: str = Field(..., min_length=1, max_length=500)
-
 
 class ActivityComment(BaseModel):
     id: str
@@ -82,26 +64,21 @@ class ActivityComment(BaseModel):
     content: str
     created_at: datetime
 
-
 def checkin_helper(doc) -> dict:
     if doc:
         doc["id"] = str(doc["_id"])
         del doc["_id"]
     return doc
 
-
 def activity_helper(doc) -> dict:
     if doc:
         doc["id"] = str(doc["_id"])
         del doc["_id"]
-        # Don't include comments_list in feed - fetch separately via /comments endpoint
         if "comments_list" in doc:
             del doc["comments_list"]
-        # Don't include liked_by array in feed - it can be large
         if "liked_by" in doc:
             del doc["liked_by"]
     return doc
-
 
 def owner_event_helper(doc, business: Optional[dict] = None) -> dict:
     if doc:
@@ -113,15 +90,10 @@ def owner_event_helper(doc, business: Optional[dict] = None) -> dict:
             doc["business_image_url"] = business.get("image_url") or business.get("image")
     return doc
 
-
-# ── Check-Ins ───────────────────────────────────────────────────────
-
-CHECKIN_RADIUS_METERS = 200  # Max distance for geo-verification
-
+CHECKIN_RADIUS_METERS = 200
 
 def haversine_distance(lat1, lon1, lat2, lon2):
-    """Calculate distance between two coordinates in meters"""
-    R = 6371000  # Earth radius in meters
+    R = 6371000
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
@@ -131,24 +103,16 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     )
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-
 @router.post("/checkins", status_code=status.HTTP_201_CREATED)
 async def create_checkin(
     data: CheckInCreate,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Check in at a business.
-    - Anyone can self-report
-    - If lat/lng provided and business has location, we auto-verify distance
-    - Feeds into activity feed + business "Active Today" signal
-    """
     checkins = get_checkins_collection()
     businesses = get_businesses_collection()
     activity_feed = get_activity_feed_collection()
     credibility = get_credibility_collection()
 
-    # Validate business
     if not ObjectId.is_valid(data.business_id):
         raise HTTPException(status_code=400, detail="Invalid business ID")
 
@@ -156,7 +120,6 @@ async def create_checkin(
     if not business:
         raise HTTPException(status_code=404, detail="Business not found")
 
-    # Rate limit: max 1 checkin per business per user per 4 hours
     four_hours_ago = datetime.utcnow() - timedelta(hours=4)
     recent = await checkins.find_one(
         {
@@ -171,7 +134,6 @@ async def create_checkin(
             detail="You already checked in here recently. Try again in a few hours.",
         )
 
-    # Determine verification status
     check_status = CheckInStatus.SELF_REPORTED
     distance = None
 
@@ -185,7 +147,6 @@ async def create_checkin(
             if distance <= CHECKIN_RADIUS_METERS:
                 check_status = CheckInStatus.GEO_VERIFIED
 
-    # Create checkin
     checkin_doc = {
         "user_id": current_user.id,
         "business_id": data.business_id,
@@ -202,7 +163,6 @@ async def create_checkin(
 
     result = await checkins.insert_one(checkin_doc)
 
-    # Update business "Active Today" signal
     today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     today_checkins = await checkins.count_documents(
         {"business_id": data.business_id, "created_at": {"$gte": today_start}}
@@ -219,7 +179,6 @@ async def create_checkin(
         },
     )
 
-    # Post to activity feed
     await activity_feed.insert_one(
         {
             "activity_type": ActivityType.CHECKIN,
@@ -236,22 +195,16 @@ async def create_checkin(
         }
     )
 
-    # Update user credibility
     await _update_user_credibility(current_user.id)
 
     created = await checkins.find_one({"_id": result.inserted_id})
     return checkin_helper(created)
-
 
 @router.post("/checkins/{checkin_id}/confirm")
 async def confirm_checkin(
     checkin_id: str,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Community confirmation — vouch that someone was actually there.
-    Can't confirm your own check-ins.
-    """
     checkins = get_checkins_collection()
 
     if not ObjectId.is_valid(checkin_id):
@@ -267,7 +220,6 @@ async def confirm_checkin(
     if current_user.id in checkin.get("confirmed_by", []):
         raise HTTPException(status_code=400, detail="Already confirmed")
 
-    # Add confirmation
     await checkins.update_one(
         {"_id": ObjectId(checkin_id)},
         {
@@ -276,21 +228,16 @@ async def confirm_checkin(
         },
     )
 
-    # If 3+ confirmations, upgrade to community_confirmed
     if checkin.get("confirmations", 0) + 1 >= 3:
         await checkins.update_one(
             {"_id": ObjectId(checkin_id)},
             {"$set": {"status": CheckInStatus.COMMUNITY_CONFIRMED}},
         )
 
-    # Update credibility for both users
     await _update_user_credibility(checkin["user_id"])
     await _update_user_credibility(current_user.id)
 
     return {"status": "confirmed"}
-
-
-# ── Activity Feed ───────────────────────────────────────────────────
 
 @router.get("/feed")
 async def get_activity_feed(
@@ -299,11 +246,6 @@ async def get_activity_feed(
     city: Optional[str] = None,
     activity_type: Optional[str] = None,
 ):
-    """
-    Live local activity feed — what's happening around you.
-    Shows check-ins, new reviews, deals, events, claims.
-    Sorted by recency.
-    """
     activity_feed = get_activity_feed_collection()
 
     query = {}
@@ -328,7 +270,6 @@ async def get_activity_feed(
         "has_more": skip + page_size < total,
     }
 
-
 @router.get("/activity/pulse")
 async def get_activity_pulse(
     lat: float = Query(..., ge=-90, le=90),
@@ -336,10 +277,6 @@ async def get_activity_pulse(
     radius: float = Query(5, ge=0.1, le=50, description="Radius in km"),
     limit: int = Query(12, ge=3, le=24),
 ):
-    """
-    Lightweight local pulse for recent verified visits, reviews, and owner activity.
-    Privacy-safe: no user identity is returned.
-    """
     businesses = get_businesses_collection()
     checkins = get_checkins_collection()
     reviews = get_reviews_collection()
@@ -456,16 +393,11 @@ async def get_activity_pulse(
     items.sort(key=lambda item: _parse_datetime(item.get("timestamp")), reverse=True)
     return {"items": items[:limit]}
 
-
 @router.post("/events", response_model=OwnerEvent, status_code=status.HTTP_201_CREATED)
 async def create_owner_event(
     event_data: OwnerEventCreate,
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Create an owner event/promo for a claimed business.
-    Only the claimed business owner may post.
-    """
     owner_posts = get_owner_posts_collection()
     businesses = get_businesses_collection()
     activity_feed = get_activity_feed_collection()
@@ -514,7 +446,6 @@ async def create_owner_event(
     created = await owner_posts.find_one({"_id": result.inserted_id})
     return owner_event_helper(created, business)
 
-
 @router.get("/events", response_model=List[OwnerEvent])
 async def get_owner_events(
     business_id: Optional[str] = None,
@@ -524,10 +455,6 @@ async def get_owner_events(
     include_past: bool = Query(False, description="Include ended events"),
     limit: int = Query(20, ge=1, le=60),
 ):
-    """
-    Get owner events/promos.
-    Supports either a specific business or nearby search for Explore.
-    """
     owner_posts = get_owner_posts_collection()
     businesses = get_businesses_collection()
 
@@ -568,13 +495,11 @@ async def get_owner_events(
 
     return [owner_event_helper(event, business_by_id.get(str(event.get("business_id")))) for event in events]
 
-
 @router.post("/feed/{activity_id}/like")
 async def toggle_activity_like(
     activity_id: str,
     current_user: User = Depends(get_current_user),
 ):
-    """Toggle like on an activity feed item for the current user."""
     activity_feed = get_activity_feed_collection()
 
     if not ObjectId.is_valid(activity_id):
@@ -617,10 +542,8 @@ async def toggle_activity_like(
         "comments": int(item.get("comments", 0)),
     }
 
-
 @router.get("/feed/{activity_id}/comments", response_model=List[ActivityComment])
 async def get_activity_comments(activity_id: str):
-    """Fetch comments for a specific activity feed item."""
     activity_feed = get_activity_feed_collection()
 
     if not ObjectId.is_valid(activity_id):
@@ -647,14 +570,12 @@ async def get_activity_comments(activity_id: str):
         for comment in comments_sorted
     ]
 
-
 @router.post("/feed/{activity_id}/comments", status_code=status.HTTP_201_CREATED)
 async def add_activity_comment(
     activity_id: str,
     payload: ActivityCommentCreate,
     current_user: User = Depends(get_current_user),
 ):
-    """Add a comment to an activity feed item."""
     activity_feed = get_activity_feed_collection()
 
     if not ObjectId.is_valid(activity_id):
@@ -689,15 +610,8 @@ async def add_activity_comment(
         "comments": int(item.get("comments", 0)) if item else 0,
     }
 
-
-# ── Business Activity Status ───────────────────────────────────────
-
 @router.get("/businesses/{business_id}/activity")
 async def get_business_activity(business_id: str):
-    """
-    Get real-time activity status for a business.
-    Shows: is_active_today, checkins_today/week, trending_score
-    """
     checkins = get_checkins_collection()
     businesses = get_businesses_collection()
 
@@ -719,10 +633,8 @@ async def get_business_activity(business_id: str):
         {"business_id": business_id, "created_at": {"$gte": week_start}}
     )
 
-    # Simple trending score: today weight * 3 + week weight
     trending = (checkins_today * 3) + (checkins_week * 0.5)
 
-    # Find last check-in
     last_checkin = await checkins.find_one(
         {"business_id": business_id}, sort=[("created_at", -1)]
     )
@@ -736,12 +648,8 @@ async def get_business_activity(business_id: str):
         "trending_score": round(trending, 1),
     }
 
-
-# ── User Credibility ───────────────────────────────────────────────
-
 @router.get("/users/{user_id}/credibility")
 async def get_user_credibility(user_id: str):
-    """Get a user's community credibility score and tier"""
     credibility = get_credibility_collection()
 
     doc = await credibility.find_one({"user_id": user_id})
@@ -761,17 +669,11 @@ async def get_user_credibility(user_id: str):
     doc.pop("_id", None)
     return doc
 
-
 @router.get("/credibility/me")
 async def get_my_credibility(current_user: User = Depends(get_current_user)):
-    """Get current user's credibility"""
     return await get_user_credibility(current_user.id)
 
-
-# ── Internal Helpers ────────────────────────────────────────────────
-
 async def _update_user_credibility(user_id: str):
-    """Recalculate and update a user's credibility score"""
     checkins = get_checkins_collection()
     reviews = get_reviews_collection()
     credibility = get_credibility_collection()
@@ -785,11 +687,9 @@ async def _update_user_credibility(user_id: str):
     )
     total_reviews = await reviews.count_documents({"user_id": user_id})
 
-    # Count confirmations this user gave to others
     confirmations_given = await checkins.count_documents(
         {"confirmed_by": user_id}
     )
-    # Count confirmations this user received
     confirmations_received_cursor = checkins.find({"user_id": user_id, "confirmations": {"$gt": 0}})
     confirmations_received = 0
     async for doc in confirmations_received_cursor:
@@ -799,10 +699,10 @@ async def _update_user_credibility(user_id: str):
         "total_checkins": total_checkins,
         "verified_checkins": verified_checkins,
         "total_reviews": total_reviews,
-        "helpful_votes": 0,  # Future: implement helpful votes on reviews
+        "helpful_votes": 0,
         "confirmations_given": confirmations_given,
         "confirmations_received": confirmations_received,
-        "events_attended": 0,  # Future: implement events
+        "events_attended": 0,
     }
 
     score, tier = calculate_credibility_score(stats)
@@ -820,6 +720,3 @@ async def _update_user_credibility(user_id: str):
         {"$set": cred_doc},
         upsert=True,
     )
-
-
-
