@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { 
   Info, DollarSign, Star, 
-  Info, DollarSign, Star, 
   ChevronLeft, ChevronRight, ArrowRight, Mail
 } from "lucide-react"
 
