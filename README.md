@@ -1,137 +1,73 @@
-
-
 # Vantage
 
-**Vantage** is a community-powered local business discovery platform that ranks businesses based on verified activity and trust signals rather than static reviews.
+Vantage is a trust-first local discovery app. It ranks nearby businesses using verified activity, credibility-weighted reviews, and recency instead of relying only on static star ratings.
 
-This repository contains the full-stack implementation, including:
+## Stack
 
-- **Backend:** FastAPI
-- **Frontend:** React Client
-
----
-
-## Tech Stack
-
-### Backend
-
-- FastAPI
-- MongoDB (Motor async driver)
-- Google Places API (seed data)
-- Python 3.10+
-
-### Frontend
-
-- React (TypeScript/JavaScript)
-- Tailwind CSS (if applicable)
-- Vite / Next.js (update if needed)
-
----
-
-## Features
-
-- Geospatial business search (radius-based)
-- Google Places API seeding with caching
-- MongoDB 2dsphere indexing
-- Business claiming system
-- Verified visit validation (Haversine distance check)
-- Live Visibility Score ranking engine
-- Dark & light mode support
-- Real-time activity indicators
-
----
+- Frontend: React 19, Vite 7, TypeScript, Tailwind CSS 4, React Router 7, Lucide React
+- Backend: FastAPI, Motor, PyMongo, Pydantic 2
+- Database: MongoDB
+- Auth: JWT bearer tokens, Google OAuth, reCAPTCHA Enterprise checks on signup
+- External APIs: Google Places for nearby discovery backfill and photo enrichment
+- Deployment: Vercel (`vercel.json` plus `api/index.py`), local backend via Uvicorn
 
 ## Project Structure
 
-```
-vantage/
-│
-├── backend/
-│   ├── main.py
-│   ├── config.py
-│   ├── database.py
-│   ├── models/
-│   ├── routes/
-│   │   ├── search.py
-│   │   ├── claim.py
-│   │   ├── visit.py
-│   ├── services/
-│   │   ├── google_places.py
-│   │   ├── ranking.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── hooks/
-│   └── package.json
-│
-└── README.md
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file inside `backend/` with the following:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-GOOGLE_API_KEY=your_google_places_api_key
-USE_GOOGLE_API=true
-DEMO_MODE=false
-DEMO_LAT=43.6532
-DEMO_LNG=-79.3832
+```text
+Vantage/
+  api/
+    index.py
+  backend/
+    main.py
+    config.py
+    database/
+      mongodb.py
+    models/
+    routes/
+      activity.py
+      businesses.py
+      claims.py
+      deals.py
+      discovery.py
+      saved.py
+      subscriptions.py
+      users.py
+    services/
+      business_metadata.py
+      google_places.py
+      photo_proxy.py
+      visibility_score.py
+  frontend/
+    package.json
+    src/
+      api.ts
+      components/
+      contexts/
+      hooks/
+      pages/
+  data/
+    demo_businesses.json
+  scripts/
+    seed_demo_data.py
+    smoke_test.py
+  requirements.txt
+  requirements-dev.txt
 ```
 
-**Important:**
-- Do not commit `.env` to version control.
-- Restrict API key to Places API only.
+## Local Setup
 
----
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/vantage.git
-cd vantage
-```
-
-### 2. Backend Setup
-
-Create virtual environment:
+### Backend
 
 ```bash
 python -m venv venv
-```
-
-Activate the virtual environment:
-
-- **Mac/Linux:**  
-  `source venv/bin/activate`
-- **Windows:**  
-  `venv\Scripts\activate`
-
-Install dependencies:
-
-```bash
-pip install -r backend/requirements.txt
-```
-
-Run server:
-
-```bash
+venv\Scripts\activate
+pip install -r requirements.txt
 uvicorn backend.main:app --reload
 ```
 
-Backend runs at:  
-`http://localhost:8000`
+Backend default URL: `http://localhost:8000`
 
-### 3. Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
@@ -139,122 +75,150 @@ npm install
 npm run dev
 ```
 
-Frontend runs at:  
-`http://localhost:5173` (or your configured port)
+Frontend default URL: `http://localhost:5173`
 
----
+## Environment
 
-## Core Concepts
+The backend reads `backend/.env` first, then falls back to the repo root `.env`.
 
-### Business Seeding
-
-- Google Places API used for initial discovery
-- Businesses are stored in MongoDB
-- `place_id` is used as unique identifier
-- Duplicate prevention enforced
-
-### Geospatial Search
-
-- MongoDB 2dsphere index on location field
-- Radius-based queries
-- Sorted by `live_visibility_score`
-
-### Claiming a Business
-
-- Businesses can be claimed by authenticated users
-- Sets `is_claimed = true`
-- Associates `owner_id`
-
-### Verified Visits
-
-- User submits their location
-- Backend verifies the distance using the Haversine formula
-- If within threshold: visit marked as verified, ranking recalculated
-
-### Ranking Algorithm
-
-Live Visibility Score (LVS):
-
-```text
-LVS = (0.35 × verified_visits)
-    + (0.30 × credibility_weighted_reviews)
-    + (0.20 × recency_factor)
-    + (0.15 × engagement_rate)
-```
-
-Scores are normalized (0–100) for display.
-
----
-
-## API Endpoints
-
-- **Search Businesses:**  
-  `GET /api/search?lat=...&lng=...&radius=...`
-
-- **Claim Business:**  
-  `POST /api/business/{id}/claim`
-
-- **Submit Visit:**  
-  `POST /api/business/{id}/visit`
-
----
-
-## Cost & API Controls
-
-- Google API calls cached in MongoDB
-- Daily quota limits configured
-- Budget alerts enabled
-- External API calls can be disabled (`USE_GOOGLE_API=false`)
-- Demo Mode can seed a curated local showcase dataset (`DEMO_MODE=true`)
-
-### Demo Mode
-
-- Set `DEMO_MODE=true` in `backend/.env` to seed a compact curated cluster around `DEMO_LAT` / `DEMO_LNG` during backend startup.
-- The demo seed includes businesses, descriptions, generated image assets, verified check-ins, reviews, owner events, and activity feed entries so Explore, Pulse, and owner content still feel alive when local data is sparse.
-- For internal frontend builds, set `VITE_DEMO_MODE=true` to show a small `Demo Mode` label on Explore while running in development only.
-
----
-
-## Development Notes
-
-- Seed data before demo for stability
-- Ensure MongoDB 2dsphere index is created
-- Verify API key restrictions are applied
-
----
-
-## Deployment
-
-### Vercel Deployment
-
-This application is configured for deployment on Vercel. For detailed deployment instructions, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md).
-
-**Quick Deploy Checklist:**
-
-1. Set up MongoDB Atlas with network access from anywhere (`0.0.0.0/0`)
-2. Configure environment variables in Vercel dashboard
-3. Ensure `FRONTEND_URL` and `MONGODB_URI` are correctly set
-4. Push to GitHub and let Vercel auto-deploy
-
-**Required Environment Variables for Production:**
+Core variables used today:
 
 ```env
-# MongoDB
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
+MONGODB_URI=mongodb://localhost:27017
 DATABASE_NAME=vantage
-
-# Security
-SECRET_KEY=<generate-with-openssl-rand-hex-32>
-
-# URLs
-API_URL=https://your-app.vercel.app
-FRONTEND_URL=https://your-app.vercel.app
-VITE_API_URL=https://your-app.vercel.app
-
-# Google Services
-GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-client-secret
-GOOGLE_API_KEY=your-api-key
+SECRET_KEY=replace-me
+GOOGLE_API_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+RECAPTCHA_ENTERPRISE_PROJECT_ID=
+RECAPTCHA_ENTERPRISE_API_KEY=
+RECAPTCHA_ENTERPRISE_SITE_KEY=
+FRONTEND_URL=http://localhost:5173
+API_URL=http://localhost:8000
+DEMO_MODE=false
+DEMO_LAT=43.6532
+DEMO_LNG=-79.3832
 ```
 
+## Demo Data
 
+The fixed judges demo dataset lives in [data/demo_businesses.json](/c:/Users/nadee/OneDrive/Documents/GitHub/Vantage/data/demo_businesses.json). It is centered on Toronto core.
+
+Dry run:
+
+```bash
+python scripts/seed_demo_data.py --dry-run
+```
+
+Seed development DB:
+
+```bash
+set ENV=development
+python scripts/seed_demo_data.py
+```
+
+Useful filters:
+
+```bash
+python scripts/seed_demo_data.py --city Toronto --tag judge-demo --count 2
+```
+
+Outside `ENV=development`, the script refuses to write unless you pass `--i-understand-this-will-modify-db`.
+
+## Smoke Test
+
+Install dev-only script dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run against local backend:
+
+```bash
+python scripts/smoke_test.py
+```
+
+Run against another deployment:
+
+```bash
+python scripts/smoke_test.py --base-url https://your-host
+```
+
+What it checks:
+
+- `/health` returns `{"status": "ok", "version": ...}`
+- `/api/businesses/nearby` responds with a list and the fields used by the UI
+- `/api/auth/me` returns `401` when no bearer token is sent
+- `/api/saved` returns `401` when no bearer token is sent
+
+## Key Design Decisions
+
+### Trust-first ranking
+
+The main ranking logic lives in [backend/routes/discovery.py](/c:/Users/nadee/OneDrive/Documents/GitHub/Vantage/backend/routes/discovery.py) and [backend/services/visibility_score.py](/c:/Users/nadee/OneDrive/Documents/GitHub/Vantage/backend/services/visibility_score.py).
+
+- `live_visibility_score` is the base signal.
+- Canonical explore ranking then blends that with `local_confidence` and a modest freshness boost.
+- Personalized lanes change which items are surfaced, but the final order inside a lane still respects the canonical score.
+
+This keeps Explore feeling personalized without letting weak recommendations outrank high-trust businesses.
+
+### MongoDB for geospatial discovery
+
+MongoDB is used because the app needs:
+
+- fast `$near` queries for nearby businesses
+- flexible business documents while the Google Places import path is still evolving
+- cached discovery cells and activity-heavy documents without a rigid migration cycle
+
+The backend creates a `2dsphere` index and several supporting indexes in [backend/database/mongodb.py](/c:/Users/nadee/OneDrive/Documents/GitHub/Vantage/backend/database/mongodb.py).
+
+### Spam and fake activity controls
+
+The anti-spam model is partial, but it is intentional:
+
+- distance-based visit verification using Haversine checks
+- cooldown windows on visits and check-ins
+- reviewer credibility weighting inside the ranking score
+- auth-required mutations for saved items, claims, subscriptions, owner events, and comments
+- reCAPTCHA Enterprise on signup
+
+This does not fully prevent abuse, but it raises the cost of low-effort fake engagement.
+
+## Demo Flow For Judges (2 Minutes)
+
+1. Open Explore and show the trust-ranked nearby businesses list.
+2. Open a business card and show details, ratings, activity, and saved state.
+3. Use Decide For Me to generate three goal-based picks.
+4. Save a business, then open the Saved page to show the shortlist flow.
+5. Sign in as a business owner, claim a listing, then show owner-only profile/event controls.
+6. Return to Explore and point out how activity and trust signals affect surfacing.
+
+## API Notes
+
+Common routes used by the UI:
+
+- `GET /health`
+- `GET /api/businesses/nearby`
+- `GET /api/discover`
+- `GET /api/explore/lanes`
+- `GET /api/feed`
+- `GET /api/activity/pulse`
+- `POST /api/checkins`
+- `POST /api/feed/{activity_id}/comments`
+- `POST /api/claims`
+
+## Known Limitations
+
+- The app still depends on Google Places data quality for some imported listings.
+- Some fallback/demo flows are tuned for Toronto and should be parameterized more cleanly.
+- There is duplicated frontend helper logic in a few page components (`getBusinessId`, image candidate shaping).
+- There is not yet a full automated test suite; current verification is mostly smoke checks plus type/syntax checks.
+
+## Next Steps
+
+- Consolidate repeated frontend view helpers into shared utilities.
+- Add route-level backend tests for ranking, auth guards, and saved/check-in flows.
+- Add stronger moderation tooling for fake reviews and coordinated engagement.
+- Separate demo-only operational scripts from production deployment docs more aggressively.
