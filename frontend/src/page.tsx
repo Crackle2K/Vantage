@@ -243,7 +243,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
-                  className="gradient-primary !text-white hover:!text-white px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+                  className="gradient-primary !text-white hover:!text-white px-10 py-7 text-body rounded hover:opacity-90 transition-opacity shadow-2xl"
                   onClick={() => navigate("/businesses")}
                 >
                   Explore Businesses
@@ -252,7 +252,7 @@ export default function HomePage() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="brand-primary backdrop-blur-sm border-2 border-outline-variant !text-white hover:!text-white px-10 py-7 text-body rounded-xl hover:bg-surface/20 transition-colors shadow-2xl"
+                  className="bg-white/10 backdrop-blur-md border-2 border-white/20 !text-white hover:!text-white px-10 py-7 text-body rounded hover:bg-white/20 transition-all shadow-2xl"
                   onClick={() => navigate("/pricing")}
                 >
                   For Business Owners
@@ -356,12 +356,9 @@ export default function HomePage() {
       {}
       <section className="py-32 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-heading md:text-display font-bold text-center mb-8 font-heading text-[hsl(var(--foreground))]">
+          <h2 className="text-display md:text-display font-bold text-center mb-8 font-heading text-[hsl(var(--foreground))]">
             "Turning real community support into <br></br>authentic local visibility"
           </h2>
-          <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-16 max-w-2xl mx-auto">
-            Our mission statement
-          </p>
 
           {}
           <div className="flex flex-wrap justify-center gap-4 mb-16">
@@ -432,7 +429,7 @@ export default function HomePage() {
       <section className="py-24 bg-surface dark:bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-heading md:text-display font-bold text-center mb-4 font-heading text-[hsl(var(--foreground))]">
-            Connect with us on<br />Instagram
+            Connect with us!<br />
           </h2>
           <p className="text-center text-body text-[hsl(var(--muted-foreground))] mb-12">
             Follow us to see the latest from our community
@@ -462,7 +459,7 @@ export default function HomePage() {
       <section className="py-24 bg-surface-elevated dark:bg-surface/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <h2 className="text-heading md:text-display font-bold text-center mb-16 font-heading text-[hsl(var(--foreground))]">
-            Your trusted partner in tour
+            Our Reviews!
           </h2>
 
           <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-12 shadow-lg md:p-16">
@@ -497,15 +494,6 @@ export default function HomePage() {
         </div>
       </section>
 
-<<<<<<< HEAD
-      {}
-=======
-      
-
-      {/* ═══════════════════════════════════════════
-          NEWSLETTER SECTION - Email signup
-          ═══════════════════════════════════════════ */}
->>>>>>> parent of 1b28b01 (button)
       <section className="py-20 bg-[hsl(var(--card))] border-t border-[hsl(var(--border))]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-heading md:text-heading font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
@@ -516,21 +504,21 @@ export default function HomePage() {
           </p>
 
           <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <div className="flex-1 flex items-center gap-3 px-5 py-4 bg-surface rounded-xl">
-              <Mail className="w-5 h-5 text-muted" />
+            <div className="flex-1 flex items-center gap-3 px-5 py-4 bg-[hsl(var(--secondary))] rounded">
+              <Mail className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
               <input 
                 type="email" 
                 placeholder="Your email address" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-transparent border-none outline-none w-full text-default placeholder-gray-500"
+                className="bg-transparent border-none outline-none w-full text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))]"
               />
             </div>
             <Button 
               type="submit"
               size="lg"
-              className="bg-brand-dark hover:bg-brand-dark/90 text-on-primary px-8 py-4 rounded-xl transition-colors"
+              className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white px-8 py-4 rounded transition-colors"
             >
               Subscribe
             </Button>

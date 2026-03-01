@@ -7,7 +7,7 @@ function resolveApiUrl(): string {
     if (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
       return '/api';
     }
-    return 'http://localhost:8000';
+    return 'http://localhost:8000/api';
   }
 
   const normalized = configured.replace(/\/$/, '');

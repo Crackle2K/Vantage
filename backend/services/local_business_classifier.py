@@ -279,7 +279,7 @@ def classify_local_business(place: dict) -> Tuple[bool, float]:
 
     website = place.get("websiteUri") or place.get("website") or ""
     if website:
-        domain_match = re.search(r"https?://(?:www\.)?([^/?
+        domain_match = re.search(r"https?://(?:www\.)?([^/?]+)", website)
         if domain_match:
             domain = domain_match.group(1).lower()
             if domain in _CHAIN_DOMAINS:

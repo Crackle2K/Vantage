@@ -8,6 +8,7 @@ client: AsyncIOMotorClient = None
 database = None
 
 class DatabaseUnavailableError(RuntimeError):
+    pass
 
 async def connect_to_mongo():
     global client, database

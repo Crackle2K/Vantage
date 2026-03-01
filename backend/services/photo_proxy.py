@@ -27,16 +27,16 @@ _META_TAG_RE = re.compile(
 )
 
 _CATEGORY_COLORS: dict[str, tuple[str, str]] = {
-    "restaurants": ("
-    "cafes": ("
-    "bars": ("
-    "shopping": ("
-    "beauty": ("
-    "fitness": ("
-    "health": ("
-    "hotels": ("
-    "grocery": ("
-    "default": ("
+    "restaurants": ("#FF6B6B", "#C92A2A"),
+    "cafes": ("#A67C52", "#6B4423"),
+    "bars": ("#845EC2", "#5A3E8F"),
+    "shopping": ("#FF9671", "#FF6F91"),
+    "beauty": ("#FFC75F", "#FF8066"),
+    "fitness": ("#4ECDC4", "#1A535C"),
+    "health": ("#00C9A7", "#008F7A"),
+    "hotels": ("#5E72E4", "#3F51B5"),
+    "grocery": ("#51CF66", "#2F9E44"),
+    "default": ("#4C6EF5", "#364FC7"),
 }
 
 _memory_cache: "OrderedDict[str, tuple[float, str, bytes]]" = OrderedDict()

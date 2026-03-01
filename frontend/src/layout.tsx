@@ -51,9 +51,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <p className="text-caption text-[hsl(var(--muted-foreground))]">
               &copy; {new Date().getFullYear()} Vantage. All rights reserved.
             </p>
-            <p className="text-caption text-[hsl(var(--muted-foreground))] flex items-center gap-1">
-              Made with <Heart className="w-3 h-3 text-error fill-red-500" /> for local communities
-            </p>
           </div>
         </div>
       </footer>
