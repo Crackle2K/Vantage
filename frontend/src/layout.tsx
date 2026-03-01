@@ -12,9 +12,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2.5 mb-3">
-                <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                  <span className="text-brand-on-primary font-bold text-ui">V</span>
-                </div>
+                <img 
+                  src="/Images/Vantage.png" 
+                  alt="Vantage Logo" 
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="font-bold text-body text-[hsl(var(--foreground))] font-heading">Vantage</span>
               </Link>
               <p className="text-ui text-[hsl(var(--muted-foreground))] leading-relaxed">

@@ -149,8 +149,8 @@ export default function HomePage() {
 
   const testimonials = [
     { quote: "Vantage has transformed how I discover local businesses. They helped me find my favorite local spots!", name: "Richard Liu", title: "High School Student" },
-    { quote: "As a business owner, Vantage gave us the visibility we needed. Our customer engagement has tripled!", name: "James Rodriguez", title: "Business Owner" },
-    { quote: "I love supporting local businesses through Vantage. It's so easy to find exactly what I'm looking for nearby.", name: "Emily Chen", title: "Community Advocate" },
+    { quote: "Vantage gave me new insights on local businesses and helped me connect with my community.", name: "Charlie Shao", title: "Student at MMHS" },
+    { quote: "I love supporting local businesses through Vantage. It's so easy to find exactly what I'm looking for nearby.", name: "Michael H.", title: "Aspiring Surgeon" },
   ]
 
   const tabFeatures = [
