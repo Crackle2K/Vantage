@@ -497,7 +497,15 @@ export default function HomePage() {
         </div>
       </section>
 
+<<<<<<< HEAD
       {}
+=======
+      
+
+      {/* ═══════════════════════════════════════════
+          NEWSLETTER SECTION - Email signup
+          ═══════════════════════════════════════════ */}
+>>>>>>> parent of 1b28b01 (button)
       <section className="py-20 bg-[hsl(var(--card))] border-t border-[hsl(var(--border))]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-heading md:text-heading font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
