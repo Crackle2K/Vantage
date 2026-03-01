@@ -61,7 +61,6 @@ function prioritizeImageCandidates(business: Business, proxyPhotoUrl?: string): 
 
 export function BusinessCard({
   business,
-  trustReasons,
   isFavorite,
   onToggleFavorite,
   onViewDetails,

@@ -23,6 +23,8 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    // Close mobile menu and user menu when route changes
+    // This is intentional - we want to reset UI state on navigation
     setMobileOpen(false);
     setUserMenuOpen(false);
   }, [location.pathname]);
