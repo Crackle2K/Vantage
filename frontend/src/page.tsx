@@ -313,7 +313,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
-                  className="gradient-primary !text-white hover:!text-white px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl"
+                  className="gradient-primary !text-white hover:!text-white px-10 py-7 text-body rounded-xl hover:opacity-90 transition-opacity shadow-2xl cursor-pointer"
                   onClick={() => navigate("/businesses")}
                 >
                   Explore Businesses
@@ -322,7 +322,7 @@ export default function HomePage() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="brand-primary backdrop-blur-sm border-2 border-outline-variant !text-white hover:!text-white px-10 py-7 text-body rounded-xl hover:bg-surface/20 transition-colors shadow-2xl"
+                  className="glass border-2 border-white/80 hover:border-white !text-white hover:!text-white px-10 py-7 text-body rounded-xl transition-all shadow-2xl cursor-pointer"
                   onClick={() => navigate("/pricing")}
                 >
                   For Business Owners
@@ -482,7 +482,7 @@ export default function HomePage() {
               </p>
               <Button
                 size="lg"
-                className="gradient-primary text-on-primary px-8 py-6 text-body rounded-xl hover:opacity-90 transition-opacity"
+                className="gradient-primary text-on-primary px-8 py-6 text-body rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
                 onClick={() => navigate("/businesses")}
               >
                 Learn more
@@ -556,14 +556,14 @@ export default function HomePage() {
                 <div className="flex gap-3">
                   <button
                     onClick={prevTestimonial}
-                    className="w-12 h-12 rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
+                    className="w-12 h-12 rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors cursor-pointer"
                     aria-label="Previous testimonial"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextTestimonial}
-                    className="w-12 h-12 rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
+                    className="w-12 h-12 rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors cursor-pointer"
                     aria-label="Next testimonial"
                   >
                     <ChevronRight className="w-6 h-6" />
@@ -580,7 +580,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           NEWSLETTER SECTION - Email signup
           ═══════════════════════════════════════════ */}
-      <section className="py-20 bg-[hsl(var(--card))] border-t border-[hsl(var(--border))]">
+      <section className="py-20 bg-secondary border-t border-[hsl(var(--border))]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-heading md:text-heading font-bold text-[hsl(var(--foreground))] mb-4 font-heading">
             Stay updated with local deals
@@ -604,7 +604,7 @@ export default function HomePage() {
             <Button 
               type="submit"
               size="lg"
-              className="bg-brand-dark hover:bg-brand-dark/90 text-on-primary px-8 py-4 rounded-xl transition-colors"
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl transition-colors cursor-pointer"
             >
               Subscribe
             </Button>
