@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
+import jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from pydantic import BaseModel, EmailStr, Field
@@ -78,7 +78,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if email is None or user_id is None:
             raise credentials_exception
         token_data = TokenData(email=email, user_id=user_id)
-    except JWTError:
+    except jwt.PyJWTError:
         raise credentials_exception
     try:
         users_collection = get_users_collection()
