@@ -8,6 +8,7 @@ updates:
     open-pull-requests-limit: 67
     reviewers:
       - "Crackle2K"
+      - "MisplacedOrange"
     labels:
       - "dependencies"
       - "frontend"
@@ -20,6 +21,7 @@ updates:
     open-pull-requests-limit: 67
     reviewers:
       - "Crackle2K"
+      - "MisplacedOrange"
     labels:
       - "dependencies"
       - "backend"
