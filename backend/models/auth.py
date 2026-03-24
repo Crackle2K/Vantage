@@ -131,7 +131,11 @@ def _request_recaptcha_assessment(token: str, expected_action: str) -> dict:
         return json.loads(body)
 
 async def verify_signup_recaptcha(token: str, requested_action: Optional[str]) -> None:
-    if not RECAPTCHA_ENTERPRISE_PROJECT_ID or not RECAPTCHA_ENTERPRISE_API_KEY:
+    if (
+        not RECAPTCHA_ENTERPRISE_PROJECT_ID
+        or not RECAPTCHA_ENTERPRISE_API_KEY
+        or not RECAPTCHA_ENTERPRISE_SITE_KEY
+    ):
         return  # reCAPTCHA not configured; skip server-side verification
 
     action = requested_action or RECAPTCHA_SIGNUP_ACTION
