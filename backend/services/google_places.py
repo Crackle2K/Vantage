@@ -258,8 +258,8 @@ async def _fetch_place_editorial_summary(client: httpx.AsyncClient, place_id: st
         if status != "OK":
             return ""
         return summary
-    except Exception as e:
-        print(f"Google Details summary lookup failed for {place_id}: {type(e).__name__}")
+    except Exception:
+        print("Google Details summary lookup failed.")
         return ""
 
 def _needs_photo_enrichment(doc: dict) -> bool:
