@@ -21,13 +21,6 @@ npm run dev
 
 Frontend default URL: `http://localhost:5173`
 
-## Known Limitations
-
-- The app still depends on Google Places data quality for some imported listings.
-- Some fallback/demo flows are tuned for Toronto and should be parameterized more cleanly.
-- There is duplicated frontend helper logic in a few page components (`getBusinessId`, image candidate shaping).
-- There is not yet a full automated test suite; current verification is mostly smoke checks plus type/syntax checks.
-
 ## Next Steps
 
 - Consolidate repeated frontend view helpers into shared utilities.
