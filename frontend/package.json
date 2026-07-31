@@ -39,7 +39,7 @@
     "globals": "^17.7.0",
     "postcss": "^8.5.19",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.64.0",
+    "typescript-eslint": "^8.65.0",
     "vite": "^8.1.5",
     "vite-plugin-compression": "^0.5.1"
   }
