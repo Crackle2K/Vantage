@@ -33,7 +33,7 @@
     "@vitejs/plugin-react": "^6.1.0",
     "agentation": "^3.0.2",
     "autoprefixer": "^10.5.4",
-    "eslint": "^10.9.0",
+    "eslint": "^10.9.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^17.11.0",
